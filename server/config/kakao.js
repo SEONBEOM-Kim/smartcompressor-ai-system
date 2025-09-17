@@ -7,10 +7,8 @@ const kakaoConfig = {
     adminKey: process.env.KAKAO_ADMIN_KEY || 'c2ccf68a6300bf4aff2f881936662ecb',
     clientSecret: process.env.KAKAO_CLIENT_SECRET || 'W6DhnArUAvNZDYMw9cH11r3IQIR3vAXk',
     
-    // 리다이렉트 URI (개발/프로덕션 환경 구분)
-    redirectUri: process.env.NODE_ENV === 'production' 
-        ? (process.env.KAKAO_REDIRECT_URI || 'https://signalcraft.kr/auth/kakao/callback')
-        : 'http://localhost:3000/auth/kakao/callback',
+    // 리다이렉트 URI (카카오 개발자 콘솔에 등록된 URI 사용)
+    redirectUri: process.env.KAKAO_REDIRECT_URI || 'https://signalcraft.kr/auth/kakao/callback',
     
     // 카카오 API 엔드포인트
     apiEndpoints: {

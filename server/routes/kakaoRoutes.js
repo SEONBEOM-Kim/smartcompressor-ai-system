@@ -79,9 +79,7 @@ router.get('/callback', async (req, res) => {
         
         if (loginResult.success) {
             // 성공 시 프론트엔드로 리다이렉트 (세션 정보 포함)
-            const frontendUrl = process.env.NODE_ENV === 'production' 
-                ? (process.env.FRONTEND_URL || 'https://signalcraft.kr')
-                : 'http://localhost:3000';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://signalcraft.kr';
             const redirectUrl = `${frontendUrl}?kakao_login=success&session_id=${loginResult.sessionId}`;
             res.redirect(redirectUrl);
         } else {
