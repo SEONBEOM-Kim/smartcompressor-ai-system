@@ -38,3 +38,9 @@ psutil>=5.9.0
 # 현장 진단 MVP 기능
 audio-recorder-streamlit>=0.0.8
 reportlab>=4.0.0
+
+# 환경 변수 관리
+python-dotenv>=1.0.0
+
+# HTTP 요청
+requests>=2.31.0
