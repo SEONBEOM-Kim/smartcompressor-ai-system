@@ -1,0 +1,48 @@
+name: Deploy to SIGNALCRAFT EC2
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/smartcompressor-ai-system
+          
+          # Git pull 최신 코드
+          echo "📥 최신 코드 가져오는 중..."
+          git pull origin main
+          
+          # Node.js 의존성 설치
+          echo "📦 의존성 설치 중..."
+          npm install
+          
+          # 기존 프로세스 종료
+          echo "🛑 기존 서비스 종료 중..."
+          pkill -f "node server.js" || true
+          pkill -f "node app.js" || true
+          
+          # 새 서비스 시작
+          echo "🚀 새 서비스 시작 중..."
+          nohup node server.js > server.log 2>&1 &
+          
+          # 서비스 상태 확인
+          sleep 5
+          echo "🔍 서비스 상태 확인 중..."
+          ps aux | grep "node server.js" | grep -v grep
+          
+          # API 테스트
+          curl -s http://localhost:3000/api/auth/verify || echo "API 테스트 실패"
+          
+          echo "🎉 SIGNALCRAFT EC2 배포 완료!"
+          echo "🌐 서버 URL: http://${{ secrets.EC2_HOST }}:3000"
