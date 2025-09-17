@@ -39,25 +39,26 @@ function updateLoginStatus() {
             'Authorization': `Bearer ${token}`
         }
     })
-    .then(response => response.json())
-    .then(data => {
+        .then(response => response.json())
+        .then(data => {
         if (data.success && data.user) {
-            showLoggedInUI(data.user);
-        } else {
+                showLoggedInUI(data.user);
+            } else {
+                showLoggedOutUI();
+            }
+        })
+        .catch(error => {
+            console.error('로그인 상태 확인 오류:', error);
             showLoggedOutUI();
-        }
-    })
-    .catch(error => {
-        console.error('로그인 상태 확인 오류:', error);
-        showLoggedOutUI();
-    });
+        });
 }
 
-// 로그인된 UI 표시 (수정된 버전)
+// 로그인된 UI 표시 (개선된 버전)
 function showLoggedInUI(user) {
     console.log('로그인된 UI 표시:', user);
     
     const userName = user.name || user.username || user.email || '사용자';
+    const userProfileImage = user.profile_image || user.thumbnail_image || null;
     
     // 기존 userInfo 제거
     const existingUserInfo = document.getElementById('userInfo');
@@ -68,7 +69,7 @@ function showLoggedInUI(user) {
     // 로그인 버튼들 숨기기
     const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
     const registerBtn = document.querySelector('button[onclick="showRegisterModal()"]');
-    const kakaoBtn = document.querySelector('a[href="/auth/kakao"]');
+    const kakaoBtn = document.querySelector('button[onclick="kakaoLogin()"]');
     
     if (loginBtn) loginBtn.style.display = 'none';
     if (registerBtn) registerBtn.style.display = 'none';
@@ -80,14 +81,46 @@ function showLoggedInUI(user) {
         demoSection.style.display = 'none';
     }
     
-    // 사용자 정보 추가
+    // 로그인 후 섹션들 표시
+    const loggedInSections = document.querySelectorAll('.logged-in-section');
+    loggedInSections.forEach(section => {
+        section.style.display = 'block';
+    });
+    
+    // 메인 CTA 버튼들 변경
+    const ctaRegisterBtn = document.getElementById('cta-register-btn');
+    const ctaDemoBtn = document.getElementById('cta-demo-btn');
+    const ctaDiagnosisBtn = document.getElementById('cta-diagnosis-btn');
+    const ctaDashboardBtn = document.getElementById('cta-dashboard-btn');
+    
+    if (ctaRegisterBtn) ctaRegisterBtn.style.display = 'none';
+    if (ctaDemoBtn) ctaDemoBtn.style.display = 'none';
+    if (ctaDiagnosisBtn) ctaDiagnosisBtn.style.display = 'inline-block';
+    if (ctaDashboardBtn) ctaDashboardBtn.style.display = 'inline-block';
+    
+    // 사용자 정보 추가 (드롭다운 메뉴로)
     const navbar = document.querySelector('.navbar-nav');
     if (navbar) {
         const userInfo = document.createElement('li');
-        userInfo.className = 'nav-item';
+        userInfo.className = 'nav-item dropdown';
+        userInfo.id = 'userInfo';
+        
+        const profileImageHtml = userProfileImage 
+            ? `<img src="${userProfileImage}" alt="프로필" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">`
+            : `<i class="fas fa-user-circle me-2" style="font-size: 24px;"></i>`;
+            
         userInfo.innerHTML = `
-            <span class="nav-link">안녕하세요, ${userName}님!</span>
-            <button class="btn btn-outline-light ms-2" onclick="logout()">로그아웃</button>
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ${profileImageHtml}
+                <span>${userName}님</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#dashboard"><i class="fas fa-tachometer-alt me-2"></i>대시보드</a></li>
+                <li><a class="dropdown-item" href="#diagnosis"><i class="fas fa-stethoscope me-2"></i>진단 기록</a></li>
+                <li><a class="dropdown-item" href="#monitoring"><i class="fas fa-chart-line me-2"></i>실시간 모니터링</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+            </ul>
         `;
         navbar.appendChild(userInfo);
     }
@@ -117,6 +150,23 @@ function showLoggedOutUI() {
     if (demoSection) {
         demoSection.style.display = 'block';
     }
+    
+    // 로그인 후 섹션들 숨기기
+    const loggedInSections = document.querySelectorAll('.logged-in-section');
+    loggedInSections.forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // 메인 CTA 버튼들 원래대로 복원
+    const ctaRegisterBtn = document.getElementById('cta-register-btn');
+    const ctaDemoBtn = document.getElementById('cta-demo-btn');
+    const ctaDiagnosisBtn = document.getElementById('cta-diagnosis-btn');
+    const ctaDashboardBtn = document.getElementById('cta-dashboard-btn');
+    
+    if (ctaRegisterBtn) ctaRegisterBtn.style.display = 'inline-block';
+    if (ctaDemoBtn) ctaDemoBtn.style.display = 'inline-block';
+    if (ctaDiagnosisBtn) ctaDiagnosisBtn.style.display = 'none';
+    if (ctaDashboardBtn) ctaDashboardBtn.style.display = 'none';
 }
 
 // 카카오 로그인
@@ -182,19 +232,19 @@ function logout() {
         },
         body: JSON.stringify({ sessionId: token })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
             localStorage.removeItem('authToken');
-            showLoggedOutUI();
-            console.log('로그아웃 성공');
-        }
-    })
-    .catch(error => {
-        console.error('로그아웃 오류:', error);
+                showLoggedOutUI();
+                console.log('로그아웃 성공');
+            }
+        })
+        .catch(error => {
+            console.error('로그아웃 오류:', error);
         localStorage.removeItem('authToken');
         showLoggedOutUI();
-    });
+        });
 }
 
 // 로그인 모달 표시
@@ -394,7 +444,75 @@ function setupEventListeners() {
 window.showLoginModal = showLoginModal;
 window.showRegisterModal = showRegisterModal;
 window.updateLoginStatus = updateLoginStatus;
+// 진단 시작하기 함수
+function startDiagnosis() {
+    console.log('진단 시작하기');
+    // 진단 섹션으로 스크롤하거나 진단 모달 표시
+    const diagnosisSection = document.getElementById('diagnosis');
+    if (diagnosisSection) {
+        diagnosisSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        alert('진단 기능을 준비 중입니다.');
+    }
+}
+
+// 대시보드로 이동 함수
+function goToDashboard() {
+    console.log('대시보드로 이동');
+    const dashboardSection = document.getElementById('dashboard');
+    if (dashboardSection) {
+        dashboardSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        alert('대시보드 기능을 준비 중입니다.');
+    }
+}
+
+// 모니터링 토글 함수
+function toggleMonitoring() {
+    console.log('모니터링 토글');
+    const btn = event.target;
+    if (btn.innerHTML.includes('시작')) {
+        btn.innerHTML = '<i class="fas fa-stop me-2"></i>모니터링 중지';
+        btn.className = 'btn btn-danger';
+        // 실제 모니터링 시작 로직
+        alert('모니터링이 시작되었습니다.');
+    } else {
+        btn.innerHTML = '<i class="fas fa-play me-2"></i>모니터링 시작';
+        btn.className = 'btn btn-info';
+        // 실제 모니터링 중지 로직
+        alert('모니터링이 중지되었습니다.');
+    }
+}
+
+// 모니터링 중지 함수
+function stopMonitoring() {
+    console.log('모니터링 중지');
+    alert('모니터링이 중지되었습니다.');
+}
+
+// 진단 기록 보기 함수
+function viewDiagnosisHistory() {
+    console.log('진단 기록 보기');
+    const diagnosisSection = document.getElementById('diagnosis');
+    if (diagnosisSection) {
+        diagnosisSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// 모니터링 설정 저장 함수
+function saveMonitoringSettings() {
+    console.log('모니터링 설정 저장');
+    alert('설정이 저장되었습니다.');
+}
+
+// 전역 함수로 등록
 window.showLoggedInUI = showLoggedInUI;
 window.showLoggedOutUI = showLoggedOutUI;
 window.logout = logout;
 window.checkLoginSuccess = checkLoginSuccess;
+window.startDiagnosis = startDiagnosis;
+window.goToDashboard = goToDashboard;
+window.toggleMonitoring = toggleMonitoring;
+window.stopMonitoring = stopMonitoring;
+window.viewDiagnosisHistory = viewDiagnosisHistory;
+window.saveMonitoringSettings = saveMonitoringSettings;

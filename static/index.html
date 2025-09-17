@@ -101,11 +101,20 @@
                         매장을 지켜드립니다. 더 이상 냉동고 고장으로 인한 손실을 걱정하지 마세요.
                     </p>
                     <div class="d-flex gap-3">
-                            <button class="btn btn-primary btn-lg" onclick="showRegisterModal()">
+                            <!-- 로그인 전 버튼들 -->
+                            <button id="cta-register-btn" class="btn btn-primary btn-lg" onclick="showRegisterModal()">
                             <i class="fas fa-rocket me-2"></i>무료 체험하기
                         </button>
-                        <button class="btn btn-outline-light btn-lg" onclick="scrollToSection('demo')">
+                        <button id="cta-demo-btn" class="btn btn-outline-light btn-lg" onclick="scrollToSection('demo')">
                             <i class="fas fa-play me-2"></i>데모 보기
+                        </button>
+                        
+                        <!-- 로그인 후 버튼들 (처음에는 숨김) -->
+                        <button id="cta-diagnosis-btn" class="btn btn-primary btn-lg" onclick="startDiagnosis()" style="display: none;">
+                            <i class="fas fa-stethoscope me-2"></i>진단 시작하기
+                        </button>
+                        <button id="cta-dashboard-btn" class="btn btn-outline-light btn-lg" onclick="goToDashboard()" style="display: none;">
+                            <i class="fas fa-tachometer-alt me-2"></i>대시보드
                         </button>
                     </div>
                 </div>
@@ -617,6 +626,244 @@ document.addEventListener('DOMContentLoaded', () => {
 .ai-diagnosis-section {
     border: 1px solid #dee2e6;
 }
+
+/* 로그인 후 섹션 스타일 */
+.logged-in-section {
+    display: none;
+}
+
+.dashboard-card {
+    transition: transform 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.status-normal {
+    background-color: #4caf50;
+}
+
+.status-warning {
+    background-color: #ff9800;
+}
+
+.status-critical {
+    background-color: #f44336;
+}
 </style>
+
+<!-- 로그인 후 개인 대시보드 섹션 -->
+<section id="dashboard" class="section-padding logged-in-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-4 text-center">
+                    <i class="fas fa-tachometer-alt me-3 text-primary"></i>내 압축기 대시보드
+                </h2>
+                <p class="lead text-muted text-center mb-5">
+                    실시간으로 압축기 상태를 모니터링하고 진단 결과를 확인하세요
+                </p>
+            </div>
+        </div>
+        
+        <!-- 대시보드 카드들 -->
+        <div class="row g-4">
+            <!-- 실시간 상태 카드 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-thermometer-half text-primary fa-3x mb-3"></i>
+                        <h5 class="card-title">현재 상태</h5>
+                        <div class="mb-3">
+                            <span class="status-indicator status-normal"></span>
+                            <span class="fw-bold text-success">정상 작동</span>
+                        </div>
+                        <p class="card-text text-muted">마지막 진단: 2시간 전</p>
+                        <button class="btn btn-outline-primary" onclick="startDiagnosis()">
+                            <i class="fas fa-stethoscope me-2"></i>즉시 진단
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 모니터링 상태 카드 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line text-info fa-3x mb-3"></i>
+                        <h5 class="card-title">실시간 모니터링</h5>
+                        <div class="mb-3">
+                            <span class="status-indicator status-warning"></span>
+                            <span class="fw-bold text-warning">대기 중</span>
+                        </div>
+                        <p class="card-text text-muted">24시간 모니터링 서비스</p>
+                        <button class="btn btn-info" onclick="toggleMonitoring()">
+                            <i class="fas fa-play me-2"></i>모니터링 시작
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 진단 기록 카드 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-history text-secondary fa-3x mb-3"></i>
+                        <h5 class="card-title">진단 기록</h5>
+                        <div class="mb-3">
+                            <span class="fw-bold text-primary">총 15회</span>
+                        </div>
+                        <p class="card-text text-muted">이번 주 3회 진단</p>
+                        <button class="btn btn-outline-secondary" onclick="viewDiagnosisHistory()">
+                            <i class="fas fa-list me-2"></i>기록 보기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 진단 기록 섹션 -->
+<section id="diagnosis" class="section-padding bg-light logged-in-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-4 text-center">
+                    <i class="fas fa-stethoscope me-3 text-primary"></i>진단 기록
+                </h2>
+                <p class="lead text-muted text-center mb-5">
+                    과거 진단 결과와 추세를 확인하세요
+                </p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>진단 시간</th>
+                                        <th>결과</th>
+                                        <th>신뢰도</th>
+                                        <th>처리 시간</th>
+                                        <th>상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="diagnosisHistoryTable">
+                                    <tr>
+                                        <td>2024-01-15 14:30</td>
+                                        <td><span class="badge bg-success">정상</span></td>
+                                        <td>95%</td>
+                                        <td>1.2초</td>
+                                        <td><span class="status-indicator status-normal"></span>정상</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-01-15 10:15</td>
+                                        <td><span class="badge bg-warning">주의</span></td>
+                                        <td>78%</td>
+                                        <td>1.5초</td>
+                                        <td><span class="status-indicator status-warning"></span>주의</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-01-14 16:45</td>
+                                        <td><span class="badge bg-success">정상</span></td>
+                                        <td>92%</td>
+                                        <td>1.1초</td>
+                                        <td><span class="status-indicator status-normal"></span>정상</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 실시간 모니터링 섹션 -->
+<section id="monitoring" class="section-padding logged-in-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-4 text-center">
+                    <i class="fas fa-chart-line me-3 text-primary"></i>실시간 모니터링
+                </h2>
+                <p class="lead text-muted text-center mb-5">
+                    24시간 압축기 상태를 실시간으로 모니터링합니다
+                </p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">실시간 상태 차트</h5>
+                        <div>
+                            <span class="badge bg-success me-2">연결됨</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="stopMonitoring()">
+                                <i class="fas fa-stop me-1"></i>중지
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="monitoringChart" style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                <p>실시간 차트가 여기에 표시됩니다</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">모니터링 설정</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">알림 임계값</label>
+                            <select class="form-select">
+                                <option value="0.7">높음 (70%)</option>
+                                <option value="0.5" selected>보통 (50%)</option>
+                                <option value="0.3">낮음 (30%)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">체크 간격</label>
+                            <select class="form-select">
+                                <option value="30">30초</option>
+                                <option value="60" selected>1분</option>
+                                <option value="300">5분</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="saveMonitoringSettings()">
+                            <i class="fas fa-save me-2"></i>설정 저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 </body>
 </html>
