@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalcraft: AI 냉동고 진단 서비스</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .section-padding {
+            padding: 80px 0;
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#home">
+                <i class="fas fa-shield-alt me-2"></i>Signalcraft
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">기능</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pricing">요금제</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">체험</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light ms-2" onclick="showLoginModal()">로그인</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-warning ms-2" onclick="kakaoLogin()">
+                            <i class="fab fa-kickstarter me-1"></i>카카오 로그인
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-light ms-2" onclick="showRegisterModal()">회원가입</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 히어로 섹션 -->
+    <section id="home" class="hero-section">
+            <div class="container">
+            <div class="row align-items-center">
+                    <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        사장님이 잠든 사이,<br>
+                        <span class="text-gradient">아이스크림이 녹기 전에</span>
+</h1>
+                    <p class="lead mb-4">
+                        AI 기술로 냉동고를 24시간 모니터링하고, 문제를 미리 감지하여 
+                        매장을 지켜드립니다. 더 이상 냉동고 고장으로 인한 손실을 걱정하지 마세요.
+                    </p>
+                    <div class="d-flex gap-3">
+                            <button class="btn btn-primary btn-lg" onclick="showRegisterModal()">
+                            <i class="fas fa-rocket me-2"></i>무료 체험하기
+                        </button>
+                        <button class="btn btn-outline-light btn-lg" onclick="scrollToSection('demo')">
+                            <i class="fas fa-play me-2"></i>데모 보기
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="position-relative">
+                        <i class="fas fa-thermometer-half" style="font-size: 200px; opacity: 0.8;"></i>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <i class="fas fa-brain text-warning" style="font-size: 60px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                            </div>
+    </section>
+
+    <!-- 기능 소개 섹션 -->
+    <section id="features" class="section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5">
+                    <h2 class="display-5 fw-bold mb-3">왜 Signalcraft인가?</h2>
+                    <p class="lead text-muted">
+                        최첨단 AI 기술과 음성 분석을 통해 냉동고의 이상을 정확하게 감지합니다.
+                    </p>
+                            </div>
+                            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-microphone-alt text-primary mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">음성 분석</h5>
+                            <p class="card-text">
+                                냉동고에서 나는 소리를 AI가 분석하여 이상을 감지합니다.
+                            </p>
+                        </div>
+                    </div>
+                                    </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                                    <div class="card-body">
+                            <i class="fas fa-clock text-success mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">24시간 모니터링</h5>
+                            <p class="card-text">
+                                언제든지 냉동고 상태를 실시간으로 확인할 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                                                    </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-bell text-warning mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">즉시 알림</h5>
+                            <p class="card-text">
+                                문제가 감지되면 즉시 알림을 보내드립니다.
+                            </p>
+                                                </div>
+                                            </div>
+                                                </div>
+                                            </div>
+                                        </div>
+    </section>
+
+    <!-- 요금제 섹션 -->
+    <section id="pricing" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">요금제</h2>
+                <p class="lead text-muted">매장 규모에 맞는 최적의 선택을 하세요</p>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <!-- 에센셜 플랜 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm pricing-card">
+                        <div class="card-body text-center p-4">
+                            <h5 class="card-title">에센셜</h5>
+                            <div class="price-display">
+                                <span class="price-amount">29,000</span>
+                                <span class="price-unit">원/월</span>
+                            </div>
+                            <ul class="list-unstyled mt-4">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>핵심 냉동고 3대</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>고장 징후 알림 (경보기)</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>이메일 & 챗봇 지원</li>
+                            </ul>
+                            <button class="btn btn-outline-primary w-100 mt-3" onclick="selectPlan('essential')">
+                                선택하기
+                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                <!-- 스탠다드 플랜 (가장 인기) -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm pricing-card border-primary position-relative">
+                        <div class="badge bg-primary position-absolute top-0 start-50 translate-middle px-3 py-2">
+                            가장 인기
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <h5 class="card-title">스탠다드</h5>
+                            <div class="price-display">
+                                <span class="price-amount">59,000</span>
+                                <span class="price-unit">원/월</span>
+                            </div>
+                            <ul class="list-unstyled mt-4">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>냉동고 10대까지</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>실시간 모니터링</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI 진단 리포트</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>전화 & 이메일 지원</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>우선 기술지원</li>
+                            </ul>
+                            <button class="btn btn-primary w-100 mt-3" onclick="selectPlan('standard')">
+                                선택하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프리미엄 플랜 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm pricing-card">
+                        <div class="card-body text-center p-4">
+                            <h5 class="card-title">프리미엄</h5>
+                            <div class="price-display">
+                                <span class="price-amount">99,000</span>
+                                <span class="price-unit">원/월</span>
+                            </div>
+                            <ul class="list-unstyled mt-4">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>무제한 냉동고</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>24/7 실시간 모니터링</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>고급 AI 분석</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>전담 매니저</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>긴급 출동 서비스</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>맞춤형 리포트</li>
+                            </ul>
+                            <button class="btn btn-outline-primary w-100 mt-3" onclick="selectPlan('premium')">
+                                선택하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</section>
+
+    <!-- AI 진단 체험 섹션 -->
+    <section id="demo" class="section-padding bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto text-center">
+                    <h2 class="display-5 fw-bold mb-3">AI 압축기 진단 체험</h2>
+                    <p class="lead text-muted mb-4">
+                        실제 냉동고 소리를 녹음하여 고성능 앙상블 AI가 진단해드립니다
+                    </p>
+                    
+                    <!-- AI 모델 정보 -->
+                    <div class="row mb-5">
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 border-0 bg-white shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-brain text-primary fa-2x mb-2"></i>
+                                    <h6 class="card-title">MIMII 모델</h6>
+                                    <small class="text-muted">40% 가중치<br>고성능 이상 감지</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 border-0 bg-white shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tree text-success fa-2x mb-2"></i>
+                                    <h6 class="card-title">RandomForest</h6>
+                                    <small class="text-muted">25% 가중치<br>특성 중요도 기반</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 border-0 bg-white shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chart-line text-warning fa-2x mb-2"></i>
+                                    <h6 class="card-title">SVM</h6>
+                                    <small class="text-muted">15% 가중치<br>고차원 특성 처리</small>
+                                </div>
+                            </div>
+                </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 border-0 bg-white shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-network-wired text-info fa-2x mb-2"></i>
+                                    <h6 class="card-title">MLP + LR</h6>
+                                    <small class="text-muted">20% 가중치<br>신경망 + 선형분류</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 실제 AI 진단 인터페이스 -->
+                    <div class="ai-diagnosis-section" style="margin: 30px 0; padding: 30px; background: #ffffff; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 class="mb-4">실시간 AI 진단</h3>
+                        <p class="text-muted mb-4">마이크로 압축기 소음을 녹음하여 과부하음을 실시간으로 판별합니다</p>
+                        
+                        <div class="diagnosis-controls text-center mb-4">
+                            <button id="recordBtn" class="btn btn-primary btn-lg me-3">🎤 녹음 시작</button>
+                            <button id="analyzeBtn" class="btn btn-success btn-lg me-3" disabled>🔍 진단하기</button>
+                            <button id="reportBtn" class="btn btn-info btn-lg" disabled style="display: none;">📊 상세 리포트 보기</button>
+                        </div>
+                        
+                        <div id="diagnosisStatus" class="alert alert-info text-center" style="display: none;"></div>
+                        <div id="diagnosisResult" class="result-card" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- 체험 버튼들 -->
+                        <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
+                            <a href="/static/audio_recorder_client.html" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-external-link-alt me-2"></i>전체 기능 체험하기
+                            </a>
+                            <button class="btn btn-primary btn-lg" onclick="showRegisterModal()">
+                                <i class="fas fa-user-plus me-2"></i>무료 회원가입
+                            </button>
+                            <button class="btn btn-warning btn-lg" onclick="kakaoLogin()">
+                                <i class="fab fa-kickstarter me-2"></i>카카오로 로그인
+                            </button>
+                        </div>
+                    
+                    <!-- 특징 설명 -->
+                    <div class="row mt-5">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-microphone-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">실시간 녹음</h6>
+                                    <small class="text-muted">브라우저에서 직접 녹음</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-cogs text-success fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">200+ 특성 추출</h6>
+                                    <small class="text-muted">고급 오디오 분석</small>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-chart-bar text-warning fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">앙상블 AI</h6>
+                                    <small class="text-muted">5개 모델 통합 분석</small>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <!-- 푸터 -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Signalcraft</h5>
+                    <p class="text-muted">
+                        AI 기술로 냉동고 진단 서비스를 통해 매장을 지켜드립니다
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">
+                        문의: <strong>010-8533-6898</strong> | <strong>sndercer@gmail.com</strong><br>
+                        © 2024 Signalcraft. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 스크립트 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/app.js"></script>
+    <script>
+        // 부드러운 스크롤
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // 요금제 선택 함수
+        function selectPlan(planType) {
+            console.log('선택된 플랜:', planType);
+            // 회원가입 모달 표시
+            showRegisterModal();
+        }
+
+        // 네비게이션 링크 클릭 시 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- AI 진단 기능 JavaScript -->
+<script>
+        // AI 진단 기능 클래스
+class IntegratedAIDiagnosis {
+    constructor() {
+        this.isRecording = false;
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.audioBlob = null;
+        this.diagnosisResult = null;
+        this.init();
+    }
+
+    init() {
+        this.recordBtn = document.getElementById('recordBtn');
+        this.analyzeBtn = document.getElementById('analyzeBtn');
+        this.reportBtn = document.getElementById('reportBtn');
+        this.status = document.getElementById('diagnosisStatus');
+        this.result = document.getElementById('diagnosisResult');
+
+                if (this.recordBtn) {
+        this.recordBtn.addEventListener('click', () => this.toggleRecording());
+                }
+                if (this.analyzeBtn) {
+        this.analyzeBtn.addEventListener('click', () => this.analyzeAudio());
+                }
+                if (this.reportBtn) {
+        this.reportBtn.addEventListener('click', () => this.showDetailedReport());
+                }
+
+        this.checkBrowserSupport();
+    }
+
+    checkBrowserSupport() {
+        const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
+        
+        if (!hasGetUserMedia || !hasMediaRecorder) {
+            this.showStatus('❌ 이 브라우저는 녹음 기능을 지원하지 않습니다. 최신 Chrome, Firefox, Safari를 사용해주세요.', 'danger');
+                    if (this.recordBtn) this.recordBtn.disabled = true;
+            return false;
+        }
+
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            this.showStatus('⚠️ 녹음 기능을 사용하려면 HTTPS 연결이 필요합니다. 현재는 제한된 기능만 사용 가능합니다.', 'warning');
+        }
+
+        return true;
+    }
+
+    async toggleRecording() {
+        if (!this.isRecording) {
+            await this.startRecording();
+        } else {
+            this.stopRecording();
+        }
+    }
+
+    async startRecording() {
+        try {
+            const constraints = {
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 16000
+                }
+            };
+
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'audio/webm;codecs=opus'
+            });
+
+                    this.audioChunks = [];
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.audioChunks.push(event.data);
+                }
+            };
+
+            this.mediaRecorder.onstop = () => {
+                this.audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                this.analyzeBtn.disabled = false;
+                this.showStatus('✅ 녹음 완료! 진단하기 버튼을 클릭하세요.', 'success');
+            };
+
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            this.recordBtn.textContent = '⏹️ 녹음 중지';
+                    this.recordBtn.className = 'btn btn-danger btn-lg me-3';
+                    this.analyzeBtn.disabled = true;
+            this.hideResult();
+
+                    this.showStatus('🎤 녹음 중... (5-10초간 녹음하세요)', 'info');
+
+        } catch (error) {
+            console.error('녹음 오류:', error);
+                this.showStatus('❌ 녹음 중 오류가 발생했습니다: ' + error.message, 'danger');
+        }
+    }
+
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.isRecording = false;
+            this.recordBtn.textContent = '🎤 녹음 시작';
+                    this.recordBtn.className = 'btn btn-primary btn-lg me-3';
+        }
+    }
+
+    async analyzeAudio() {
+        if (!this.audioBlob) {
+                    this.showStatus('❌ 먼저 녹음을 완료해주세요.', 'danger');
+            return;
+        }
+
+                this.showStatus('🔍 AI가 오디오를 분석 중입니다...', 'info');
+        this.analyzeBtn.disabled = true;
+
+        try {
+            const formData = new FormData();
+                    formData.append('audio', this.audioBlob);
+            formData.append('timestamp', new Date().toISOString());
+
+                    const response = await fetch('/api/lightweight-analyze', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+            const data = await response.json();
+                this.diagnosisResult = data;
+                this.showResult(data);
+                this.reportBtn.style.display = 'inline-block';
+
+        } catch (error) {
+            console.error('분석 오류:', error);
+                    this.showStatus('❌ 분석 중 오류가 발생했습니다.', 'danger');
+                } finally {
+        this.analyzeBtn.disabled = false;
+                }
+    }
+
+    showResult(data) {
+                const resultClass = data.is_overload ? 'overload' : 'normal';
+        this.result.innerHTML = `
+                    <div class="result-card ${resultClass}">
+                        <h3>${data.is_overload ? '⚠️ 과부하음 감지' : '✅ 정상 작동'}</h3>
+                        <p>신뢰도: ${Math.round(data.confidence * 100)}%</p>
+                        <p>처리 시간: ${data.processing_time_ms.toFixed(1)}ms</p>
+                        <p>${data.message}</p>
+            </div>
+        `;
+                this.result.style.display = 'block';
+    }
+
+    showDetailedReport() {
+        if (this.diagnosisResult) {
+            sessionStorage.setItem('diagnosisResult', JSON.stringify(this.diagnosisResult));
+            window.location.href = '/diagnosis-report';
+        }
+    }
+
+    showStatus(message, type) {
+                if (this.status) {
+        this.status.textContent = message;
+        this.status.className = `alert alert-${type} text-center`;
+        this.status.style.display = 'block';
+                }
+    }
+
+    hideResult() {
+                if (this.result) {
+        this.result.style.display = 'none';
+                }
+                if (this.reportBtn) {
+        this.reportBtn.style.display = 'none';
+                }
+    }
+}
+
+        // 페이지 로드 시 AI 진단 기능 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    new IntegratedAIDiagnosis();
+});
+</script>
+
+<style>
+.result-card.overload {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+}
+
+.result-card.normal {
+    background-color: #e8f5e8;
+    border-left: 4px solid #4caf50;
+}
+
+.ai-diagnosis-section {
+    border: 1px solid #dee2e6;
+}
+</style>
+</body>
+</html>
