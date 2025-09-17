@@ -6,7 +6,16 @@ const router = express.Router();
 // 카카오 로그인 URL 생성
 router.get('/login', (req, res) => {
     try {
+        // 캐시 무효화 헤더 추가
+        res.set({
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+        
         const loginUrl = kakaoService.getLoginUrl();
+        console.log('생성된 카카오 로그인 URL:', loginUrl);
+        
         res.json({
             success: true,
             login_url: loginUrl
@@ -79,8 +88,9 @@ router.get('/callback', async (req, res) => {
         
         if (loginResult.success) {
             // 성공 시 프론트엔드로 리다이렉트 (세션 정보 포함)
-            const frontendUrl = process.env.FRONTEND_URL || 'https://signalcraft.kr';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://signalcraft.kr:3000';
             const redirectUrl = `${frontendUrl}?kakao_login=success&session_id=${loginResult.sessionId}`;
+            console.log('카카오 로그인 성공, 리다이렉트:', redirectUrl);
             res.redirect(redirectUrl);
         } else {
             res.status(401).json(loginResult);
