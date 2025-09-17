@@ -1,0 +1,32 @@
+{
+  "name": "smartcompressor-ai-system",
+  "version": "1.0.0",
+  "main": "backend-server.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SEONBEOM-Kim/smartcompressor-ai-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SEONBEOM-Kim/smartcompressor-ai-system/issues"
+  },
+  "homepage": "https://github.com/SEONBEOM-Kim/smartcompressor-ai-system#readme",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "selfsigned": "^3.0.1",
+    "socket.io": "^4.8.1"
+  }
+}

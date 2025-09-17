@@ -24,6 +24,10 @@ def create_app():
     """Flask 애플리케이션 팩토리"""
     app = Flask(__name__)
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "signalcraft_secret_key_2024_very_secure_12345")
+    
+    # 업로드 폴더 설정
+    app.config['UPLOAD_FOLDER'] = 'uploads'
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # 데이터베이스 초기화
     init_db()
@@ -55,6 +59,32 @@ def create_app():
     app.register_blueprint(monitoring_bp)
     # AI 라우트 등록 (기존 코드를 ai_routes.py로 통일)
     app.register_blueprint(ai_bp)
+    
+    # API 라우트 추가 (프론트엔드 호환성)
+    @app.route('/api/auth/login', methods=['POST'])
+    def api_login():
+        from routes.auth_routes import login
+        return login()
+    
+    @app.route('/api/auth/register', methods=['POST'])
+    def api_register():
+        from routes.auth_routes import register
+        return register()
+    
+    @app.route('/api/auth/logout', methods=['POST'])
+    def api_logout():
+        from routes.auth_routes import logout
+        return logout()
+    
+    @app.route('/api/auth/verify', methods=['GET'])
+    def api_verify():
+        from routes.auth_routes import auth_status
+        return auth_status()
+    
+    @app.route('/api/lightweight-analyze', methods=['POST'])
+    def api_lightweight_analyze():
+        from routes.ai_routes import lightweight_analyze
+        return lightweight_analyze()
 
     return app
 
