@@ -88,7 +88,7 @@ router.get('/callback', async (req, res) => {
         
         if (loginResult.success) {
             // 성공 시 프론트엔드로 리다이렉트 (세션 정보 포함)
-            const frontendUrl = process.env.FRONTEND_URL || 'https://signalcraft.kr:3000';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://signalcraft.kr';
             const redirectUrl = `${frontendUrl}?kakao_login=success&session_id=${loginResult.sessionId}`;
             console.log('카카오 로그인 성공, 리다이렉트:', redirectUrl);
             res.redirect(redirectUrl);
