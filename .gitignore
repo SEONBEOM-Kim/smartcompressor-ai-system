@@ -40,3 +40,15 @@ nohup.out
 # OS
 .DS_Store
 Thumbs.db
+
+# 보안 파일들 (절대 Git에 커밋하지 마세요!)
+.env
+.env.local
+.env.production
+.env.staging
+*.token
+*.key
+*.pem
+github_token.txt
+credentials.txt
+secrets.txt
