@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}고객 대시보드 - 시그널크래프트{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-tachometer-alt"></i> 고객 대시보드</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-microchip"></i> 디바이스 상태</h5>
+            </div>
+            <div class="card-body">
+                <p>총 디바이스: 3개</p>
+                <p>정상 작동: 2개</p>
+                <p>이상 감지: 1개</p>
+                <button class="btn btn-primary">디바이스 관리</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> 최근 진단</h5>
+            </div>
+            <div class="card-body">
+                <p>오늘 진단: 12회</p>
+                <p>이상 감지: 1회</p>
+                <p>마지막 진단: 10분 전</p>
+                <button class="btn btn-primary">리포트 보기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

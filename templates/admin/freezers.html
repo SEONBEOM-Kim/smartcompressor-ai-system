@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>냉동고 관리 - Signalcraft</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/admin/css/admin.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 사이드바 -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/">
+                                <i class="fas fa-tachometer-alt me-2"></i>대시보드
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/freezers">
+                                <i class="fas fa-snowflake me-2"></i>냉동고 관리
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/customers">
+                                <i class="fas fa-users me-2"></i>고객 관리
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/ml-management">
+                                <i class="fas fa-brain me-2"></i>ML 모델 관리
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/analytics">
+                                <i class="fas fa-chart-bar me-2"></i>통계 분석
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 메인 콘텐츠 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">🧊 냉동고 관리</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>새 냉동고 추가
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 냉동고 목록 -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">냉동고 목록</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>냉동고 ID</th>
+                                                <th>위치</th>
+                                                <th>온도</th>
+                                                <th>상태</th>
+                                                <th>마지막 점검</th>
+                                                <th>작업</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>F001</td>
+                                                <td>1층 창고</td>
+                                                <td>-18°C</td>
+                                                <td><span class="badge bg-success">정상</span></td>
+                                                <td>2025-09-10 14:30</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">수정</button>
+                                                    <button class="btn btn-sm btn-outline-danger">삭제</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>F002</td>
+                                                <td>2층 창고</td>
+                                                <td>-20°C</td>
+                                                <td><span class="badge bg-success">정상</span></td>
+                                                <td>2025-09-10 15:45</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">수정</button>
+                                                    <button class="btn btn-sm btn-outline-danger">삭제</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/admin/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}AI 모델 관리{% endblock %}
+{% block page_title %}AI 모델 관리{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h4><i class="fas fa-list me-2"></i>AI 모델 관리</h4>
+        <p class="text-muted">훈련된 모델들을 관리하고 모니터링합니다.</p>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5>모델 목록</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>모델명</th>
+                                <th>타입</th>
+                                <th>상태</th>
+                                <th>정확도</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MIMII</td>
+                                <td>CNN</td>
+                                <td><span class="badge bg-success">활성</span></td>
+                                <td>95.3%</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">보기</button>
+                                    <button class="btn btn-sm btn-warning">수정</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Random Forest</td>
+                                <td>RandomForest</td>
+                                <td><span class="badge bg-success">활성</span></td>
+                                <td>94.7%</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">보기</button>
+                                    <button class="btn btn-sm btn-warning">수정</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+/* 강력한 자동완성 방지 */
+.modal input[type="email"],
+.modal input[type="password"],
+.modal input[type="text"] {
+    /* 자동완성 완전 차단 */
+    -webkit-autofill: none !important;
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    -webkit-text-fill-color: #000 !important;
+    
+    /* 확장 프로그램 간섭 방지 */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    
+    /* 배경 강제 설정 */
+    background-color: white !important;
+    background-image: none !important;
+    
+    /* 포커스 스타일 강화 */
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px;
+    
+    /* 자동완성 드롭다운 숨김 */
+    position: relative;
+    z-index: 1000;
+}
+
+/* 모달 입력 필드 포커스 시 */
+.modal input:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    background-color: white !important;
+}
+
+/* 확장 프로그램 오버레이 완전 차단 */
+.modal .form-control {
+    position: relative;
+    z-index: 1000;
+    background-color: white !important;
+}
+
+/* 모달 백그라운드 보호 */
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal {
+    z-index: 1050;
+}
+
+/* 자동완성 드롭다운 숨김 */
+.modal .form-control::-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    -webkit-text-fill-color: #000 !important;
+}

@@ -1,0 +1,25 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}AI 데이터 업로드{% endblock %}
+{% block page_title %}AI 데이터 업로드{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h4><i class="fas fa-upload me-2"></i>오디오 파일 업로드</h4>
+        <p class="text-muted">냉장고 진단을 위한 오디오 파일을 업로드합니다.</p>
+        
+        <div class="card">
+            <div class="card-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="audioFiles" class="form-label">오디오 파일 선택</label>
+                        <input type="file" class="form-control" id="audioFiles" multiple accept=".wav,.mp3,.flac,.m4a">
+                    </div>
+                    <button type="submit" class="btn btn-primary">업로드</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

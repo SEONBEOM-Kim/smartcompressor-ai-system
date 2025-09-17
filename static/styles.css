@@ -1,0 +1,343 @@
+/* Signalcraft 웹 애플리케이션 스타일 - 긴급 수정 */
+
+/* 기본 설정 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+}
+
+/* 네비게이션바 */
+.navbar {
+    background-color: #007bff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white !important;
+    text-decoration: none;
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin: 0 0.5rem;
+}
+
+.nav-link {
+    color: white !important;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    display: block;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #f8f9fa !important;
+    text-decoration: none;
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-outline-light {
+    color: white;
+    border-color: white;
+    background-color: transparent;
+}
+
+.btn-outline-light:hover {
+    background-color: white;
+    color: #007bff;
+}
+
+.btn-light {
+    background-color: white;
+    color: #007bff;
+    border-color: white;
+}
+
+.btn-light:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #212529;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+/* Hero 섹션 */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 100px 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.hero-section .lead {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+/* 텍스트 색상 강제 설정 */
+.text-primary {
+    color: #007bff !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.text-white {
+    color: white !important;
+}
+
+/* 카드 스타일 */
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    background-color: white;
+}
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+    border-bottom: none;
+    font-weight: 500;
+    padding: 1rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* 사용자 정보 스타일 */
+#userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#userInfo .nav-link {
+    margin: 0;
+    padding: 0.5rem 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-section .lead {
+        font-size: 1.1rem;
+    }
+    
+    .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .nav-item {
+        margin: 0.25rem 0;
+    }
+}
+
+/* 폰트 가중치 */
+.fw-bold {
+    font-weight: 700 !important;
+}
+
+/* 텍스트 그림자 */
+.text-shadow {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* 아이콘 */
+.fas, .bi {
+    font-size: 1.1em;
+}
+
+/* 컨테이너 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* 행과 열 */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col-lg-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0 15px;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding: 0 15px;
+}
+
+.col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding: 0 15px;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0 15px;
+}
+
+/* 유틸리티 클래스 */
+.d-flex {
+    display: flex !important;
+}
+
+.gap-3 {
+    gap: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.ms-2 {
+    margin-left: 0.5rem !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.min-vh-100 {
+    min-height: 100vh !important;
+}
+
+/* 섹션 스타일 */
+section {
+    padding: 3rem 0;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.py-5 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+}
+
+/* 푸터 */
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 2rem 0;
+}
+
+/* 강제 텍스트 표시 */
+* {
+    color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: inherit;
+    font-weight: bold;
+}
+
+p, span, div {
+    color: inherit;
+}
+
+/* 링크 스타일 */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: inherit;
+    text-decoration: none;
+}

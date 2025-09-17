@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}자주 묻는 질문 - Signalcraft{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-5"><i class="fas fa-question-circle me-2"></i>자주 묻는 질문</h2>
+            
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq1">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                            Signalcraft는 어떤 서비스인가요?
+                        </button>
+                    </h2>
+                    <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Signalcraft는 24시간 무인 냉동고 모니터링 서비스입니다. AI 기술을 활용해 냉동고의 소음을 실시간으로 분석하여 이상 상황을 조기에 감지하고 알림을 제공합니다.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq2">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                            AI 진단의 정확도는 얼마나 되나요?
+                        </button>
+                    </h2>
+                    <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            MIMII 데이터셋으로 학습된 앙상블 AI 모델을 사용하여 96.1%의 높은 정확도를 자랑합니다. 5개의 서로 다른 AI 모델을 조합하여 더욱 정확한 진단을 제공합니다.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq3">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                            설치나 별도 장비가 필요한가요?
+                        </button>
+                    </h2>
+                    <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            현재는 웹 기반 데모 서비스로 제공되며, 스마트폰이나 컴퓨터의 마이크를 사용합니다. 향후 실제 센서 장비를 통한 24시간 모니터링 서비스를 제공할 예정입니다.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq4">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                            비용은 얼마인가요?
+                        </button>
+                    </h2>
+                    <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            기본 플랜은 월 29,000원, 프리미엄 플랜은 월 59,000원입니다. 현재는 무료 데모 서비스를 제공하고 있으며, 정식 서비스는 법인 설립 후 시작될 예정입니다.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq5">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
+                            어떤 브라우저를 사용해야 하나요?
+                        </button>
+                    </h2>
+                    <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Chrome, Firefox, Safari, Edge 등 최신 브라우저를 권장합니다. 마이크 접근 권한이 필요하므로 HTTPS 환경에서 사용해주세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

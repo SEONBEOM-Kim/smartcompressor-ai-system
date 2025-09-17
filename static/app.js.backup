@@ -1,0 +1,191 @@
+// Signalcraft 웹 애플리케이션 JavaScript
+
+// API 기본 URL
+const API_BASE_URL = 'http://3.39.124.0:8000';
+
+// 전역 변수
+let currentUser = null;
+let authToken = null;
+
+// DOM 로드 완료 시 실행
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Signalcraft 애플리케이션이 초기화되었습니다.');
+    setupEventListeners();
+    
+    // URL 파라미터 체크
+    checkLoginSuccess();
+    
+    // 로그인 상태 체크
+    updateLoginStatus();
+});
+
+// URL 파라미터 처리
+function checkLoginSuccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login') === 'success') {
+        console.log('로그인 성공 감지');
+        updateLoginStatus();
+        // URL에서 파라미터 제거
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+
+// 로그인 상태 관리
+function updateLoginStatus() {
+    fetch('/auth/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.authenticated && data.user) {
+                showLoggedInUI(data.user);
+            } else {
+                showLoggedOutUI();
+            }
+        })
+        .catch(error => {
+            console.error('로그인 상태 확인 오류:', error);
+            showLoggedOutUI();
+        });
+}
+
+// 로그인된 UI 표시 (네비게이션 바 보존)
+function showLoggedInUI(user) {
+    console.log('로그인된 UI 표시:', user);
+    
+    const userName = user.name || user.username || user.email || '사용자';
+    
+    // 기존 userInfo div 찾기 또는 생성
+    let userInfo = document.getElementById('userInfo');
+    if (!userInfo) {
+        const navbar = document.querySelector('.navbar-nav');
+        if (navbar) {
+            userInfo = document.createElement('li');
+            userInfo.id = 'userInfo';
+            userInfo.className = 'nav-item';
+            navbar.appendChild(userInfo);
+        }
+    }
+    
+    if (userInfo) {
+        userInfo.innerHTML = `
+            <span class="nav-link">안녕하세요, ${userName}님!</span>
+            <button class="btn btn-outline-light ms-2" onclick="logout()">로그아웃</button>
+        `;
+    }
+    
+    // 기존 로그인/회원가입 버튼 숨기기
+    const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
+    const registerBtn = document.querySelector('button[onclick="showRegisterModal()"]');
+    
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (registerBtn) registerBtn.style.display = 'none';
+}
+
+// 로그아웃된 UI 표시 (네비게이션 바 보존)
+function showLoggedOutUI() {
+    console.log('로그아웃된 UI 표시');
+    
+    // userInfo 제거
+    const userInfo = document.getElementById('userInfo');
+    if (userInfo) {
+        userInfo.remove();
+    }
+    
+    // 로그인/회원가입 버튼 다시 표시
+    const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
+    const registerBtn = document.querySelector('button[onclick="showRegisterModal()"]');
+    
+    if (loginBtn) loginBtn.style.display = 'inline-block';
+    if (registerBtn) registerBtn.style.display = 'inline-block';
+}
+
+// 로그아웃 처리
+function logout() {
+    fetch('/auth/logout', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showLoggedOutUI();
+                console.log('로그아웃 성공');
+            }
+        })
+        .catch(error => {
+            console.error('로그아웃 오류:', error);
+        });
+}
+
+// 로그인 모달 표시
+function showLoginModal() {
+    console.log('로그인 모달을 표시합니다.');
+    // 기존 모달 로직 유지...
+}
+
+// 회원가입 모달 표시
+function showRegisterModal() {
+    console.log('회원가입 모달을 표시합니다.');
+    // 기존 모달 로직 유지...
+}
+
+// 로그인 처리
+function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+        alert('이메일과 비밀번호를 입력해주세요.');
+        return;
+    }
+
+    // 간단한 로그인 시뮬레이션
+    if (email === 'demo@signalcraft.kr' && password === 'demo123') {
+        console.log('로그인 성공!');
+        alert('로그인 성공! 데모 사용자로 로그인되었습니다.');
+        
+        // 모달 닫기
+        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+        // UI 업데이트
+        updateLoginStatus();
+    } else {
+        alert('이메일 또는 비밀번호가 올바르지 않습니다.');
+    }
+}
+
+// 회원가입 처리
+function handleRegister() {
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+
+    if (!name || !email || !password) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+    }
+
+    console.log('회원가입 성공!');
+    alert('회원가입 성공! ' + name + '님, 환영합니다!');
+
+    // 모달 닫기
+    const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    console.log('이벤트 리스너를 설정합니다.');
+}
+
+// 전역 함수로 등록
+window.showLoginModal = showLoginModal;
+window.showRegisterModal = showRegisterModal;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.updateLoginStatus = updateLoginStatus;
+window.showLoggedInUI = showLoggedInUI;
+window.showLoggedOutUI = showLoggedOutUI;
+window.logout = logout;
+window.checkLoginSuccess = checkLoginSuccess;

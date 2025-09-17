@@ -1,0 +1,52 @@
+# 압축기 진단 시스템 - 분리된 아키텍처용 requirements.txt
+
+# 웹 프레임워크
+streamlit>=1.28.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# 데이터 처리
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# 머신러닝
+scikit-learn>=1.3.0
+
+# 오디오 처리
+librosa>=0.10.0
+
+# 시각화
+plotly>=5.17.0
+
+# API 및 인증
+python-multipart>=0.0.6
+pyjwt>=2.8.0
+requests>=2.31.0
+
+# 데이터베이스 및 설정
+python-dotenv>=1.0.0
+supabase>=2.0.0
+
+# 시스템 및 프로세스 관리
+psutil>=5.9.0
+
+# 기타 유틸리티
+python-multipart>=0.0.6
+
+# 현장 진단 MVP 기능
+audio-recorder-streamlit>=0.0.8
+reportlab>=4.0.0
+matplotlib>=3.7.0 
+
+# 현장 진단 MVP 기능
+audio-recorder-streamlit>=0.0.8
+reportlab>=4.0.0
+matplotlib>=3.7.0 
+# AI 모델 관련 패키지
+tensorflow>=2.10.0
+numpy>=1.21.0
+matplotlib>=3.5.0
+scikit-learn>=1.1.0
+librosa>=0.9.0
+scipy>=1.9.0

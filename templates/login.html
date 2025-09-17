@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4><i class="fas fa-sign-in-alt"></i> 로그인</h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">사용자명</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">비밀번호</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">로그인</button>
+                    </div>
+                </form>
+                
+                <hr>
+                <div class="text-center">
+                    <h6>테스트 계정</h6>
+                    <p><strong>관리자:</strong> admin / admin123!</p>
+                    <p><strong>고객:</strong> customer / customer123!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
