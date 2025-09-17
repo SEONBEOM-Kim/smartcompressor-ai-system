@@ -1,0 +1,39 @@
+name: Auto Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # 프로젝트 디렉토리로 이동
+          cd /var/www/smartcompressor
+          
+          # Git pull로 최신 코드 가져오기
+          git pull https://${{ secrets.DEPLOY_TOKEN }}@github.com/SEONBEOM-Kim/smartcompressor-ai-system.git main
+          
+          # Node.js 의존성 업데이트
+          npm install
+          
+          # PM2로 서버 재시작
+          pm2 restart signalcraft-nodejs || pm2 start server.js --name signalcraft-nodejs
+          
+          # 서버 상태 확인
+          pm2 status
+          
+          echo "배포 완료: $(date)"
