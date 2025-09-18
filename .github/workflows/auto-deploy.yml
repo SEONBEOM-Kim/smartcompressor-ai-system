@@ -30,10 +30,32 @@ jobs:
           # Node.js 의존성 업데이트
           npm install
           
-          # PM2로 서버 재시작
-          pm2 restart signalcraft-nodejs || pm2 start server.js --name signalcraft-nodejs
+          # PM2 설치 확인
+          if ! command -v pm2 &> /dev/null; then
+            echo "📦 PM2 설치 중..."
+            npm install -g pm2
+          fi
+          
+          # 기존 서비스 종료
+          pm2 delete all || true
+          pkill -f "node server.js" || true
+          pkill -f "python.*app.py" || true
+          
+          # 로그 디렉토리 생성
+          mkdir -p logs
+          
+          # PM2로 서버 시작
+          pm2 start ecosystem.config.js --env production
+          
+          # PM2 자동 시작 설정
+          pm2 startup
+          pm2 save
           
           # 서버 상태 확인
           pm2 status
           
-          echo "배포 완료: $(date)"
+          # 서버 응답 테스트
+          sleep 5
+          curl -s http://localhost:3000/api/auth/verify || echo "❌ API 응답 없음"
+          
+          echo "✅ PM2 배포 완료: $(date)"

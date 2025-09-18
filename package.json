@@ -15,7 +15,9 @@
     "pm2:test": "powershell -ExecutionPolicy Bypass -File scripts/pm2-test.ps1",
     "pm2:status": "pm2 status",
     "pm2:logs": "pm2 logs",
-    "pm2:monit": "pm2 monit"
+    "pm2:monit": "pm2 monit",
+    "deploy:ec2": "powershell -ExecutionPolicy Bypass -File scripts/deploy-ec2-pm2.ps1",
+    "deploy:ec2:test": "curl http://3.39.124.0:3000/api/auth/verify"
   },
   "repository": {
     "type": "git",
