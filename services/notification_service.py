@@ -141,6 +141,18 @@ class NotificationService:
             priority=4
         )
         self.channels.append(push_channel)
+        
+        # 카카오톡 알림 채널
+        kakao_channel = NotificationChannel(
+            channel_type='kakao',
+            config={
+                'access_token': os.getenv('KAKAO_ACCESS_TOKEN', ''),
+                'phone_numbers': os.getenv('KAKAO_PHONE_NUMBERS', '').split(',')
+            },
+            enabled=True,
+            priority=5  # 가장 높은 우선순위
+        )
+        self.channels.append(kakao_channel)
     
     def add_channel(self, channel: NotificationChannel):
         """알림 채널 추가"""
@@ -233,6 +245,8 @@ class NotificationService:
             return self._send_webhook(alert, channel)
         elif channel.channel_type == 'push':
             return self._send_push(alert, channel)
+        elif channel.channel_type == 'kakao':
+            return self._send_kakao(alert, channel)
         else:
             logger.warning(f"지원하지 않는 채널 타입: {channel.channel_type}")
             return False
@@ -356,6 +370,39 @@ class NotificationService:
                 
         except Exception as e:
             logger.error(f"푸시 전송 실패: {e}")
+            return False
+    
+    def _send_kakao(self, alert: Alert, channel: NotificationChannel) -> bool:
+        """카카오톡 알림 전송"""
+        try:
+            from services.kakao_notification_service import kakao_notification_service
+            
+            config = channel.config
+            phone_numbers = config.get('phone_numbers', [])
+            
+            if not phone_numbers:
+                logger.warning("카카오톡 전화번호가 설정되지 않았습니다.")
+                return False
+            
+            # 카카오톡 알림 전송
+            results = kakao_notification_service.send_bulk_notification(
+                phone_numbers=phone_numbers,
+                alert_type=alert.alert_type,
+                device_id=alert.device_id,
+                severity=alert.severity,
+                message=alert.message,
+                data=alert.data
+            )
+            
+            if results['success']:
+                logger.info(f"카카오톡 알림 전송 성공: {alert.alert_id}")
+                return True
+            else:
+                logger.error(f"카카오톡 알림 전송 실패: {alert.alert_id}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"카카오톡 전송 실패: {e}")
             return False
     
     def _save_alert_to_db(self, alert: Alert):
