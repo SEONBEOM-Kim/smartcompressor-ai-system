@@ -124,6 +124,113 @@ function showLoggedInUI(user) {
         `;
         navbar.appendChild(userInfo);
     }
+    
+    // 로그인 후 환영 메시지 표시
+    showWelcomeMessage(userName);
+}
+
+// 환영 메시지 표시
+function showWelcomeMessage(userName) {
+    // 기존 환영 메시지 제거
+    const existingWelcome = document.getElementById('welcomeMessage');
+    if (existingWelcome) {
+        existingWelcome.remove();
+    }
+    
+    // 히어로 섹션에 환영 메시지 추가
+    const heroSection = document.getElementById('home');
+    if (heroSection) {
+        const welcomeHTML = `
+            <div id="welcomeMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <div>
+                        <strong>환영합니다, ${userName}님!</strong> 
+                        Signalcraft AI 진단 서비스를 이용하실 수 있습니다.
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        const container = heroSection.querySelector('.container .row');
+        if (container) {
+            container.insertAdjacentHTML('afterbegin', welcomeHTML);
+        }
+    }
+    
+    // 로그인 후 개인화된 콘텐츠 표시
+    showPersonalizedContent();
+}
+
+// 개인화된 콘텐츠 표시
+function showPersonalizedContent() {
+    // 기존 개인화 콘텐츠 제거
+    const existingPersonalized = document.getElementById('personalizedContent');
+    if (existingPersonalized) {
+        existingPersonalized.remove();
+    }
+    
+    // 개인화된 섹션 추가
+    const personalizedHTML = `
+        <div id="personalizedContent" class="container mt-5">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-user-check me-2"></i>개인 대시보드</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                            <i class="fas fa-brain text-primary" style="font-size: 2rem;"></i>
+                                        </div>
+                                        <h6>AI 진단 시작</h6>
+                                        <p class="text-muted small">압축기 소리를 분석하여 상태를 진단합니다.</p>
+                                        <button class="btn btn-primary btn-sm" onclick="startDiagnosis()">
+                                            <i class="fas fa-play me-1"></i>진단 시작
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                            <i class="fas fa-chart-line text-success" style="font-size: 2rem;"></i>
+                                        </div>
+                                        <h6>실시간 모니터링</h6>
+                                        <p class="text-muted small">24시간 압축기 상태를 감시합니다.</p>
+                                        <button class="btn btn-success btn-sm" onclick="showMonitoring()">
+                                            <i class="fas fa-eye me-1"></i>모니터링
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                            <i class="fas fa-history text-info" style="font-size: 2rem;"></i>
+                                        </div>
+                                        <h6>진단 이력</h6>
+                                        <p class="text-muted small">과거 진단 결과를 확인할 수 있습니다.</p>
+                                        <button class="btn btn-info btn-sm" onclick="showHistory()">
+                                            <i class="fas fa-list me-1"></i>이력 보기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 히어로 섹션 다음에 추가
+    const heroSection = document.getElementById('home');
+    if (heroSection) {
+        heroSection.insertAdjacentHTML('afterend', personalizedHTML);
+    }
 }
 
 // 로그아웃된 UI 표시
@@ -216,9 +323,96 @@ function handleKakaoCallback() {
         // 로그인 상태 업데이트
         updateLoginStatus();
         
-        // 성공 메시지 표시
-        alert('카카오 로그인이 완료되었습니다!');
+        // 개선된 성공 화면 표시
+        showLoginSuccessModal();
     }
+}
+
+// 로그인 성공 모달 표시
+function showLoginSuccessModal() {
+    // 기존 모달 제거
+    const existingModal = document.getElementById('loginSuccessModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // 성공 모달 생성
+    const modalHTML = `
+        <div class="modal fade" id="loginSuccessModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-body text-center p-5">
+                        <div class="mb-4">
+                            <div class="success-animation mb-3">
+                                <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            </div>
+                            <h3 class="text-success mb-3">로그인 성공!</h3>
+                            <p class="text-muted mb-4">Signalcraft AI 진단 서비스에 오신 것을 환영합니다.</p>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-brain text-primary mb-2" style="font-size: 2rem;"></i>
+                                        <h6>AI 진단</h6>
+                                        <small class="text-muted">압축기 상태 분석</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-chart-line text-success mb-2" style="font-size: 2rem;"></i>
+                                        <h6>실시간 모니터링</h6>
+                                        <small class="text-muted">24시간 감시</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" onclick="startDiagnosis()">
+                                <i class="fas fa-play me-2"></i>진단 시작하기
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="closeLoginSuccessModal()">
+                                나중에 시작하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 모달 표시
+    const modal = new bootstrap.Modal(document.getElementById('loginSuccessModal'));
+    modal.show();
+    
+    // 애니메이션 효과
+    setTimeout(() => {
+        const checkIcon = document.querySelector('#loginSuccessModal .fa-check-circle');
+        if (checkIcon) {
+            checkIcon.style.animation = 'bounceIn 0.6s ease-out';
+        }
+    }, 100);
+}
+
+// 로그인 성공 모달 닫기
+function closeLoginSuccessModal() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('loginSuccessModal'));
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// 진단 시작하기
+function startDiagnosis() {
+    closeLoginSuccessModal();
+    // 진단 페이지로 이동하거나 진단 모달 표시
+    showDiagnosisModal();
 }
 
 // 로그아웃

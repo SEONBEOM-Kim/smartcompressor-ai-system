@@ -45,6 +45,56 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
+        /* 로그인 성공 애니메이션 */
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-animation {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        /* 개인화 콘텐츠 애니메이션 */
+        .personalized-card {
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .personalized-card.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* 환영 메시지 애니메이션 */
+        .welcome-message {
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
