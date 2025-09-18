@@ -7,7 +7,15 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "pm2:setup": "powershell -ExecutionPolicy Bypass -File scripts/pm2-setup.ps1",
+    "pm2:start": "powershell -ExecutionPolicy Bypass -File scripts/pm2-start.ps1",
+    "pm2:stop": "pm2 stop all",
+    "pm2:restart": "pm2 restart all",
+    "pm2:test": "powershell -ExecutionPolicy Bypass -File scripts/pm2-test.ps1",
+    "pm2:status": "pm2 status",
+    "pm2:logs": "pm2 logs",
+    "pm2:monit": "pm2 monit"
   },
   "repository": {
     "type": "git",
