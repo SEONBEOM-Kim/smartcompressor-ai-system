@@ -11,7 +11,9 @@ const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
 // 서버 설정
-const char* serverURL = "http://3.39.124.0:8000/api/audio/upload";
+const char* serverURL = "http://3.39.124.0:8000/api/esp32/audio/upload";
+const char* statusURL = "http://3.39.124.0:8000/api/esp32/status";
+const char* configURL = "http://3.39.124.0:8000/api/esp32/config";
 
 // I2S 설정
 #define I2S_WS 25
@@ -29,6 +31,13 @@ int16_t audioBuffer[BUFFER_SIZE];
 bool isRecording = false;
 unsigned long lastUploadTime = 0;
 const unsigned long uploadInterval = 30000; // 30초마다 업로드
+
+// 디바이스 설정
+String deviceID = "ESP32_MIC_" + String(random(1000, 9999));
+unsigned long lastStatusCheck = 0;
+const unsigned long statusCheckInterval = 60000; // 1분마다 상태 확인
+int uploadRetries = 0;
+const int maxRetries = 3;
 
 void setup() {
   Serial.begin(115200);
@@ -69,6 +78,10 @@ void setup() {
   i2s_set_pin(I2S_PORT, &pin_config);
   
   Serial.println("I2S 초기화 완료!");
+  
+  // 서버에 디바이스 등록
+  registerDevice();
+  
   Serial.println("마이크 녹음 시작...");
   isRecording = true;
 }
@@ -81,26 +94,43 @@ void loop() {
     
     // 30초마다 서버로 업로드
     if (millis() - lastUploadTime >= uploadInterval) {
-      uploadAudioData();
+      if (uploadAudioData()) {
+        uploadRetries = 0; // 성공 시 재시도 카운터 리셋
+      } else {
+        uploadRetries++;
+        if (uploadRetries >= maxRetries) {
+          Serial.println("업로드 재시도 횟수 초과. WiFi 재연결 시도...");
+          reconnectWiFi();
+          uploadRetries = 0;
+        }
+      }
       lastUploadTime = millis();
+    }
+    
+    // 1분마다 상태 확인
+    if (millis() - lastStatusCheck >= statusCheckInterval) {
+      checkDeviceStatus();
+      lastStatusCheck = millis();
     }
   }
   
   delay(10);
 }
 
-void uploadAudioData() {
+bool uploadAudioData() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi 연결 끊어짐!");
-    return;
+    return false;
   }
   
   HTTPClient http;
+  http.setTimeout(10000); // 10초 타임아웃
   http.begin(serverURL);
   http.addHeader("Content-Type", "application/octet-stream");
-  http.addHeader("X-Device-ID", "ESP32_MIC_001");
+  http.addHeader("X-Device-ID", deviceID);
   http.addHeader("X-Sample-Rate", String(SAMPLE_RATE));
   http.addHeader("X-Bits-Per-Sample", String(SAMPLE_SIZE));
+  http.addHeader("X-Priority", "normal");
   
   // 오디오 데이터를 바이트 배열로 변환
   uint8_t audioBytes[BUFFER_SIZE * sizeof(int16_t)];
@@ -111,11 +141,13 @@ void uploadAudioData() {
   if (httpResponseCode > 0) {
     String response = http.getString();
     Serial.println("업로드 성공! 응답: " + response);
+    http.end();
+    return true;
   } else {
     Serial.println("업로드 실패! 오류 코드: " + String(httpResponseCode));
+    http.end();
+    return false;
   }
-  
-  http.end();
 }
 
 // 녹음 시작/중지 함수
@@ -129,14 +161,71 @@ void stopRecording() {
   Serial.println("녹음 중지!");
 }
 
+// 디바이스 등록 함수
+void registerDevice() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi 연결 필요!");
+    return;
+  }
+  
+  HTTPClient http;
+  http.setTimeout(5000);
+  http.begin(configURL + String("?device_id=") + deviceID);
+  
+  int httpResponseCode = http.GET();
+  
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println("디바이스 등록 성공! 응답: " + response);
+  } else {
+    Serial.println("디바이스 등록 실패! 오류 코드: " + String(httpResponseCode));
+  }
+  
+  http.end();
+}
+
+// 디바이스 상태 확인 함수
+void checkDeviceStatus() {
+  if (WiFi.status() != WL_CONNECTED) {
+    return;
+  }
+  
+  HTTPClient http;
+  http.setTimeout(5000);
+  http.begin(statusURL + String("?device_id=") + deviceID);
+  
+  int httpResponseCode = http.GET();
+  
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println("상태 확인 응답: " + response);
+  } else {
+    Serial.println("상태 확인 실패! 오류 코드: " + String(httpResponseCode));
+  }
+  
+  http.end();
+}
+
 // WiFi 재연결 함수
 void reconnectWiFi() {
   if (WiFi.status() != WL_CONNECTED) {
     WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
       delay(1000);
-      Serial.println("WiFi 재연결 중...");
+      Serial.println("WiFi 재연결 중... (" + String(attempts + 1) + "/20)");
+      attempts++;
     }
-    Serial.println("WiFi 재연결됨!");
+    
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("WiFi 재연결됨!");
+      Serial.print("IP 주소: ");
+      Serial.println(WiFi.localIP());
+      
+      // 재연결 후 디바이스 재등록
+      registerDevice();
+    } else {
+      Serial.println("WiFi 재연결 실패!");
+    }
   }
 }

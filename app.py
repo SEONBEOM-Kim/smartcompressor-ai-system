@@ -15,6 +15,7 @@ from routes.admin_routes import admin_bp
 from routes.payment_routes import payment_bp
 from routes.monitoring_routes import monitoring_bp
 from routes.ai_routes import ai_bp
+from routes.esp32_routes import esp32_bp
 from database import init_db
 
 # AI 훈련 모듈 import (올바른 경로)
@@ -59,6 +60,8 @@ def create_app():
     app.register_blueprint(monitoring_bp)
     # AI 라우트 등록 (기존 코드를 ai_routes.py로 통일)
     app.register_blueprint(ai_bp)
+    # ESP32 통합 라우트 등록
+    app.register_blueprint(esp32_bp)
     
     # API 라우트 추가 (프론트엔드 호환성)
     @app.route('/api/auth/login', methods=['POST'])
