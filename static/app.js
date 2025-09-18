@@ -68,12 +68,12 @@ function showLoggedInUI(user) {
     
     // 로그인 버튼들 숨기기
     const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
-    const registerBtn = document.querySelector('button[onclick="showRegisterModal()"]');
+    const registerBtn = document.querySelector('button[onclick="enhancedRegistration.show()"]');
     const kakaoBtn = document.querySelector('button[onclick="kakaoLogin()"]');
     
     if (loginBtn) loginBtn.style.display = 'none';
     if (registerBtn) registerBtn.style.display = 'none';
-    if (kakaoBtn) kakaoBtn.style.display = 'none';
+    // if (kakaoBtn) kakaoBtn.style.display = 'none';
     
     // 데모 섹션 숨기기 (로그인 후에는 체험 모듈 숨김)
     const demoSection = document.getElementById('demo');
@@ -243,14 +243,46 @@ function showLoggedOutUI() {
         userInfo.remove();
     }
     
-    // 로그인/회원가입/카카오 로그인 버튼 다시 표시
-    const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
-    const registerBtn = document.querySelector('button[onclick="showRegisterModal()"]');
-    const kakaoBtn = document.querySelector('button[onclick="kakaoLogin()"]');
-    
-    if (loginBtn) loginBtn.style.display = 'inline-block';
-    if (registerBtn) registerBtn.style.display = 'inline-block';
-    if (kakaoBtn) kakaoBtn.style.display = 'inline-block';
+    // 네비게이션 바 완전 재생성 및 고정
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        navbar.innerHTML = `
+            <div class="container">
+                <a class="navbar-brand" href="#home">
+                    <i class="fas fa-shield-alt me-2"></i>Signalcraft
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse show" id="navbarNav" style="display: flex !important; width: 100% !important;">
+                    <ul class="navbar-nav ms-auto" style="display: flex !important; flex-direction: row !important; width: auto !important;">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#home">홈</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#features">기능</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#pricing">요금제</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#demo">체험</a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-light ms-2" onclick="showLoginModal()">로그인</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-warning ms-2" onclick="kakaoLogin()"><i class="fab fa-kickstarter me-1"></i>카카오 로그인</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-light ms-2" onclick="enhancedRegistration.show()">회원가입</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        console.log('네비게이션 바 완전 재생성 및 고정 완료');
+    }
     
     // 데모 섹션 다시 표시 (로그인 전에는 체험 모듈 표시)
     const demoSection = document.getElementById('demo');

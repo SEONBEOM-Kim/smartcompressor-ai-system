@@ -7,6 +7,11 @@ Flask 애플리케이션 메인 파일
 import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from dotenv import load_dotenv
+from routes.kakao_auth_routes import kakao_auth_bp
+
+# .env 파일 로드
+load_dotenv()
 
 # 라우트 블루프린트 임포트
 from routes.main_routes import main_bp
@@ -19,7 +24,7 @@ from routes.esp32_routes import esp32_bp
 from routes.notification_routes import notification_bp
 from routes.kakao_notification_routes import kakao_notification_bp
 from routes.enhanced_auth_routes import enhanced_auth_bp
-from database import init_db
+from models.database import init_db
 
 # AI 훈련 모듈 import (올바른 경로)
 from services.ai_service import ensemble_ai_service
@@ -28,7 +33,7 @@ def create_app():
     """Flask 애플리케이션 팩토리"""
     app = Flask(__name__)
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "signalcraft_secret_key_2024_very_secure_12345")
-    
+    app.register_blueprint(kakao_auth_bp)
     # 업로드 폴더 설정
     app.config['UPLOAD_FOLDER'] = 'uploads'
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
