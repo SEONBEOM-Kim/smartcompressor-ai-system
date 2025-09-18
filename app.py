@@ -18,6 +18,7 @@ from routes.ai_routes import ai_bp
 from routes.esp32_routes import esp32_bp
 from routes.notification_routes import notification_bp
 from routes.kakao_notification_routes import kakao_notification_bp
+from routes.enhanced_auth_routes import enhanced_auth_bp
 from database import init_db
 
 # AI 훈련 모듈 import (올바른 경로)
@@ -68,6 +69,8 @@ def create_app():
     app.register_blueprint(notification_bp)
     # 카카오톡 알림 라우트 등록
     app.register_blueprint(kakao_notification_bp)
+    # 향상된 인증 라우트 등록
+    app.register_blueprint(enhanced_auth_bp)
     
     # API 라우트 추가 (프론트엔드 호환성)
     @app.route('/api/auth/login', methods=['POST'])
