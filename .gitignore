@@ -25,10 +25,15 @@ nohup.out
 *.zip
 *.bak
 
-# Model files
-*.pkl
-*.model
-*.h5
+# Model files (except trained models)
+# *.pkl
+# *.model
+# *.h5
+
+# Allow trained models in data directory
+!data/models/*.pkl
+!data/models/*.model
+!data/models/*.h5
 
 # Git
 .git/
