@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Compressor AI - 관리자 대시보드</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 280px;
+            background: #1e293b;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #334155;
+            color: white;
+            border-left-color: #3b82f6;
+        }
+
+        .nav-item.active {
+            background: #1e40af;
+            color: white;
+            border-left-color: #60a5fa;
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .main-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        /* 통계 카드 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            color: #059669;
+        }
+
+        .stat-change.negative {
+            color: #dc2626;
+        }
+
+        /* 기능 카드 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-description {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
+        .btn-outline:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #d97706;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #b45309;
+            color: white;
+        }
+
+        .btn-info {
+            background: #0891b2;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #0e7490;
+            color: white;
+        }
+
+        /* 색상 클래스 */
+        .bg-primary { background: #3b82f6; }
+        .bg-success { background: #059669; }
+        .bg-warning { background: #d97706; }
+        .bg-info { background: #0891b2; }
+        .bg-purple { background: #7c3aed; }
+        .bg-orange { background: #ea580c; }
+        .bg-teal { background: #0d9488; }
+        .bg-gray { background: #6b7280; }
+
+        .text-primary { color: #3b82f6; }
+        .text-success { color: #059669; }
+        .text-warning { color: #d97706; }
+        .text-info { color: #0891b2; }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 로딩 애니메이션 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 사이드바 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-brain"></i> Smart Compressor AI</h1>
+                <p>관리자 대시보드</p>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">대시보드</div>
+                    <a href="#" class="nav-item active">
+                        <i class="fas fa-home"></i>
+                        개요
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">핵심 기능</div>
+                    <a href="/static/audio_recorder_client.html" class="nav-item" target="_blank">
+                        <i class="fas fa-brain"></i>
+                        AI 진단
+                    </a>
+                    <a href="/static/human_labeling_interface.html" class="nav-item" target="_blank">
+                        <i class="fas fa-tags"></i>
+                        라벨링
+                    </a>
+                    <a href="/static/smart_storage_dashboard.html" class="nav-item" target="_blank">
+                        <i class="fas fa-database"></i>
+                        데이터 관리
+                    </a>
+                    <a href="/mobile_app/" class="nav-item" target="_blank">
+                        <i class="fas fa-mobile-alt"></i>
+                        모바일 앱
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">도구</div>
+                    <a href="/static/noise_cancellation_test.html" class="nav-item" target="_blank">
+                        <i class="fas fa-volume-up"></i>
+                        노이즈 테스트
+                    </a>
+                    <a href="/static/labeling_management_dashboard.html" class="nav-item" target="_blank">
+                        <i class="fas fa-chart-pie"></i>
+                        라벨링 통계
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <div class="main-header">
+                <h2>시스템 개요</h2>
+                <p>무인 아이스크림 가게 AI 진단 시스템의 현재 상태를 확인하세요</p>
+            </div>
+
+            <!-- 통계 카드 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon bg-primary">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> +12%
+                        </div>
+                    </div>
+                    <div class="stat-value">1,247</div>
+                    <div class="stat-label">총 AI 진단 횟수</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon bg-success">
+                            <i class="fas fa-tags text-white"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> +8%
+                        </div>
+                    </div>
+                    <div class="stat-value">892</div>
+                    <div class="stat-label">라벨링 완료</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon bg-warning">
+                            <i class="fas fa-exclamation-triangle text-white"></i>
+                        </div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down"></i> -3%
+                        </div>
+                    </div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-label">주의 신호</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon bg-info">
+                            <i class="fas fa-mobile-alt text-white"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> +15%
+                        </div>
+                    </div>
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">활성 사용자</div>
+                </div>
+            </div>
+
+            <!-- 기능 카드 -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon bg-primary">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
+                        <div>
+                            <div class="feature-title">AI 진단 시스템</div>
+                        </div>
+                    </div>
+                    <div class="feature-description">
+                        음성 분석을 통한 압축기 상태 실시간 진단 및 이상 신호 감지
+                    </div>
+                    <div class="feature-actions">
+                        <a href="/static/audio_recorder_client.html" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-play"></i>
+                            진단 시작
+                        </a>
+                        <a href="#" class="btn btn-outline" onclick="showAIDetails()">
+                            <i class="fas fa-info-circle"></i>
+                            상세 정보
+                        </a>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon bg-success">
+                            <i class="fas fa-tags text-white"></i>
+                        </div>
+                        <div>
+                            <div class="feature-title">전문가 라벨링</div>
+                        </div>
+                    </div>
+                    <div class="feature-description">
+                        전문가가 직접 라벨링하여 AI 모델의 정확도를 지속적으로 개선
+                    </div>
+                    <div class="feature-actions">
+                        <a href="/static/human_labeling_interface.html" class="btn btn-success" target="_blank">
+                            <i class="fas fa-edit"></i>
+                            라벨링 시작
+                        </a>
+                        <a href="/static/labeling_management_dashboard.html" class="btn btn-outline" target="_blank">
+                            <i class="fas fa-chart-line"></i>
+                            통계 보기
+                        </a>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon bg-info">
+                            <i class="fas fa-mobile-alt text-white"></i>
+                        </div>
+                        <div>
+                            <div class="feature-title">모바일 앱</div>
+                        </div>
+                    </div>
+                    <div class="feature-description">
+                        점주용 실시간 모니터링 앱으로 언제 어디서나 상태 확인 가능
+                    </div>
+                    <div class="feature-actions">
+                        <a href="/mobile_app/" class="btn btn-info" target="_blank">
+                            <i class="fas fa-mobile-alt"></i>
+                            앱 열기
+                        </a>
+                        <button class="btn btn-outline" onclick="installPWA()">
+                            <i class="fas fa-download"></i>
+                            PWA 설치
+                        </button>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon bg-warning">
+                            <i class="fas fa-database text-white"></i>
+                        </div>
+                        <div>
+                            <div class="feature-title">스마트 데이터 관리</div>
+                        </div>
+                    </div>
+                    <div class="feature-description">
+                        효율적인 데이터 저장 및 분석을 통한 인사이트 제공
+                    </div>
+                    <div class="feature-actions">
+                        <a href="/static/smart_storage_dashboard.html" class="btn btn-warning" target="_blank">
+                            <i class="fas fa-chart-bar"></i>
+                            데이터 관리
+                        </a>
+                        <a href="#" class="btn btn-outline" onclick="showDataInsights()">
+                            <i class="fas fa-lightbulb"></i>
+                            인사이트
+                        </a>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon bg-purple">
+                            <i class="fas fa-volume-up text-white"></i>
+                        </div>
+                        <div>
+                            <div class="feature-title">노이즈 캔슬링 테스트</div>
+                        </div>
+                    </div>
+                    <div class="feature-description">
+                        A/B 테스트를 통한 노이즈 캔슬링 성능 비교 및 최적화
+                    </div>
+                    <div class="feature-actions">
+                        <a href="/static/noise_cancellation_test.html" class="btn btn-outline" target="_blank">
+                            <i class="fas fa-flask"></i>
+                            테스트 시작
+                        </a>
+                        <a href="#" class="btn btn-outline" onclick="showTestResults()">
+                            <i class="fas fa-chart-line"></i>
+                            결과 보기
+                        </a>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon bg-teal">
+                            <i class="fas fa-cog text-white"></i>
+                        </div>
+                        <div>
+                            <div class="feature-title">시스템 설정</div>
+                        </div>
+                    </div>
+                    <div class="feature-description">
+                        AI 모델, 알림, 보안 등 전체 시스템 설정 관리
+                    </div>
+                    <div class="feature-actions">
+                        <button class="btn btn-outline" onclick="openSettings()">
+                            <i class="fas fa-cog"></i>
+                            설정 열기
+                        </button>
+                        <button class="btn btn-outline" onclick="showSystemStatus()">
+                            <i class="fas fa-heartbeat"></i>
+                            상태 확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // PWA 설치
+        function installPWA() {
+            if ('serviceWorker' in navigator) {
+                alert('PWA 설치 기능이 준비되었습니다. 브라우저의 설치 프롬프트를 확인하세요.');
+            } else {
+                alert('이 브라우저는 PWA를 지원하지 않습니다.');
+            }
+        }
+
+        // AI 상세 정보
+        function showAIDetails() {
+            alert('AI 진단 시스템 상세 정보:\n\n• 앙상블 AI 모델 사용\n• 실시간 음성 분석\n• 95% 이상 정확도\n• 자동 노이즈 캔슬링');
+        }
+
+        // 데이터 인사이트
+        function showDataInsights() {
+            alert('데이터 인사이트:\n\n• 스마트 저장으로 80% 용량 절약\n• 주의/긴급 신호만 선별 저장\n• 일일 긍정적 요약 제공');
+        }
+
+        // 테스트 결과
+        function showTestResults() {
+            alert('노이즈 캔슬링 테스트 결과:\n\n• 정확도 향상: +12%\n• 처리 속도: +8%\n• 사용자 만족도: 94%');
+        }
+
+        // 시스템 설정
+        function openSettings() {
+            alert('시스템 설정:\n\n• AI 모델 버전 관리\n• 알림 설정\n• 보안 정책\n• 데이터 백업');
+        }
+
+        // 시스템 상태
+        function showSystemStatus() {
+            alert('시스템 상태:\n\n• 서버: 정상 운영\n• 데이터베이스: 연결됨\n• AI 모델: 최신 버전\n• 모든 서비스: 정상');
+        }
+
+        // 실시간 데이터 업데이트 (시뮬레이션)
+        function updateStats() {
+            // 실제로는 API에서 데이터를 가져와야 함
+            console.log('통계 데이터 업데이트됨');
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            
+            // 30초마다 통계 업데이트
+            setInterval(updateStats, 30000);
+        });
+    </script>
+</body>
+</html>

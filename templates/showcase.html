@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalcraft AI 진단 - 무인 매장 쇼윈도</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+    <style>
+        /* 무인 매장 쇼윈도 전용 스타일 */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .showcase-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 헤더 - 브랜딩 */
+        .showcase-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-tagline {
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        /* 메인 콘텐츠 영역 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* 진단 카드 */
+        .diagnosis-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .diagnosis-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagnosis-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* 진단 버튼 */
+        .diagnosis-btn {
+            font-size: 1.5rem;
+            padding: 20px 40px;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 10px;
+            min-width: 200px;
+        }
+
+        .diagnosis-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+            color: white;
+        }
+
+        /* 상태 표시 */
+        .status-display {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .status-normal {
+            background: linear-gradient(45deg, #e8f5e8, #c8e6c9);
+            color: #2e7d32;
+            border-left: 5px solid #4caf50;
+        }
+
+        .status-warning {
+            background: linear-gradient(45deg, #fff3e0, #ffcc02);
+            color: #e65100;
+            border-left: 5px solid #ff9800;
+        }
+
+        .status-danger {
+            background: linear-gradient(45deg, #ffebee, #ffcdd2);
+            color: #c62828;
+            border-left: 5px solid #f44336;
+        }
+
+        /* 결과 시각화 */
+        .result-visualization {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .confidence-meter {
+            margin: 20px 0;
+        }
+
+        .confidence-bar {
+            height: 20px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confidence-indicator {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .confidence-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        /* 마케팅 콘텐츠 */
+        .marketing-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .promo-banner {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 차트 컨테이너 */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .diagnosis-card {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .diagnosis-title {
+                font-size: 2rem;
+            }
+            
+            .diagnosis-btn {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+                min-width: 150px;
+            }
+        }
+
+        /* 로딩 애니메이션 */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 특별 효과 */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="showcase-container">
+        <!-- 헤더 -->
+        <div class="showcase-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="brand-logo">
+                            <i class="fas fa-shield-alt me-2"></i>Signalcraft
+                        </div>
+                        <div class="brand-tagline">
+                            AI 기술로 냉동고를 24시간 지켜드립니다
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="current-time"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="main-content">
+            <div class="container">
+                <div class="diagnosis-card fade-in" id="diagnosisCard">
+                    <!-- 진단 제목 -->
+                    <div class="diagnosis-title">
+                        <i class="fas fa-stethoscope me-3"></i>
+                        AI 압축기 진단
+                    </div>
+                    <div class="diagnosis-subtitle">
+                        마이크로 압축기 소음을 녹음하여 과부하음을 실시간으로 판별합니다
+                    </div>
+
+                    <!-- 마케팅 콘텐츠 -->
+                    <div class="marketing-content" id="marketingContent">
+                        <div class="promo-banner">
+                            <i class="fas fa-gift me-2"></i>
+                            <strong>신규 고객 특별 혜택!</strong> 첫 달 50% 할인 + 무료 설치
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <i class="fas fa-brain fa-2x text-primary mb-2"></i>
+                                <h6>99.2% 정확도</h6>
+                                <small class="text-muted">AI 진단</small>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                                <h6>30초 분석</h6>
+                                <small class="text-muted">빠른 결과</small>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                <h6>24/7 모니터링</h6>
+                                <small class="text-muted">무인 감시</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 진단 컨트롤 -->
+                    <div class="diagnosis-controls">
+                        <button id="recordBtn" class="btn diagnosis-btn btn-start">
+                            <i class="fas fa-microphone me-2"></i>
+                            진단 시작
+                        </button>
+                        <button id="analyzeBtn" class="btn diagnosis-btn btn-stop" disabled style="display: none;">
+                            <i class="fas fa-stop me-2"></i>
+                            녹음 중지
+                        </button>
+                    </div>
+
+                    <!-- 상태 표시 -->
+                    <div id="statusDisplay" class="status-display" style="display: none;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="statusText">준비 중...</span>
+                    </div>
+
+                    <!-- 결과 시각화 -->
+                    <div id="resultVisualization" class="result-visualization" style="display: none;">
+                        <h5 class="mb-3">
+                            <i class="fas fa-chart-line me-2"></i>
+                            진단 결과
+                        </h5>
+                        
+                        <!-- 신뢰도 미터 -->
+                        <div class="confidence-meter">
+                            <label class="form-label">신뢰도</label>
+                            <div class="confidence-bar">
+                                <div class="confidence-indicator" id="confidenceIndicator" style="width: 0%">
+                                    <div class="confidence-value" id="confidenceValue">0%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 차트 -->
+                        <div class="chart-container">
+                            <canvas id="diagnosisChart"></canvas>
+                        </div>
+
+                        <!-- 상세 정보 -->
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-cog fa-2x text-primary mb-2"></i>
+                                        <h6>처리 시간</h6>
+                                        <span id="processingTime" class="text-muted">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-robot fa-2x text-success mb-2"></i>
+                                        <h6>AI 모델</h6>
+                                        <span id="modelType" class="text-muted">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 액션 버튼들 -->
+                    <div id="actionButtons" class="mt-4" style="display: none;">
+                        <button class="btn btn-outline-primary me-2" onclick="showDetailedReport()">
+                            <i class="fas fa-file-pdf me-2"></i>상세 리포트
+                        </button>
+                        <button class="btn btn-outline-success me-2" onclick="startNewDiagnosis()">
+                            <i class="fas fa-redo me-2"></i>새 진단
+                        </button>
+                        <button class="btn btn-outline-info" onclick="showContactInfo()">
+                            <i class="fas fa-phone me-2"></i>문의하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <script>
+        // 무인 매장 쇼윈도 JavaScript
+        class ShowcaseDiagnosis {
+            constructor() {
+                this.isRecording = false;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.audioBlob = null;
+                this.diagnosisResult = null;
+                this.chart = null;
+                this.marketingTimer = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.recordBtn = document.getElementById('recordBtn');
+                this.analyzeBtn = document.getElementById('analyzeBtn');
+                this.statusDisplay = document.getElementById('statusDisplay');
+                this.resultVisualization = document.getElementById('resultVisualization');
+                this.actionButtons = document.getElementById('actionButtons');
+
+                this.recordBtn.addEventListener('click', () => this.toggleRecording());
+                this.analyzeBtn.addEventListener('click', () => this.stopRecording());
+
+                this.updateTime();
+                this.startMarketingRotation();
+                this.checkBrowserSupport();
+            }
+
+            updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ko-KR');
+                document.getElementById('current-time').textContent = timeString;
+                
+                setTimeout(() => this.updateTime(), 1000);
+            }
+
+            startMarketingRotation() {
+                // 5초마다 마케팅 콘텐츠 변경
+                this.marketingTimer = setInterval(() => {
+                    this.rotateMarketingContent();
+                }, 5000);
+            }
+
+            rotateMarketingContent() {
+                const marketingContent = document.getElementById('marketingContent');
+                const contents = [
+                    {
+                        banner: '신규 고객 특별 혜택! 첫 달 50% 할인 + 무료 설치',
+                        icon: 'fas fa-gift'
+                    },
+                    {
+                        banner: '연간 구독 시 2개월 무료! 지금 바로 시작하세요',
+                        icon: 'fas fa-calendar-check'
+                    },
+                    {
+                        banner: '24시간 기술 지원 + 무료 점검 서비스 제공',
+                        icon: 'fas fa-headset'
+                    }
+                ];
+
+                const randomContent = contents[Math.floor(Math.random() * contents.length)];
+                marketingContent.innerHTML = `
+                    <div class="promo-banner">
+                        <i class="${randomContent.icon} me-2"></i>
+                        <strong>${randomContent.banner}</strong>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <i class="fas fa-brain fa-2x text-primary mb-2"></i>
+                            <h6>99.2% 정확도</h6>
+                            <small class="text-muted">AI 진단</small>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                            <h6>30초 분석</h6>
+                            <small class="text-muted">빠른 결과</small>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                            <h6>24/7 모니터링</h6>
+                            <small class="text-muted">무인 감시</small>
+                        </div>
+                    </div>
+                `;
+            }
+
+            checkBrowserSupport() {
+                const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+                const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
+                
+                if (!hasGetUserMedia || !hasMediaRecorder) {
+                    this.showStatus('이 브라우저는 녹음 기능을 지원하지 않습니다.', 'danger');
+                    this.recordBtn.disabled = true;
+                    return false;
+                }
+
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                    this.showStatus('녹음 기능을 사용하려면 HTTPS 연결이 필요합니다.', 'warning');
+                }
+
+                return true;
+            }
+
+            async toggleRecording() {
+                if (!this.isRecording) {
+                    await this.startRecording();
+                } else {
+                    this.stopRecording();
+                }
+            }
+
+            async startRecording() {
+                try {
+                    const constraints = {
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 16000
+                        }
+                    };
+
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    this.mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
+                    this.audioChunks = [];
+
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            this.audioChunks.push(event.data);
+                        }
+                    };
+
+                    this.mediaRecorder.onstop = () => {
+                        this.audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                        this.analyzeAudio();
+                    };
+
+                    this.mediaRecorder.start();
+                    this.isRecording = true;
+                    
+                    this.recordBtn.style.display = 'none';
+                    this.analyzeBtn.style.display = 'inline-block';
+                    this.analyzeBtn.disabled = false;
+                    
+                    this.showStatus('🎤 녹음 중... (5-10초간 녹음하세요)', 'warning');
+                    this.hideResult();
+
+                } catch (error) {
+                    console.error('녹음 오류:', error);
+                    if (error.name === 'NotAllowedError') {
+                        this.showStatus('마이크 접근 권한이 거부되었습니다.', 'danger');
+                    } else if (error.name === 'NotFoundError') {
+                        this.showStatus('마이크를 찾을 수 없습니다.', 'danger');
+                    } else {
+                        this.showStatus('녹음 중 오류가 발생했습니다: ' + error.message, 'danger');
+                    }
+                }
+            }
+
+            stopRecording() {
+                if (this.mediaRecorder && this.isRecording) {
+                    this.mediaRecorder.stop();
+                    this.isRecording = false;
+                    
+                    this.recordBtn.style.display = 'inline-block';
+                    this.analyzeBtn.style.display = 'none';
+                    this.analyzeBtn.disabled = true;
+                }
+            }
+
+            async analyzeAudio() {
+                if (!this.audioBlob) {
+                    this.showStatus('먼저 녹음을 해주세요.', 'danger');
+                    return;
+                }
+
+                this.showStatus('🔍 AI 분석 중...', 'warning');
+                this.showLoadingSpinner();
+
+                try {
+                    const formData = new FormData();
+                    formData.append('audio', this.audioBlob, 'recording.webm');
+                    formData.append('timestamp', new Date().toISOString());
+                    formData.append('model_type', 'auto');
+
+                    const response = await fetch('/api/lightweight-analyze', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        this.diagnosisResult = data;
+                        this.showResult(data);
+                    } else {
+                        this.showStatus('분석 중 오류가 발생했습니다: ' + (data.error || 'Unknown error'), 'danger');
+                    }
+
+                } catch (error) {
+                    console.error('분석 오류:', error);
+                    this.showStatus('서버 연결 오류가 발생했습니다: ' + error.message, 'danger');
+                }
+
+                this.hideLoadingSpinner();
+            }
+
+            showResult(data) {
+                this.resultVisualization.style.display = 'block';
+                this.actionButtons.style.display = 'block';
+                
+                // 상태 표시 업데이트
+                const statusClass = data.is_overload ? 'status-danger' : 'status-normal';
+                const statusText = data.is_overload ? '⚠️ 과부하음 감지됨' : '✅ 정상 작동 중';
+                
+                this.statusDisplay.className = `status-display ${statusClass}`;
+                this.statusDisplay.querySelector('#statusText').textContent = statusText;
+                this.statusDisplay.style.display = 'block';
+
+                // 신뢰도 표시
+                const confidence = Math.round(data.confidence * 100);
+                const confidenceIndicator = document.getElementById('confidenceIndicator');
+                const confidenceValue = document.getElementById('confidenceValue');
+                
+                confidenceIndicator.style.width = `${confidence}%`;
+                confidenceValue.textContent = `${confidence}%`;
+
+                // 처리 시간 표시
+                document.getElementById('processingTime').textContent = `${data.processing_time_ms.toFixed(1)}ms`;
+                document.getElementById('modelType').textContent = data.model_type || 'Unknown';
+
+                // 차트 생성
+                this.createDiagnosisChart(data);
+
+                // 5초 후 광고 표시
+                setTimeout(() => {
+                    this.showAdvertisement();
+                }, 5000);
+            }
+
+            createDiagnosisChart(data) {
+                const ctx = document.getElementById('diagnosisChart').getContext('2d');
+                
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+
+                this.chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['정상', '이상'],
+                        datasets: [{
+                            data: [
+                                data.is_overload ? 0 : 100,
+                                data.is_overload ? 100 : 0
+                            ],
+                            backgroundColor: [
+                                '#4CAF50',
+                                '#f44336'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            showAdvertisement() {
+                // 광고 모달 표시
+                const adModal = document.createElement('div');
+                adModal.className = 'modal fade';
+                adModal.innerHTML = `
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-star me-2"></i>특별 혜택
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <h4 class="text-primary mb-3">Signalcraft AI 진단 서비스</h4>
+                                <p class="lead">지금 가입하시면 첫 달 50% 할인!</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                                                <h6>24시간 모니터링</h6>
+                                                <small class="text-muted">무인 감시로 안전 보장</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <i class="fas fa-phone fa-3x text-success mb-3"></i>
+                                                <h6>전문가 지원</h6>
+                                                <small class="text-muted">24시간 기술 지원</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <button class="btn btn-primary btn-lg me-2" onclick="contactForService()">
+                                        <i class="fas fa-phone me-2"></i>지금 문의하기
+                                    </button>
+                                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        나중에
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(adModal);
+                const modal = new bootstrap.Modal(adModal);
+                modal.show();
+                
+                // 모달이 닫히면 제거
+                adModal.addEventListener('hidden.bs.modal', () => {
+                    adModal.remove();
+                });
+            }
+
+            showStatus(message, type) {
+                this.statusDisplay.textContent = message;
+                this.statusDisplay.className = `status-display status-${type}`;
+                this.statusDisplay.style.display = 'block';
+            }
+
+            showLoadingSpinner() {
+                const spinner = document.createElement('div');
+                spinner.className = 'loading-spinner';
+                spinner.id = 'loadingSpinner';
+                this.statusDisplay.appendChild(spinner);
+            }
+
+            hideLoadingSpinner() {
+                const spinner = document.getElementById('loadingSpinner');
+                if (spinner) {
+                    spinner.remove();
+                }
+            }
+
+            hideResult() {
+                this.resultVisualization.style.display = 'none';
+                this.actionButtons.style.display = 'none';
+            }
+        }
+
+        // 전역 함수들
+        function showDetailedReport() {
+            if (window.showcaseDiagnosis && window.showcaseDiagnosis.diagnosisResult) {
+                sessionStorage.setItem('diagnosisResult', JSON.stringify(window.showcaseDiagnosis.diagnosisResult));
+                window.open('/diagnosis-report', '_blank');
+            }
+        }
+
+        function startNewDiagnosis() {
+            if (window.showcaseDiagnosis) {
+                window.showcaseDiagnosis.hideResult();
+                window.showcaseDiagnosis.recordBtn.style.display = 'inline-block';
+                window.showcaseDiagnosis.analyzeBtn.style.display = 'none';
+            }
+        }
+
+        function showContactInfo() {
+            alert('문의: 010-8533-6898\n이메일: sndercer@gmail.com\n\n전문가가 직접 상담해드립니다!');
+        }
+
+        function contactForService() {
+            alert('전화: 010-8533-6898\n이메일: sndercer@gmail.com\n\n지금 바로 연락주시면 특별 할인을 적용해드립니다!');
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            window.showcaseDiagnosis = new ShowcaseDiagnosis();
+        });
+    </script>
+</body>
+</html>

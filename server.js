@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const app = require('./server/app');
 const WebSocketService = require('./server/services/websocketService');
 const monitoringService = require('./server/services/monitoringService');

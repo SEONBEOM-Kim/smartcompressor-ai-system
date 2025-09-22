@@ -1,0 +1,173 @@
+{
+  "name": "Smart Compressor Manager",
+  "short_name": "CompressorMgr",
+  "description": "Tesla & Starbucks inspired mobile app for unmanned ice cream store management",
+  "start_url": "/mobile_app",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00D4AA",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities", "food"],
+  "icons": [
+    {
+      "src": "/static/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "홈 화면"
+    },
+    {
+      "src": "/static/screenshots/product.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "제품 상세 화면"
+    },
+    {
+      "src": "/static/screenshots/cart.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "장바구니 화면"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "매장 대시보드",
+      "short_name": "대시보드",
+      "description": "실시간 매장 상태 모니터링",
+      "url": "/mobile_app/dashboard",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "압축기 진단",
+      "short_name": "진단",
+      "description": "AI 기반 압축기 진단",
+      "url": "/mobile_app/diagnosis",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-diagnosis.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "결제 관리",
+      "short_name": "결제",
+      "description": "실시간 결제 현황 관리",
+      "url": "/mobile_app/payments",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-payment.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "알림 설정",
+      "short_name": "알림",
+      "description": "알림 설정 및 관리",
+      "url": "/mobile_app/notifications",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-notifications.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
+  "capture_links": "new-client",
+  "file_handlers": [],
+  "protocol_handlers": [],
+  "share_target": {
+    "action": "/mobile_app/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "permissions": [
+    "geolocation",
+    "notifications",
+    "camera",
+    "microphone"
+  ],
+  "features": [
+    "Cross Platform",
+    "fast",
+    "simple"
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

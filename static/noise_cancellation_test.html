@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 노이즈 캔슬링 A/B 테스트</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #FF6B6B;
+        }
+
+        .test-section h2 {
+            color: #FF6B6B;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #FF6B6B;
+            background: #fafafa;
+        }
+
+        .upload-area.dragover {
+            border-color: #FF6B6B;
+            background: #fff5f5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .metric-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .improvement-section {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .improvement-section h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .grade {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .grade-a-plus { background: #4CAF50; color: white; }
+        .grade-a { background: #8BC34A; color: white; }
+        .grade-b { background: #FFC107; color: black; }
+        .grade-c { background: #FF9800; color: white; }
+        .grade-d { background: #F44336; color: white; }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FF6B6B;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-flask"></i> 노이즈 캔슬링 A/B 테스트</h1>
+            <p>AI 정확도 개선 효과를 실시간으로 비교해보세요</p>
+        </div>
+
+        <div class="content">
+            <!-- 파일 업로드 섹션 -->
+            <div class="test-section">
+                <h2><i class="fas fa-upload"></i> 테스트 파일 업로드</h2>
+                <div class="upload-area" id="uploadArea">
+                    <p><i class="fas fa-music" style="font-size: 3rem; color: #FF6B6B; margin-bottom: 20px;"></i></p>
+                    <p>🎵 여기에 오디오 파일을 드래그하거나 클릭하여 업로드하세요</p>
+                    <p>지원 형식: WAV, MP3, M4A, FLAC</p>
+                    <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                </div>
+                <button id="selectFile" class="btn">📁 파일 선택</button>
+                <button id="startTest" class="btn" disabled>🧪 A/B 테스트 시작</button>
+            </div>
+
+            <!-- 로딩 섹션 -->
+            <div id="loadingSection" class="loading hidden">
+                <div class="spinner"></div>
+                <p>노이즈 캔슬링 A/B 테스트를 진행 중입니다...</p>
+            </div>
+
+            <!-- 결과 섹션 -->
+            <div id="resultSection" class="hidden">
+                <div class="test-section">
+                    <h2><i class="fas fa-chart-bar"></i> 테스트 결과 비교</h2>
+                    
+                    <div class="comparison-grid">
+                        <!-- 노이즈 캔슬링 미적용 결과 -->
+                        <div class="result-card">
+                            <h3><i class="fas fa-times-circle" style="color: #F44336;"></i> 노이즈 캔슬링 미적용</h3>
+                            <div id="withoutNoiseCancellation">
+                                <!-- 결과가 여기에 표시됩니다 -->
+                            </div>
+                        </div>
+
+                        <!-- 노이즈 캔슬링 적용 결과 -->
+                        <div class="result-card">
+                            <h3><i class="fas fa-check-circle" style="color: #4CAF50;"></i> 노이즈 캔슬링 적용</h3>
+                            <div id="withNoiseCancellation">
+                                <!-- 결과가 여기에 표시됩니다 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 개선 효과 분석 -->
+                    <div class="improvement-section">
+                        <h3><i class="fas fa-trophy"></i> 개선 효과 분석</h3>
+                        <div id="improvementAnalysis">
+                            <!-- 개선 분석이 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 알림 영역 -->
+            <div id="alertArea"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM 요소
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectFileBtn = document.getElementById('selectFile');
+        const startTestBtn = document.getElementById('startTest');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultSection = document.getElementById('resultSection');
+        const alertArea = document.getElementById('alertArea');
+
+        let selectedFile = null;
+
+        // 파일 선택
+        selectFileBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                startTestBtn.disabled = false;
+                showAlert(`파일이 선택되었습니다: ${file.name}`, 'success');
+            }
+        });
+
+        // 드래그 앤 드롭
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('audio/')) {
+                    selectedFile = file;
+                    startTestBtn.disabled = false;
+                    showAlert(`파일이 업로드되었습니다: ${file.name}`, 'success');
+                } else {
+                    showAlert('오디오 파일만 업로드할 수 있습니다.', 'danger');
+                }
+            }
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // A/B 테스트 시작
+        startTestBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                showAlert('파일을 선택해주세요.', 'danger');
+                return;
+            }
+
+            startTestBtn.disabled = true;
+            loadingSection.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', selectedFile);
+
+                const response = await fetch('/api/ai/test-noise-cancellation', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayTestResults(result.test_results);
+                    loadingSection.classList.add('hidden');
+                    resultSection.classList.remove('hidden');
+                    showAlert('A/B 테스트가 완료되었습니다!', 'success');
+                } else {
+                    throw new Error(result.message || '테스트 실패');
+                }
+
+            } catch (error) {
+                console.error('A/B 테스트 실패:', error);
+                showAlert(`테스트 실패: ${error.message}`, 'danger');
+                loadingSection.classList.add('hidden');
+            } finally {
+                startTestBtn.disabled = false;
+            }
+        });
+
+        // 테스트 결과 표시
+        function displayTestResults(testResults) {
+            const without = testResults.without_noise_cancellation;
+            const withNoise = testResults.with_noise_cancellation;
+            const comparison = testResults.accuracy_comparison;
+
+            // 노이즈 캔슬링 미적용 결과
+            document.getElementById('withoutNoiseCancellation').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">진단 결과:</span>
+                    <span class="metric-value">${without.is_overload ? '이상 감지' : '정상'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">신뢰도:</span>
+                    <span class="metric-value">${Math.round(without.confidence * 100)}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">품질 점수:</span>
+                    <span class="metric-value">${without.quality_metrics?.overall_quality || 0}/100</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">처리 시간:</span>
+                    <span class="metric-value">${Math.round(without.processing_time_ms)}ms</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">노이즈 레벨:</span>
+                    <span class="metric-value">${without.noise_info?.original_noise_level || 0}</span>
+                </div>
+            `;
+
+            // 노이즈 캔슬링 적용 결과
+            document.getElementById('withNoiseCancellation').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">진단 결과:</span>
+                    <span class="metric-value">${withNoise.is_overload ? '이상 감지' : '정상'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">신뢰도:</span>
+                    <span class="metric-value">${Math.round(withNoise.confidence * 100)}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">품질 점수:</span>
+                    <span class="metric-value">${withNoise.quality_metrics?.overall_quality || 0}/100</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">처리 시간:</span>
+                    <span class="metric-value">${Math.round(withNoise.processing_time_ms)}ms</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">노이즈 감소:</span>
+                    <span class="metric-value">${withNoise.noise_info?.noise_reduction_db || 0}dB</span>
+                </div>
+            `;
+
+            // 개선 효과 분석
+            document.getElementById('improvementAnalysis').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">신뢰도 개선:</span>
+                    <span class="metric-value">
+                        +${comparison.confidence_improvement.percentage}%
+                        <span class="grade grade-${comparison.confidence_improvement.grade.split(' ')[0].toLowerCase()}">${comparison.confidence_improvement.grade}</span>
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">품질 개선:</span>
+                    <span class="metric-value">
+                        +${comparison.quality_improvement.percentage}점
+                        <span class="grade grade-${comparison.quality_improvement.grade.split(' ')[0].toLowerCase()}">${comparison.quality_improvement.grade}</span>
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">노이즈 감소 효과:</span>
+                    <span class="metric-value">${comparison.noise_reduction.db}dB (${comparison.noise_reduction.effectiveness})</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">종합 점수:</span>
+                    <span class="metric-value">${comparison.overall_improvement.score}/100</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">권장사항:</span>
+                    <span class="metric-value">${comparison.overall_improvement.recommendation}</span>
+                </div>
+            `;
+        }
+
+        // 알림 표시
+        function showAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            alertArea.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 노이즈 캔슬링 A/B 테스트 시스템 초기화 완료');
+        });
+    </script>
+</body>
+</html>

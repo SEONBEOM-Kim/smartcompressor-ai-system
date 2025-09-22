@@ -114,33 +114,50 @@ def debug_routes():
 
 @main_bp.route('/api/lightweight-analyze', methods=['POST'])
 def api_lightweight_analyze():
-    """경량화된 압축기 과부하음 분석 API"""
+    """통합 AI 서비스를 통한 압축기 과부하음 분석 API"""
     try:
         if 'audio' not in request.files:
             return jsonify({'error': 'No audio file provided'}), 400
 
         audio_file = request.files['audio']
         timestamp = request.form.get('timestamp')
+        model_type = request.form.get('model_type', 'auto')  # auto, lightweight, ensemble, mimii
 
-        # 경량화 AI 모델 호출 로직을 여기에 구현
-        # 현재는 임시 결과 반환
-        result = {
-            'overall_status': 'normal',  # 또는 'overload'
-            'average_confidence': 0.9,
-            'total_processing_time_ms': 500
-        }
+        # 임시 파일로 저장
+        import tempfile
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp_file:
+            audio_file.save(tmp_file.name)
+            
+            # 통합 AI 서비스로 분석
+            from services.ai_service import unified_ai_service
+            result = unified_ai_service.analyze_audio(tmp_file.name, model_type=model_type)
+            
+            # 임시 파일 삭제
+            os.unlink(tmp_file.name)
 
-        # 단순화된 응답
+        # 결과 포맷팅
+        if result.get('error'):
+            return jsonify({
+                "error": result.get('message', 'Unknown error'),
+                "status": "error",
+                "is_overload": False,
+                "confidence": 0.0,
+                "message": result.get('message', '분석 중 오류가 발생했습니다.')
+            }), 500
+
         return jsonify({
-            "is_overload": result.get('overall_status') == 'overload',
-            "confidence": result.get('average_confidence', 0.0),
-            "processing_time_ms": result.get('total_processing_time_ms', 0.0),
-            "message": "과부하음 감지됨" if result.get('overall_status') == 'overload' else "정상 작동 중",
+            "is_overload": result.get('is_overload', False),
+            "confidence": result.get('confidence', 0.0),
+            "processing_time_ms": result.get('processing_time_ms', 0.0),
+            "message": result.get('message', '정상 작동 중'),
             "timestamp": time.time(),
-            "status": "success"
+            "status": "success",
+            "model_type": result.get('model_type', 'unknown'),
+            "diagnosis_type": result.get('diagnosis_type', 'unknown')
         })
 
     except Exception as e:
+        logger.error(f"AI 분석 API 오류: {e}")
         return jsonify({
             "error": str(e),
             "status": "error",
@@ -153,3 +170,106 @@ def api_lightweight_analyze():
 def ai_demo():
     """AI 진단 데모 페이지"""
     return render_template('ai_demo.html')
+
+@main_bp.route('/showcase')
+def showcase():
+    """무인 매장 쇼윈도 페이지"""
+    return render_template('showcase.html')
+
+@main_bp.route('/api/compressor-door-analyze', methods=['POST'])
+def api_compressor_door_analyze():
+    """압축기 문 열림 상태 분석 API"""
+    try:
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No audio file provided'}), 400
+
+        audio_file = request.files['audio']
+        timestamp = request.form.get('timestamp')
+
+        # 임시 파일로 저장
+        import tempfile
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp_file:
+            audio_file.save(tmp_file.name)
+
+            # 통합 AI 서비스로 문 상태 분석
+            from services.ai_service import unified_ai_service
+            result = unified_ai_service.analyze_compressor_door_status(tmp_file.name)
+
+            # 임시 파일 삭제
+            os.unlink(tmp_file.name)
+
+        # 결과 포맷팅
+        if result.get('status') == 'error':
+            return jsonify({
+                "error": result.get('message', 'Unknown error'),
+                "status": "error",
+                "is_door_open": False,
+                "confidence": 0.0,
+                "message": result.get('message', '분석 중 오류가 발생했습니다.')
+            }), 500
+
+        return jsonify({
+            "is_door_open": result.get('is_door_open', False),
+            "confidence": result.get('confidence', 0.0),
+            "prediction": result.get('prediction', 'unknown'),
+            "probability": result.get('probability', {}),
+            "message": result.get('message', '정상 작동 중'),
+            "timestamp": time.time(),
+            "status": "success",
+            "model_type": result.get('model_type', 'unknown')
+        })
+
+    except Exception as e:
+        logger.error(f"압축기 문 상태 분석 API 오류: {e}")
+        return jsonify({
+            "error": str(e),
+            "status": "error",
+            "is_door_open": False,
+            "confidence": 0.0,
+            "message": "분석 중 오류가 발생했습니다."
+        }), 500
+
+@main_bp.route('/api/train-compressor-model', methods=['POST'])
+def api_train_compressor_model():
+    """압축기 AI 모델 훈련 API"""
+    try:
+        data = request.get_json() or {}
+        num_samples = data.get('num_samples', 2000)
+        
+        # 통합 AI 서비스로 모델 훈련
+        from services.ai_service import unified_ai_service
+        result = unified_ai_service.train_compressor_model(num_samples)
+        
+        return jsonify({
+            "success": True,
+            "message": "압축기 AI 모델 훈련 완료",
+            "training_result": result
+        })
+        
+    except Exception as e:
+        logger.error(f"압축기 AI 모델 훈련 API 오류: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "message": "모델 훈련 중 오류가 발생했습니다."
+        }), 500
+
+@main_bp.route('/api/compressor-model-info', methods=['GET'])
+def api_compressor_model_info():
+    """압축기 AI 모델 정보 조회 API"""
+    try:
+        from services.ai_service import unified_ai_service
+        info = unified_ai_service.get_compressor_model_info()
+        
+        return jsonify({
+            "success": True,
+            "model_info": info
+        })
+        
+    except Exception as e:
+        logger.error(f"압축기 AI 모델 정보 조회 API 오류: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "message": "모델 정보 조회 중 오류가 발생했습니다."
+        }), 500

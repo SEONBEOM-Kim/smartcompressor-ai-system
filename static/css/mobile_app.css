@@ -1,0 +1,880 @@
+/* Tesla & Starbucks inspired Mobile App CSS */
+
+/* 기본 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Tesla 색상 팔레트 */
+    --tesla-black: #000000;
+    --tesla-white: #ffffff;
+    --tesla-gray-100: #f5f5f5;
+    --tesla-gray-200: #e5e5e5;
+    --tesla-gray-300: #d4d4d4;
+    --tesla-gray-400: #a3a3a3;
+    --tesla-gray-500: #737373;
+    --tesla-gray-600: #525252;
+    --tesla-gray-700: #404040;
+    --tesla-gray-800: #262626;
+    --tesla-gray-900: #171717;
+    
+    /* Starbucks 색상 팔레트 */
+    --sbux-green: #00704A;
+    --sbux-light-green: #00D4AA;
+    --sbux-dark-green: #004C3F;
+    --sbux-gold: #D4AF37;
+    --sbux-red: #E31837;
+    
+    /* 상태 색상 */
+    --status-normal: #00D4AA;
+    --status-warning: #FFA500;
+    --status-error: #FF4444;
+    --status-info: #007AFF;
+    
+    /* 그라데이션 */
+    --gradient-primary: linear-gradient(135deg, #00D4AA 0%, #00704A 100%);
+    --gradient-dark: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    --gradient-card: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    
+    /* 그림자 */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+    
+    /* 폰트 */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* 애니메이션 */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* 기본 스타일 */
+body {
+    font-family: var(--font-family);
+    background: var(--tesla-black);
+    color: var(--tesla-white);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tesla App 컨테이너 */
+.tesla-app {
+    min-height: 100vh;
+    background: var(--gradient-dark);
+    position: relative;
+}
+
+/* Tesla 로딩 화면 */
+.tesla-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--tesla-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loading-content {
+    text-align: center;
+    color: var(--tesla-white);
+}
+
+.tesla-logo {
+    margin-bottom: 3rem;
+}
+
+.logo-icon {
+    font-size: 4rem;
+    color: var(--sbux-light-green);
+    margin-bottom: 1rem;
+    animation: spin 2s linear infinite;
+}
+
+.tesla-logo h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tesla-logo p {
+    font-size: 1rem;
+    color: var(--tesla-gray-400);
+    font-weight: 300;
+}
+
+.loading-progress {
+    width: 200px;
+    height: 4px;
+    background: var(--tesla-gray-800);
+    border-radius: 2px;
+    margin: 2rem auto;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+    animation: loading 3s ease-in-out;
+}
+
+.loading-text {
+    color: var(--tesla-gray-400);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+/* Tesla 헤더 */
+.tesla-header {
+    position: sticky;
+    top: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--tesla-gray-800);
+    z-index: 100;
+    padding: 1rem 0;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    max-width: 100%;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--status-normal);
+    font-size: 0.9rem;
+}
+
+.battery-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--tesla-gray-400);
+    font-size: 0.9rem;
+}
+
+.app-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--tesla-white);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    color: var(--tesla-gray-400);
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.header-btn:hover {
+    color: var(--tesla-white);
+    background: var(--tesla-gray-800);
+}
+
+.header-btn .badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--status-error);
+    color: var(--tesla-white);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Tesla 메인 컨텐츠 */
+.tesla-main {
+    padding: 1.5rem 1rem;
+    padding-bottom: 6rem; /* 하단 네비게이션 공간 */
+    max-width: 100%;
+}
+
+/* Tesla 카드 */
+.tesla-card {
+    background: var(--gradient-card);
+    border-radius: 16px;
+    border: 1px solid var(--tesla-gray-800);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-normal);
+}
+
+.tesla-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--tesla-gray-800);
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--tesla-white);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+/* 압축기 상태 카드 */
+.compressor-status .status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--tesla-gray-800);
+    border-radius: 12px;
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.status-label {
+    font-size: 0.8rem;
+    color: var(--tesla-gray-400);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.status-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--tesla-white);
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--tesla-gray-800);
+    border-radius: 20px;
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.status-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--tesla-white);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--status-normal);
+}
+
+.status-indicator.normal {
+    background: var(--status-normal);
+}
+
+.status-indicator.warning {
+    background: var(--status-warning);
+}
+
+.status-indicator.error {
+    background: var(--status-error);
+}
+
+/* 액션 버튼 */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.tesla-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.tesla-btn.primary {
+    background: var(--gradient-primary);
+    color: var(--tesla-white);
+}
+
+.tesla-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.tesla-btn.secondary {
+    background: var(--tesla-gray-800);
+    color: var(--tesla-white);
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.tesla-btn.secondary:hover {
+    background: var(--tesla-gray-700);
+}
+
+/* 모니터링 카드 */
+.monitoring-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control-btn {
+    background: var(--tesla-gray-800);
+    border: 1px solid var(--tesla-gray-700);
+    color: var(--tesla-gray-400);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.control-btn:hover,
+.control-btn.active {
+    background: var(--sbux-light-green);
+    color: var(--tesla-white);
+    border-color: var(--sbux-light-green);
+}
+
+.chart-container {
+    height: 200px;
+    margin-top: 1rem;
+}
+
+/* 결제 상태 카드 */
+.payment-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--tesla-gray-800);
+    border-radius: 12px;
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.summary-label {
+    font-size: 0.8rem;
+    color: var(--tesla-gray-400);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--tesla-white);
+}
+
+.time-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--tesla-gray-400);
+    font-size: 0.9rem;
+}
+
+.recent-payments h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tesla-white);
+    margin-bottom: 1rem;
+}
+
+.payment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.payment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--tesla-gray-800);
+    border-radius: 12px;
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.payment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.payment-method {
+    font-size: 0.9rem;
+    color: var(--tesla-gray-400);
+}
+
+.payment-time {
+    font-size: 0.8rem;
+    color: var(--tesla-gray-500);
+}
+
+.payment-amount {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--tesla-white);
+}
+
+/* Tesla 하단 네비게이션 */
+.tesla-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--tesla-gray-800);
+    display: flex;
+    padding: 0.75rem 0;
+    z-index: 100;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    color: var(--tesla-gray-400);
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.nav-item:hover,
+.nav-item.active {
+    color: var(--sbux-light-green);
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+}
+
+.nav-item span {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+/* 진단 섹션 */
+.diagnosis-progress {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.progress-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+}
+
+.progress-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(var(--sbux-light-green) 0deg, var(--tesla-gray-800) 0deg);
+    transition: all var(--transition-slow);
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--tesla-white);
+}
+
+.progress-description {
+    color: var(--tesla-gray-400);
+    font-size: 0.9rem;
+}
+
+.diagnosis-result {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.result-header {
+    margin-bottom: 1.5rem;
+}
+
+.result-icon {
+    font-size: 3rem;
+    color: var(--status-normal);
+    margin-bottom: 1rem;
+}
+
+.result-header h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--tesla-white);
+}
+
+.result-content {
+    text-align: left;
+    background: var(--tesla-gray-800);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.result-status,
+.result-confidence {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--tesla-gray-700);
+}
+
+.status-label,
+.confidence-label {
+    color: var(--tesla-gray-400);
+    font-weight: 500;
+}
+
+.status-value,
+.confidence-value {
+    color: var(--tesla-white);
+    font-weight: 700;
+}
+
+/* 결제 관리 섹션 */
+.payment-tabs {
+    display: flex;
+    background: var(--tesla-gray-800);
+    border-radius: 12px;
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    color: var(--tesla-gray-400);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+}
+
+.tab-btn.active {
+    background: var(--sbux-light-green);
+    color: var(--tesla-white);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.overview-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--tesla-gray-800);
+    border-radius: 12px;
+    border: 1px solid var(--tesla-gray-700);
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--tesla-white);
+}
+
+.card-title {
+    font-size: 0.9rem;
+    color: var(--tesla-gray-400);
+    margin-bottom: 0.25rem;
+}
+
+.card-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--tesla-white);
+}
+
+.card-value.positive {
+    color: var(--status-normal);
+}
+
+/* 알림 관리 섹션 */
+.notification-settings {
+    margin-bottom: 2rem;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--tesla-gray-800);
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tesla-white);
+    margin-bottom: 0.25rem;
+}
+
+.setting-info p {
+    font-size: 0.9rem;
+    color: var(--tesla-gray-400);
+}
+
+/* 스위치 */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--tesla-gray-700);
+    transition: var(--transition-fast);
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--tesla-white);
+    transition: var(--transition-fast);
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--sbux-light-green);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Tesla 모달 */
+.tesla-modal .modal-content {
+    background: var(--gradient-card);
+    border: 1px solid var(--tesla-gray-800);
+    border-radius: 16px;
+    color: var(--tesla-white);
+}
+
+.tesla-modal .modal-header {
+    border-bottom: 1px solid var(--tesla-gray-800);
+}
+
+.tesla-modal .modal-title {
+    color: var(--tesla-white);
+    font-weight: 600;
+}
+
+.tesla-modal .modal-body {
+    color: var(--tesla-gray-300);
+}
+
+.tesla-modal .modal-footer {
+    border-top: 1px solid var(--tesla-gray-800);
+}
+
+/* 백 버튼 */
+.back-btn {
+    background: var(--tesla-gray-800);
+    border: 1px solid var(--tesla-gray-700);
+    color: var(--tesla-gray-400);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.back-btn:hover {
+    background: var(--tesla-gray-700);
+    color: var(--tesla-white);
+}
+
+/* 애니메이션 */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes loading {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+    .tesla-main {
+        padding: 1rem 0.75rem;
+    }
+    
+    .card-content {
+        padding: 1rem;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .overview-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --tesla-black: #000000;
+        --tesla-white: #ffffff;
+    }
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+    .tesla-card {
+        border: 2px solid var(--tesla-white);
+    }
+    
+    .tesla-btn {
+        border: 2px solid var(--tesla-white);
+    }
+}

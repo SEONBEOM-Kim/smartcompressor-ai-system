@@ -1,30 +1,54 @@
 from flask import Blueprint, request, jsonify
+import logging
+
+# 로깅 설정
+logger = logging.getLogger(__name__)
 
 payment_bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 # 결제 준비
 @payment_bp.route('/ready', methods=['POST'])
 def payment_ready():
+    """통합 결제 서비스를 통한 결제 준비"""
     try:
         data = request.get_json()
         plan_type = data.get('plan_type', 'standard')
-        user_email = data.get('user_email', 'test@example.com')
+        user_info = {
+            'name': data.get('name', '고객'),
+            'email': data.get('email', 'test@example.com'),
+            'phone': data.get('phone', ''),
+            'user_id': data.get('user_id', 'guest')
+        }
+        provider = data.get('provider', 'auto')
 
-        print(f'💳 결제 요청: {plan_type} 플랜, 사용자: {user_email}')
+        logger.info(f'💳 결제 요청: {plan_type} 플랜, 사용자: {user_info["email"]}')
 
-        return jsonify({
-            'success': True,
-            'message': '결제가 완료되었습니다!',
-            'plan_type': plan_type,
-            'amount': 9900 if plan_type == 'standard' else 19900,
-            'payment_url': f'http://signalcraft.kr/payment/success?plan={plan_type}'
-        })
+        # 통합 결제 서비스로 결제 생성
+        from services.payment_service import unified_payment_service
+        result = unified_payment_service.create_payment(plan_type, user_info, provider)
+
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': '결제가 준비되었습니다!',
+                'plan_type': plan_type,
+                'payment_id': result.get('payment_id'),
+                'checkout_url': result.get('checkout_url'),
+                'provider': result.get('provider'),
+                'amount': unified_payment_service.payment_plans[plan_type]['price']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': result.get('error', '결제 준비 중 오류가 발생했습니다.')
+            }), 400
+
     except Exception as e:
-        print(f"결제 오류: {e}")
+        logger.error(f"결제 준비 오류: {e}")
         return jsonify({
             'success': False,
             'message': '결제 중 오류가 발생했습니다.'
-        })
+        }), 500
 
 # 결제 성공 페이지
 @payment_bp.route('/success')
@@ -67,41 +91,38 @@ def payment_success():
     </html>
     '''
 
-# 앙상블 AI 결제 플랜 조회
+# 결제 플랜 조회
 @payment_bp.route('/plans', methods=['GET'])
 def get_payment_plans():
-    """결제 플랜 조회 (앙상블 AI 포함)"""
+    """통합 결제 서비스를 통한 결제 플랜 조회"""
     try:
-        plans = [
-            {
-                'id': 'basic',
-                'name': '기본 플랜',
-                'price': 50000,
-                'features': ['월 100회 분석', '기본 AI 모델', '이메일 지원'],
-                'ai_models': ['lightweight']
-            },
-            {
-                'id': 'premium',
-                'name': '프리미엄 플랜',
-                'price': 100000,
-                'features': ['월 500회 분석', '앙상블 AI 모델', '실시간 모니터링', '전화 지원'],
-                'ai_models': ['lightweight', 'ensemble']
-            },
-            {
-                'id': 'enterprise',
-                'name': '엔터프라이즈 플랜',
-                'price': 200000,
-                'features': ['무제한 분석', '고성능 AI 모델', '24시간 모니터링', '전담 지원'],
-                'ai_models': ['lightweight', 'ensemble', 'mimii']
-            }
-        ]
+        from services.payment_service import unified_payment_service
+        result = unified_payment_service.get_payment_plans()
         
-        return jsonify({
-            'success': True,
-            'plans': plans
-        })
+        if result['success']:
+            # 플랜 데이터를 API 형식에 맞게 변환
+            plans = []
+            for plan_id, plan_data in result['plans'].items():
+                plans.append({
+                    'id': plan_id,
+                    'name': plan_data['name'],
+                    'price': plan_data['price'],
+                    'features': plan_data['features'],
+                    'ai_models': plan_data['ai_models']
+                })
+            
+            return jsonify({
+                'success': True,
+                'plans': plans
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': '결제 플랜 조회 실패'
+            }), 500
         
     except Exception as e:
+        logger.error(f"결제 플랜 조회 오류: {e}")
         return jsonify({
             'success': False,
             'message': f'결제 플랜 조회 오류: {str(e)}'

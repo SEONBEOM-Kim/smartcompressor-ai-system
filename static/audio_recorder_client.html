@@ -491,7 +491,7 @@
         let selectedEquipmentType = 'compressor';
 
         // API 설정
-        const API_BASE_URL = 'http://localhost:8001';
+        const API_BASE_URL = 'http://localhost:3000';
 
         // DOM 요소
         const startRecordBtn = document.getElementById('startRecord');
@@ -671,7 +671,7 @@
 
             try {
                 const formData = new FormData();
-                formData.append('file', recordedAudio);
+                formData.append('audio', recordedAudio);
                 formData.append('session_id', currentSessionId || generateSessionId());
                 formData.append('equipment_id', equipmentId);
                 formData.append('location', document.getElementById('location').value);
@@ -685,7 +685,7 @@
                 };
                 formData.append('metadata', JSON.stringify(metadata));
 
-                const response = await fetch(`${API_BASE_URL}/upload/audio`, {
+                const response = await fetch(`${API_BASE_URL}/api/ai/analyze`, {
                     method: 'POST',
                     body: formData
                 });
@@ -696,15 +696,13 @@
 
                 const result = await response.json();
                 
-                if (result.status === 'success') {
-                    showAlert('파일 업로드 완료! 분석 결과를 기다리는 중...', 'success');
+                if (result.success) {
+                    showAlert('AI 분석이 완료되었습니다!', 'success');
                     
-                    if (result.analysis_status) {
-                        // 분석 결과 폴링
-                        pollAnalysisResult(result.file_id);
-                    }
+                    // 분석 결과 표시
+                    displayAnalysisResult(result.result);
                 } else {
-                    throw new Error(result.message || '업로드 실패');
+                    throw new Error(result.message || '분석 실패');
                 }
 
             } catch (error) {
@@ -819,18 +817,19 @@
         }
 
         function displayAnalysisResult(analysis) {
-            // 기본 결과 표시
-            document.getElementById('diagnosisValue').textContent = analysis.diagnosis || '-';
+            // AI API 응답 형식에 맞게 결과 표시
+            document.getElementById('diagnosisValue').textContent = 
+                analysis.is_overload ? '이상 감지' : '정상';
             document.getElementById('confidenceValue').textContent = 
                 analysis.confidence ? `${Math.round(analysis.confidence * 100)}%` : '-';
             document.getElementById('riskValue').textContent = 
-                analysis.risk_score ? `${analysis.risk_score}/100` : '-';
+                analysis.is_overload ? '높음' : '낮음';
             document.getElementById('processingTime').textContent = 
-                analysis.processing_time_ms ? `${analysis.processing_time_ms}ms` : '-';
+                analysis.processing_time_ms ? `${Math.round(analysis.processing_time_ms)}ms` : '-';
 
             // 위험도 표시
             const riskIndicator = document.getElementById('riskIndicator');
-            const riskLevel = analysis.risk_level || 'normal';
+            const riskLevel = analysis.is_overload ? 'high' : 'normal';
             riskIndicator.className = `risk-indicator risk-${riskLevel}`;
             
             const riskLabels = {
@@ -842,24 +841,61 @@
             };
             riskIndicator.textContent = riskLabels[riskLevel] || '정상';
 
-            // 권장사항 표시
+            // 권장사항 표시 (품질 정보 포함)
             const recommendationsList = document.getElementById('recommendationsList');
             recommendationsList.innerHTML = '';
             
-            if (analysis.recommendations && analysis.recommendations.length > 0) {
-                analysis.recommendations.forEach(rec => {
+            const recommendations = [];
+            
+            // 기본 진단 권장사항
+            if (analysis.is_overload) {
+                recommendations.push('압축기 점검 및 수리가 필요합니다');
+                recommendations.push('베어링 마모 가능성이 높습니다');
+                recommendations.push('전문가 상담을 권장합니다');
+            } else {
+                recommendations.push('정상 작동 중입니다');
+                recommendations.push('정기 점검을 계속하세요');
+            }
+            
+            // 품질 관련 권장사항
+            if (analysis.quality_metrics) {
+                const quality = analysis.quality_metrics;
+                if (quality.needs_amplification) {
+                    recommendations.push('음량이 부족합니다. 마이크를 더 가까이 가져가세요');
+                }
+                if (quality.needs_noise_reduction) {
+                    recommendations.push('노이즈가 많습니다. 조용한 환경에서 녹음하세요');
+                }
+                if (quality.needs_balance_adjustment) {
+                    recommendations.push('주파수 균형이 맞지 않습니다. 마이크 위치를 조정하세요');
+                }
+                
+                // 품질 점수 표시
+                recommendations.push(`오디오 품질: ${quality.overall_quality}/100점`);
+            }
+            
+            // 최적화 정보 표시
+            if (analysis.optimization_info && analysis.optimization_info.optimizations_applied) {
+                recommendations.push('적용된 최적화:');
+                analysis.optimization_info.optimizations_applied.forEach(opt => {
+                    recommendations.push(`- ${opt}`);
+                });
+            }
+            
+            // 노이즈 캔슬링 정보 표시
+            if (analysis.noise_info) {
+                const noise = analysis.noise_info;
+                recommendations.push(`노이즈 감소: ${noise.noise_reduction_db}dB`);
+            }
+            
+            recommendations.forEach(rec => {
                     const li = document.createElement('li');
                     li.textContent = rec;
                     recommendationsList.appendChild(li);
                 });
-            } else {
-                const li = document.createElement('li');
-                li.textContent = '추가 권장사항이 없습니다.';
-                recommendationsList.appendChild(li);
-            }
 
             resultSection.classList.remove('hidden');
-            showAlert('분석이 완료되었습니다!', 'success');
+            showAlert('AI 분석이 완료되었습니다!', 'success');
         }
 
         function showAlert(message, type = 'info') {

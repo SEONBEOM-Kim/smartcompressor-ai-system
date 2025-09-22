@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 데이터베이스
+  postgres:
+    image: postgres:15
+    container_name: smartcompressor_postgres
+    environment:
+      POSTGRES_DB: smartcompressor_ai
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (캐싱용)
+  redis:
+    image: redis:7-alpine
+    container_name: smartcompressor_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # 애플리케이션
+  app:
+    build: .
+    container_name: smartcompressor_app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=smartcompressor_ai
+      - DB_USER=postgres
+      - DB_PASSWORD=password123
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+
+volumes:
+  postgres_data:

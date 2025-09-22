@@ -24,10 +24,21 @@ from routes.esp32_routes import esp32_bp
 from routes.notification_routes import notification_bp
 from routes.kakao_notification_routes import kakao_notification_bp
 from routes.enhanced_auth_routes import enhanced_auth_bp
+from routes.iot_sensor_routes import iot_sensor_bp
+from routes.dashboard_routes import dashboard_bp
+from routes.mobile_app_routes import mobile_app_bp
+from routes.analytics_routes import analytics_bp
+from admin.routes.admin_routes import admin_bp
 from models.database import init_db
 
 # AI 훈련 모듈 import (올바른 경로)
 from services.ai_service import ensemble_ai_service
+
+# IoT 센서 서비스 import
+from services.sensor_data_service import sensor_data_service
+from services.realtime_streaming_service import realtime_streaming_service
+from services.sensor_monitoring_service import sensor_monitoring_service
+from services.firmware_ota_service import firmware_ota_service
 
 def create_app():
     """Flask 애플리케이션 팩토리"""
@@ -76,6 +87,21 @@ def create_app():
     app.register_blueprint(kakao_notification_bp)
     # 향상된 인증 라우트 등록
     app.register_blueprint(enhanced_auth_bp)
+    # IoT 센서 시스템 라우트 등록
+    app.register_blueprint(iot_sensor_bp)
+# 대시보드 라우트 등록 # NEW
+app.register_blueprint(dashboard_bp)
+# 모바일 앱 라우트 등록 # NEW
+app.register_blueprint(mobile_app_bp)
+# 알림 관리 라우트 등록 # NEW
+app.register_blueprint(notification_bp)
+# 분석 시스템 라우트 등록 # NEW
+app.register_blueprint(analytics_bp)
+# 관리자 시스템 라우트 등록 # NEW
+app.register_blueprint(admin_bp)
+    
+    # IoT 센서 서비스 초기화
+    sensor_monitoring_service.start_monitoring()
     
     # API 라우트 추가 (프론트엔드 호환성)
     @app.route('/api/auth/login', methods=['POST'])
@@ -103,6 +129,24 @@ def create_app():
         from routes.ai_routes import lightweight_analyze
         return lightweight_analyze()
 
+    @app.route('/dashboard')
+    def dashboard():
+        """대시보드 페이지"""
+        from flask import render_template
+        return render_template('dashboard.html')
+
+@app.route('/mobile_app')
+def mobile_app():
+    """모바일 앱 페이지"""
+    from flask import render_template
+    return render_template('mobile_app.html')
+
+@app.route('/notifications')
+def notification_dashboard():
+    """알림 관리 대시보드 페이지"""
+    from flask import render_template
+    return render_template('notification_dashboard.html')
+
     return app
 
 if __name__ == '__main__':
@@ -118,6 +162,12 @@ if __name__ == '__main__':
 
     port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+
+    @app.route('/admin')
+    def admin_dashboard():
+        """관리자 대시보드 페이지"""
+        from flask import render_template
+        return render_template('admin_dashboard.html')
 
     print("=== 🚀 모듈화된 Flask 서버 시작 ===")
     print(f"포트: {port}, 디버그: {debug}")
