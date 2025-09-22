@@ -611,8 +611,12 @@ function handleLogin(event) {
             name: '관리자',
             role: 'admin'
         };
-            updateLoginStatus();
-            $('#loginModal').modal('hide');
+        updateLoginStatus();
+        // 모달 닫기 (Bootstrap 5 방식)
+        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (modal) {
+            modal.hide();
+        }
         alert('로그인 성공! 관리자 대시보드로 이동합니다.');
         // 관리자 대시보드로 이동
         window.location.href = '/admin/';

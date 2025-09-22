@@ -218,11 +218,14 @@ class NotificationManager {
         const unreadCount = this.notifications.filter(n => !n.read).length;
         const badge = document.getElementById('notification-badge');
         
-        if (unreadCount > 0) {
-            badge.textContent = unreadCount;
-            badge.style.display = 'block';
-        } else {
-            badge.style.display = 'none';
+        // DOM 요소가 존재하는지 확인
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
         }
     }
     
