@@ -403,11 +403,11 @@
             const password = document.getElementById('password').value;
             
             // 간단한 로그인 검증 (실제로는 서버에서 처리)
-            if (username === 'admin' && password === 'admin') {
+            if (username === 'admin' && password === 'admin123') {
                 // 관리자 대시보드로 이동
                 window.location.href = '/admin/';
             } else {
-                alert('잘못된 사용자명 또는 비밀번호입니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin');
+                alert('잘못된 사용자명 또는 비밀번호입니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin123');
             }
         });
 
@@ -416,7 +416,7 @@
             link.addEventListener('click', function(e) {
                 if (this.href.includes('/admin/')) {
                     e.preventDefault();
-                    alert('관리자 대시보드에 접근하려면 로그인이 필요합니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin');
+                    alert('관리자 대시보드에 접근하려면 로그인이 필요합니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin123');
                 }
             });
         });
