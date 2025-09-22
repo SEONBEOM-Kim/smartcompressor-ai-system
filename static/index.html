@@ -9,11 +9,16 @@
     <style>
         .hero-section {
             background: linear-gradient(135deg, #000000 0%, #111111 50%, #1a1a1a 100%);
-            color: white;
+            color: #ffffff;
             padding: 100px 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
+        }
+        
+        .hero-section h1, .hero-section h2, .hero-section h3, .hero-section p {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .feature-card {
             transition: transform 0.3s ease;
@@ -35,6 +40,15 @@
         .navbar {
             z-index: 9999 !important;
             position: relative !important;
+            background: linear-gradient(135deg, #000000 0%, #111111 50%, #1a1a1a 100%) !important;
+        }
+        
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        
+        .navbar-brand:hover, .nav-link:hover {
+            color: #e5e7eb !important;
         }
         .navbar-brand {
             font-weight: bold;
@@ -416,7 +430,7 @@
             content: '✓';
             position: absolute;
             left: 0;
-            color: #28a745;
+            color: #ffffff;
             font-weight: bold;
         }
         
@@ -471,7 +485,7 @@
 </head>
 <body>
     <!-- 네비게이션 바 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: linear-gradient(135deg, #000000 0%, #111111 50%, #1a1a1a 100%);">
         <div class="container">
             <a class="navbar-brand" href="#home">
                 <i class="fas fa-shield-alt me-2"></i>Signalcraft
