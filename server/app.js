@@ -8,6 +8,7 @@ const aiRoutes = require('./routes/aiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const kakaoRoutes = require('./routes/kakaoRoutes');
 const monitoringRoutes = require('./routes/monitoringRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/lightweight-analyze', aiRoutes); // 경량 AI는 별도 경로로도 접근 가능
 app.use('/api/kakao', kakaoRoutes);
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // 카카오 로그인 라우트 (별도 경로)
 app.use('/auth/kakao', kakaoRoutes);

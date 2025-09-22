@@ -602,29 +602,23 @@ function handleLogin(event) {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
-    fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            localStorage.setItem('authToken', data.sessionId);
-            currentUser = data.user;
+    // 간단한 클라이언트 사이드 로그인 검증
+    if (email === 'admin' && password === 'admin123') {
+        localStorage.setItem('authToken', 'demo_token_123');
+        currentUser = {
+            id: 1,
+            email: 'admin',
+            name: '관리자',
+            role: 'admin'
+        };
             updateLoginStatus();
             $('#loginModal').modal('hide');
-            alert('로그인 성공!');
+        alert('로그인 성공! 관리자 대시보드로 이동합니다.');
+        // 관리자 대시보드로 이동
+        window.location.href = '/admin/';
         } else {
-            alert(data.message || '로그인 실패');
+        alert('잘못된 사용자명 또는 비밀번호입니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin123');
         }
-    })
-    .catch(error => {
-        console.error('로그인 오류:', error);
-        alert('로그인 중 오류가 발생했습니다.');
-    });
 }
 
 // 회원가입 처리
