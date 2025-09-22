@@ -488,12 +488,12 @@ function showLoginModal() {
                     <div class="modal-body">
                         <form id="loginForm">
                             <div class="mb-3">
-                                <label for="loginEmail" class="form-label">이메일</label>
-                                <input type="email" class="form-control" id="loginEmail" required>
+                                <label for="loginEmail" class="form-label">사용자명 또는 이메일</label>
+                                <input type="text" class="form-control" id="loginEmail" placeholder="사용자명 또는 이메일을 입력하세요" required>
                             </div>
                             <div class="mb-3">
                                 <label for="loginPassword" class="form-label">비밀번호</label>
-                                <input type="password" class="form-control" id="loginPassword" required>
+                                <input type="password" class="form-control" id="loginPassword" placeholder="비밀번호를 입력하세요" required>
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">로그인</button>
