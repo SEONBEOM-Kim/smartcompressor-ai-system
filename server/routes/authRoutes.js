@@ -322,6 +322,27 @@ router.post('/logout', async (req, res) => {
     }
 });
 
+// 세션 검증 (verify) 엔드포인트
+router.get('/verify', authenticateSession, async (req, res) => {
+    try {
+        res.json({ 
+            success: true, 
+            message: '세션이 유효합니다.',
+            user: { 
+                id: req.user.userId,
+                username: req.user.username,
+                role: req.user.role
+            }
+        });
+    } catch (error) {
+        console.error('세션 검증 오류:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: '세션 검증 중 오류가 발생했습니다.' 
+        });
+    }
+});
+
 // 세션 ID 생성 함수
 function generateSessionId() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
