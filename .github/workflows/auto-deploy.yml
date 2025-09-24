@@ -96,6 +96,11 @@ jobs:
           echo "🔄 Nginx 재시작..."
           sudo systemctl restart nginx
           
+          # 서버 상태 확인
+          echo "🔍 서버 상태 확인..."
+          chmod +x scripts/check-server-status.sh
+          ./scripts/check-server-status.sh
+          
           # 502 에러 완전 해결 실행
           echo "🔧 502 에러 완전 해결 실행..."
           chmod +x scripts/fix-502-complete.sh
