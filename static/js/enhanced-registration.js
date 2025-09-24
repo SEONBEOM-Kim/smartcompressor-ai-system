@@ -39,9 +39,9 @@ class EnhancedRegistration {
                             <!-- 단계 표시 -->
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="badge bg-primary">1. 기본 정보</span>
-                                <span class="badge bg-light text-dark">2. 회사 정보</span>
+                                <span class="badge bg-light text-dark">2. 추가 정보</span>
                                 <span class="badge bg-light text-dark">3. 서비스 설정</span>
-                                <span class="badge bg-light text-dark">4. 알림 설정</span>
+                                <span class="badge bg-light text-dark">4. 약관 동의</span>
                             </div>
                             
                             <!-- 폼 컨테이너 -->
@@ -118,6 +118,9 @@ class EnhancedRegistration {
                 break;
         }
         
+        // 이전 단계로 돌아갈 때 저장된 데이터 복원
+        this.restoreFormData(step);
+        
         this.currentStep = step;
     }
     
@@ -149,7 +152,7 @@ class EnhancedRegistration {
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="form-text">8자 이상, 영문, 숫자, 특수문자 포함</div>
+                        <div class="form-text">6자 이상, 영문, 숫자 포함</div>
                         <div class="invalid-feedback">비밀번호 조건을 만족해주세요.</div>
                     </div>
                     
@@ -157,24 +160,6 @@ class EnhancedRegistration {
                         <label for="regPasswordConfirm" class="form-label">비밀번호 확인 <span class="text-danger">*</span></label>
                         <input type="password" class="form-control" id="regPasswordConfirm" name="password_confirm" required>
                         <div class="invalid-feedback">비밀번호가 일치하지 않습니다.</div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="regPhone" class="form-label">휴대폰 번호 <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="regPhone" name="phone" placeholder="010-1234-5678" required>
-                        <div class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.</div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="regPosition" class="form-label">직책</label>
-                        <select class="form-select" id="regPosition" name="position">
-                            <option value="">선택해주세요</option>
-                            <option value="ceo">대표이사</option>
-                            <option value="manager">매니저</option>
-                            <option value="engineer">엔지니어</option>
-                            <option value="technician">기술자</option>
-                            <option value="other">기타</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -185,57 +170,20 @@ class EnhancedRegistration {
         return `
             <div class="step-content">
                 <h6 class="mb-3 text-primary">
-                    <i class="fas fa-building me-2"></i>회사 정보를 입력해주세요
+                    <i class="fas fa-building me-2"></i>추가 정보를 입력해주세요
                 </h6>
                 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="regCompany" class="form-label">회사명 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="regCompany" name="company" required>
-                        <div class="invalid-feedback">회사명을 입력해주세요.</div>
+                        <label for="regCompany" class="form-label">회사명</label>
+                        <input type="text" class="form-control" id="regCompany" name="company" placeholder="회사명을 입력해주세요">
+                        <div class="form-text">선택사항입니다</div>
                     </div>
                     
                     <div class="col-md-6">
-                        <label for="regIndustry" class="form-label">산업군</label>
-                        <select class="form-select" id="regIndustry" name="industry">
-                            <option value="">선택해주세요</option>
-                            <option value="retail">소매업</option>
-                            <option value="food">식품업</option>
-                            <option value="manufacturing">제조업</option>
-                            <option value="logistics">물류업</option>
-                            <option value="hospitality">호텔/관광업</option>
-                            <option value="healthcare">의료업</option>
-                            <option value="education">교육업</option>
-                            <option value="other">기타</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="regCompanySize" class="form-label">회사 규모</label>
-                        <select class="form-select" id="regCompanySize" name="company_size">
-                            <option value="">선택해주세요</option>
-                            <option value="1-10">1-10명</option>
-                            <option value="11-50">11-50명</option>
-                            <option value="51-200">51-200명</option>
-                            <option value="201-500">201-500명</option>
-                            <option value="500+">500명 이상</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="regCompanyEmail" class="form-label">회사 이메일</label>
-                        <input type="email" class="form-control" id="regCompanyEmail" name="company_email">
-                        <div class="form-text">회사 이메일이 있으시면 입력해주세요</div>
-                    </div>
-                    
-                    <div class="col-12">
-                        <label for="regAddress" class="form-label">회사 주소</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="regAddress" name="address" placeholder="서울시 강남구 테헤란로 123">
-                            <button class="btn btn-outline-secondary" type="button" onclick="enhancedRegistration.searchAddress()">
-                                <i class="fas fa-search me-1"></i>주소 검색
-                            </button>
-                        </div>
+                        <label for="regPhone" class="form-label">휴대폰 번호 <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="regPhone" name="phone" placeholder="010-1234-5678" required>
+                        <div class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.</div>
                     </div>
                 </div>
             </div>
@@ -251,7 +199,7 @@ class EnhancedRegistration {
                 
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label">사용 목적 <span class="text-danger">*</span></label>
+                        <label class="form-label">사용 목적</label>
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <div class="form-check">
@@ -269,59 +217,7 @@ class EnhancedRegistration {
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="purpose3" name="purpose" value="cost_reduction">
-                                    <label class="form-check-label" for="purpose3">
-                                        <i class="fas fa-chart-line text-warning me-2"></i>비용 절감
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="purpose4" name="purpose" value="efficiency">
-                                    <label class="form-check-label" for="purpose4">
-                                        <i class="fas fa-tachometer-alt text-info me-2"></i>운영 효율성
-                                    </label>
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="regBudget" class="form-label">월 예산</label>
-                        <select class="form-select" id="regBudget" name="budget">
-                            <option value="">선택해주세요</option>
-                            <option value="under_50k">50만원 미만</option>
-                            <option value="50k_100k">50-100만원</option>
-                            <option value="100k_200k">100-200만원</option>
-                            <option value="200k_500k">200-500만원</option>
-                            <option value="500k_plus">500만원 이상</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="regTimeline" class="form-label">도입 시기</label>
-                        <select class="form-select" id="regTimeline" name="timeline">
-                            <option value="">선택해주세요</option>
-                            <option value="immediate">즉시</option>
-                            <option value="1_month">1개월 내</option>
-                            <option value="3_months">3개월 내</option>
-                            <option value="6_months">6개월 내</option>
-                            <option value="1_year">1년 내</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-12">
-                        <label for="regDevices" class="form-label">예상 디바이스 수</label>
-                        <select class="form-select" id="regDevices" name="device_count">
-                            <option value="">선택해주세요</option>
-                            <option value="1">1개</option>
-                            <option value="2-5">2-5개</option>
-                            <option value="6-10">6-10개</option>
-                            <option value="11-20">11-20개</option>
-                            <option value="20_plus">20개 이상</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -332,54 +228,10 @@ class EnhancedRegistration {
         return `
             <div class="step-content">
                 <h6 class="mb-3 text-primary">
-                    <i class="fas fa-bell me-2"></i>알림 설정을 선택해주세요
+                    <i class="fas fa-check-circle me-2"></i>약관 동의 및 회원가입 완료
                 </h6>
                 
                 <div class="row g-3">
-                    <div class="col-12">
-                        <div class="card border-0 bg-light">
-                            <div class="card-body">
-                                <h6 class="card-title">
-                                    <i class="fas fa-envelope text-primary me-2"></i>이메일 알림
-                                </h6>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="emailAlerts" name="email_alerts" checked>
-                                    <label class="form-check-label" for="emailAlerts">
-                                        이상 감지 시 이메일로 알림 받기
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="emailNewsletter" name="email_newsletter">
-                                    <label class="form-check-label" for="emailNewsletter">
-                                        서비스 업데이트 및 뉴스레터 수신
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12">
-                        <div class="card border-0 bg-light">
-                            <div class="card-body">
-                                <h6 class="card-title">
-                                    <i class="fas fa-mobile-alt text-success me-2"></i>SMS/카카오톡 알림
-                                </h6>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="smsAlerts" name="sms_alerts" checked>
-                                    <label class="form-check-label" for="smsAlerts">
-                                        긴급 상황 시 SMS/카카오톡으로 알림 받기
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="kakaoAlerts" name="kakao_alerts">
-                                    <label class="form-check-label" for="kakaoAlerts">
-                                        카카오톡으로 상세 알림 받기
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div class="col-12">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="privacyAgree" name="privacy_agree" required>
@@ -399,11 +251,9 @@ class EnhancedRegistration {
                     </div>
                     
                     <div class="col-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="marketingAgree" name="marketing_agree">
-                            <label class="form-check-label" for="marketingAgree">
-                                마케팅 정보 수신에 동의합니다 (선택)
-                            </label>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            회원가입 완료 후 관리자 대시보드에서 추가 설정을 할 수 있습니다.
                         </div>
                     </div>
                 </div>
@@ -413,7 +263,9 @@ class EnhancedRegistration {
     
     nextStep() {
         if (this.validateCurrentStep()) {
+            // 각 단계에서는 데이터를 임시 저장만 (API 호출 안함)
             this.collectStepData();
+            console.log(`단계 ${this.currentStep} 완료, 저장된 데이터:`, this.formData);
             if (this.currentStep < this.totalSteps) {
                 this.renderStep(this.currentStep + 1);
             }
@@ -422,6 +274,8 @@ class EnhancedRegistration {
     
     previousStep() {
         if (this.currentStep > 1) {
+            // 현재 단계의 데이터를 먼저 저장
+            this.collectStepData();
             this.renderStep(this.currentStep - 1);
         }
     }
@@ -472,9 +326,10 @@ class EnhancedRegistration {
             }
         }
         
-        // 비밀번호 검증
+        // 비밀번호 검증 (더 유연한 조건)
         if (field.name === 'password' && value) {
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+            // 최소 6자 이상, 영문과 숫자 포함 (특수문자는 선택사항)
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/;
             if (!passwordRegex.test(value)) {
                 field.classList.add('is-invalid');
                 isValid = false;
@@ -490,7 +345,37 @@ class EnhancedRegistration {
             }
         }
         
+        // 핸드폰 번호 필수 검증
+        if (field.name === 'phone' && field.hasAttribute('required') && !value) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        }
+        
         return isValid;
+    }
+    
+    restoreFormData(step) {
+        // 저장된 데이터를 현재 단계의 폼에 복원
+        const currentStepForm = document.querySelector('#registrationFormContainer .step-content');
+        if (!currentStepForm) return;
+        
+        const inputs = currentStepForm.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                // 체크박스의 경우 배열에서 확인
+                if (this.formData[input.name] && Array.isArray(this.formData[input.name])) {
+                    input.checked = this.formData[input.name].includes(input.value);
+                }
+            } else {
+                // 일반 입력 필드의 경우 값 복원
+                if (this.formData[input.name]) {
+                    input.value = this.formData[input.name];
+                }
+            }
+        });
+        
+        console.log(`단계 ${step} 데이터 복원 완료:`, this.formData);
     }
     
     collectStepData() {
@@ -503,12 +388,74 @@ class EnhancedRegistration {
                     if (!this.formData[input.name]) {
                         this.formData[input.name] = [];
                     }
-                    this.formData[input.name].push(input.value);
+                    // 중복 방지
+                    if (!this.formData[input.name].includes(input.value)) {
+                        this.formData[input.name].push(input.value);
+                    }
+                } else {
+                    // 체크 해제된 경우 배열에서 제거
+                    if (this.formData[input.name] && Array.isArray(this.formData[input.name])) {
+                        this.formData[input.name] = this.formData[input.name].filter(value => value !== input.value);
+                    }
                 }
             } else {
-                this.formData[input.name] = input.value;
+                // 기존 데이터를 덮어쓰지 않고 병합
+                if (input.value.trim() !== '') {
+                    this.formData[input.name] = input.value;
+                }
             }
         });
+        
+        console.log(`단계 ${this.currentStep} 데이터 수집:`, this.formData);
+        
+        // 데이터가 제대로 저장되었는지 확인
+        if (Object.keys(this.formData).length === 0) {
+            console.warn('데이터가 저장되지 않았습니다!');
+        }
+    }
+    
+    collectAllStepData() {
+        // 현재 단계의 데이터를 먼저 수집
+        this.collectStepData();
+        
+        console.log('최종 데이터 수집 전 기존 데이터:', this.formData);
+        
+        // 현재 폼에서 직접 데이터 수집 (안전장치)
+        const currentStepForm = document.querySelector('#registrationFormContainer .step-content');
+        if (currentStepForm) {
+            const inputs = currentStepForm.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    if (input.checked) {
+                        if (!this.formData[input.name]) {
+                            this.formData[input.name] = [];
+                        }
+                        if (!this.formData[input.name].includes(input.value)) {
+                            this.formData[input.name].push(input.value);
+                        }
+                    }
+                } else {
+                    if (input.value.trim() !== '') {
+                        this.formData[input.name] = input.value;
+                    }
+                }
+            });
+        }
+        
+        // API에서 요구하는 필드명으로 변환
+        this.formData = {
+            ...this.formData,
+            username: this.formData.name || this.formData.username, // API에서 요구하는 필드명
+            full_name: this.formData.name || this.formData.username, // API에서 요구하는 필드명
+            role: 'user', // 기본 역할
+            // 필수 동의 항목들 (기본값 설정)
+            privacy_agree: this.formData.privacy_agree || false,
+            terms_agree: this.formData.terms_agree || false,
+            marketing_agree: this.formData.marketing_agree || false
+        };
+        
+        console.log('최종 수집된 회원가입 데이터:', this.formData);
     }
     
     async submitRegistration() {
@@ -516,10 +463,29 @@ class EnhancedRegistration {
             return;
         }
         
-        this.collectStepData();
+        // 4단계 모두 완료 후 최종 제출 시에만 데이터 수집
+        this.collectAllStepData();
+        
+        // 필수 필드 검증
+        const requiredFields = ['username', 'email', 'password'];
+        const missingFields = requiredFields.filter(field => !this.formData[field]);
+        
+        if (missingFields.length > 0) {
+            console.error('누락된 필수 필드:', missingFields);
+            this.showError(`필수 필드가 누락되었습니다: ${missingFields.join(', ')}`);
+            return;
+        }
+        
+        // 필수 동의 항목 검증
+        if (!this.formData.privacy_agree || !this.formData.terms_agree) {
+            this.showError('개인정보처리방침 및 서비스 이용약관에 동의해주세요.');
+            return;
+        }
+        
+        console.log('서버로 전송할 최종 데이터:', this.formData);
         
         try {
-            const response = await fetch('/api/auth/register-enhanced', {
+            const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -532,6 +498,7 @@ class EnhancedRegistration {
             if (data.success) {
                 this.showSuccessModal();
             } else {
+                console.error('서버 응답 오류:', data);
                 this.showError(data.message || '회원가입에 실패했습니다.');
             }
         } catch (error) {
@@ -600,3 +567,7 @@ class EnhancedRegistration {
 
 // 전역 인스턴스 생성
 const enhancedRegistration = new EnhancedRegistration();
+
+
+    
+

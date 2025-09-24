@@ -372,6 +372,13 @@
                     <i class="fas fa-sign-in-alt"></i> 로그인
                 </button>
             </form>
+            
+            <!-- 회원가입 버튼 추가 -->
+            <div class="text-center mt-3">
+                <button type="button" class="btn btn-outline-light" onclick="enhancedRegistration.show()">
+                    <i class="fas fa-user-plus me-2"></i>회원가입
+                </button>
+            </div>
 
             <!-- 데모 링크들 -->
             <div class="demo-links">
@@ -391,20 +398,50 @@
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 향상된 회원가입 스크립트 -->
+    <script src="/static/js/enhanced-registration.js"></script>
+    
     <script>
         // 로그인 폼 처리
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // 간단한 로그인 검증 (실제로는 서버에서 처리)
+            // 하드코딩된 admin 계정 확인
             if (username === 'admin' && password === 'admin123') {
                 // 관리자 대시보드로 이동
                 window.location.href = '/admin/';
-            } else {
-                alert('잘못된 사용자명 또는 비밀번호입니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin123');
+                return;
+            }
+            
+            // 일반 사용자 로그인 (서버 API 호출)
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // 로그인 성공
+                    alert('로그인 성공!');
+                    // 페이지 새로고침하여 로그인 상태 반영
+                    window.location.reload();
+                } else {
+                    alert('로그인 실패: ' + data.message);
+                }
+            } catch (error) {
+                console.error('로그인 오류:', error);
+                alert('로그인 중 오류가 발생했습니다.');
             }
         });
 

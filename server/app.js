@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const corsMiddleware = require('./middleware/cors');
+const cookieParser = require('cookie-parser');
 
 // 라우트 import
 const authRoutes = require('./routes/authRoutes');
@@ -16,6 +17,7 @@ const app = express();
 app.use(corsMiddleware);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // 정적 파일 서빙
 app.use('/static', express.static(path.join(__dirname, '../static')));
