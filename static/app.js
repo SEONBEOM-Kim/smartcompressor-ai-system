@@ -623,9 +623,16 @@ async function handleLogin(event) {
                 modal.hide();
             }
             
-            alert('로그인 성공! 관리자 대시보드로 이동합니다.');
-            // 관리자 대시보드로 이동
-            window.location.href = '/admin/';
+            // 역할에 따른 리다이렉트
+            if (data.user.role === 'admin') {
+                alert('로그인 성공! 관리자 대시보드로 이동합니다.');
+                window.location.href = '/admin/';
+            } else {
+                alert('로그인 성공! 환영합니다.');
+                // 일반 사용자는 메인 페이지에 머물거나 사용자 대시보드로 이동
+                // window.location.href = '/dashboard'; // 사용자 대시보드가 있다면
+                // 현재는 메인 페이지에 머물도록 함
+            }
         } else {
             alert('로그인 실패: ' + data.message);
         }
