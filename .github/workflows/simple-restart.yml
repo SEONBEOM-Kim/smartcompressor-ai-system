@@ -1,0 +1,67 @@
+name: Simple Server Restart
+
+on:
+  workflow_dispatch:
+
+jobs:
+  restart:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Simple Restart
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        timeout: 60s
+        command_timeout: 300s
+        script: |
+          echo "🚀 간단한 서버 재시작 시작..."
+          
+          # 프로젝트 디렉토리로 이동
+          cd /var/www/smartcompressor
+          
+          # Git pull로 최신 코드 가져오기
+          echo "📥 최신 코드 가져오는 중..."
+          git pull origin main
+          
+          # 기존 프로세스 종료 (에러 무시)
+          echo "🛑 기존 프로세스 종료..."
+          pm2 delete all 2>/dev/null || echo "PM2 없음"
+          pkill -f "node server.js" 2>/dev/null || echo "Node.js 없음"
+          
+          # 로그 디렉토리 생성
+          mkdir -p logs
+          
+          # Node.js 의존성 설치
+          echo "📦 의존성 설치..."
+          npm install
+          
+          # PM2 설치
+          echo "📦 PM2 설치..."
+          npm install -g pm2
+          
+          # PM2로 서버 시작
+          echo "🚀 서버 시작..."
+          pm2 start ecosystem.config.js --env production
+          
+          # 상태 확인
+          echo "📊 PM2 상태:"
+          pm2 status
+          
+          # 서버 대기
+          echo "⏳ 서버 시작 대기..."
+          sleep 15
+          
+          # 테스트
+          echo "🌐 서버 테스트..."
+          curl -s http://localhost:3000 && echo "✅ 메인 페이지 OK"
+          curl -s http://localhost:3000/api/auth/verify && echo "✅ API OK" || echo "❌ API 오류"
+          
+          # Nginx 재시작
+          echo "🔄 Nginx 재시작..."
+          sudo systemctl restart nginx
+          
+          echo "✅ 서버 재시작 완료!"
