@@ -109,17 +109,37 @@ function showLoggedInUI(user) {
             ? `<img src="${userProfileImage}" alt="프로필" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">`
             : `<i class="fas fa-user-circle me-2" style="font-size: 24px;"></i>`;
             
-        userInfo.innerHTML = `
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                ${profileImageHtml}
-                <span>${userName}님</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#dashboard"><i class="fas fa-tachometer-alt me-2"></i>대시보드</a></li>
+        // 역할에 따른 메뉴 구성
+        let menuItems = '';
+        if (user.role === 'admin') {
+            menuItems = `
+                <li><a class="dropdown-item" href="/admin/"><i class="fas fa-cog me-2"></i>관리자 대시보드</a></li>
+                <li><a class="dropdown-item" href="#dashboard"><i class="fas fa-tachometer-alt me-2"></i>사용자 대시보드</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#diagnosis"><i class="fas fa-stethoscope me-2"></i>진단 기록</a></li>
                 <li><a class="dropdown-item" href="#monitoring"><i class="fas fa-chart-line me-2"></i>실시간 모니터링</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+            `;
+        } else {
+            menuItems = `
+                <li><a class="dropdown-item" href="#dashboard"><i class="fas fa-tachometer-alt me-2"></i>내 대시보드</a></li>
+                <li><a class="dropdown-item" href="#diagnosis"><i class="fas fa-stethoscope me-2"></i>진단 기록</a></li>
+                <li><a class="dropdown-item" href="#monitoring"><i class="fas fa-chart-line me-2"></i>실시간 모니터링</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="showProfile()"><i class="fas fa-user-cog me-2"></i>계정 설정</a></li>
+                <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+            `;
+        }
+
+        userInfo.innerHTML = `
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ${profileImageHtml}
+                <span>${userName}님</span>
+                ${user.role === 'admin' ? '<span class="badge bg-warning text-dark ms-2">관리자</span>' : ''}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                ${menuItems}
             </ul>
         `;
         navbar.appendChild(userInfo);
@@ -231,6 +251,30 @@ function showPersonalizedContent() {
     if (heroSection) {
         heroSection.insertAdjacentHTML('afterend', personalizedHTML);
     }
+}
+
+// 로그아웃 함수
+function logout() {
+    // 로컬 스토리지에서 사용자 정보 제거
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    
+    // 현재 사용자 정보 초기화
+    currentUser = null;
+    
+    // UI 업데이트
+    showLoggedOutUI();
+    
+    // 성공 알림
+    alert('로그아웃되었습니다.');
+    
+    // 페이지 새로고침 (선택사항)
+    // window.location.reload();
+}
+
+// 프로필 설정 함수 (일반 사용자용)
+function showProfile() {
+    alert('프로필 설정 기능은 준비 중입니다.');
 }
 
 // 로그아웃된 UI 표시
