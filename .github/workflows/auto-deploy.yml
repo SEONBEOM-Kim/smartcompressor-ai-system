@@ -59,19 +59,33 @@ jobs:
           
           # 기존 서비스 완전 종료
           echo "🛑 기존 서비스 중지..."
+          pm2 delete all 2>/dev/null || echo "PM2 프로세스 없음"
           pkill -f "node server.js" || true
           pkill -f "python.*app.py" || true
           
           # 로그 디렉토리 생성
           mkdir -p logs
 
-          # 직접 Node.js 서버 시작 (PM2 없이)
-          echo "🚀 Node.js 서버 직접 시작..."
-          nohup node server.js > logs/server.log 2>&1 &
+          # PM2 설치 (전역 설치)
+          echo "📦 PM2 전역 설치 중..."
+          npm install -g pm2
           
-          # 서버 프로세스 확인
-          echo "📊 서버 프로세스 확인..."
-          ps aux | grep "node server.js" | grep -v grep
+          # PM2 버전 확인
+          echo "📊 PM2 버전 확인..."
+          pm2 --version
+          
+          # PM2로 서버 시작
+          echo "🚀 PM2로 서버 시작..."
+          pm2 start ecosystem.config.js --env production
+          
+          # PM2 상태 확인
+          echo "📊 PM2 상태 확인..."
+          pm2 status
+          
+          # PM2 자동 시작 설정
+          echo "🔄 PM2 자동 시작 설정..."
+          pm2 startup
+          pm2 save
           
           # 서버 시작 대기
           echo "⏳ 서버 시작 대기 (15초)..."
