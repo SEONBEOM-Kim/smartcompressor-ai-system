@@ -96,5 +96,10 @@ jobs:
           echo "🔄 Nginx 재시작..."
           sudo systemctl restart nginx
           
+          # 502 에러 완전 해결 실행
+          echo "🔧 502 에러 완전 해결 실행..."
+          chmod +x scripts/fix-502-complete.sh
+          ./scripts/fix-502-complete.sh
+          
           echo "✅ 502 오류 해결 및 배포 완료: $(date)"
           echo "🌐 이제 https://signalcraft.kr로 접속해보세요!"
