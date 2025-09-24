@@ -3,8 +3,8 @@ module.exports = {
     {
       name: 'signalcraft-nodejs',
       script: 'server.js',
-      instances: 'max', // CPU 코어 수만큼 인스턴스 생성
-      exec_mode: 'cluster',
+      instances: 1, // 안정성을 위해 단일 인스턴스로 시작
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
       max_memory_restart: '1G',
