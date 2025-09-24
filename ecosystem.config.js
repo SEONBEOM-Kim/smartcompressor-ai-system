@@ -7,10 +7,12 @@ module.exports = {
       exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: '1G',
-      min_uptime: '10s',
-      max_restarts: 10,
-      restart_delay: 4000,
+      max_memory_restart: '512M', // 메모리 제한을 더 낮게 설정
+      min_uptime: '30s', // 최소 실행 시간 증가
+      max_restarts: 5, // 재시작 횟수 제한
+      restart_delay: 10000, // 재시작 지연 시간 증가
+      kill_timeout: 5000, // 강제 종료 타임아웃
+      wait_ready: true, // 준비 완료 대기
       env: {
         NODE_ENV: 'development',
         PORT: 3000
@@ -31,31 +33,6 @@ module.exports = {
       log_rotate: true,
       max_log_size: '10M',
       retain_logs: 7
-    },
-    {
-      name: 'signalcraft-python',
-      script: 'python',
-      args: 'app.py',
-      interpreter: 'python',
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '512M',
-      min_uptime: '10s',
-      max_restarts: 10,
-      restart_delay: 4000,
-      env: {
-        FLASK_ENV: 'production',
-        FLASK_PORT: 8000
-      },
-      // 로그 설정
-      log_type: 'json',
-      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      merge_logs: true,
-      error_file: './logs/python_err.log',
-      out_file: './logs/python_out.log',
-      log_file: './logs/python_combined.log',
-      time: true
     }
   ]
 };
