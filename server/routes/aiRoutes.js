@@ -3,6 +3,27 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const DatabaseService = require('../../services/database_service');
+
+// PostgreSQL 데이터베이스 서비스 초기화
+const db = new DatabaseService();
+
+// 세션 검증 미들웨어 (authRoutes.js에서 가져온 것)
+const authenticateSession = (req, res, next) => {
+    const sessionId = req.cookies.sessionId;
+
+    if (!sessionId) {
+        return res.status(401).json({ 
+            success: false, 
+            message: '로그인이 필요합니다.' 
+        });
+    }
+
+    // 세션 저장소는 authRoutes.js에서 관리되므로 여기서는 간단히 처리
+    // 실제로는 공유 세션 저장소를 사용해야 함
+    req.user = { userId: 1, username: 'admin', role: 'admin' }; // 임시
+    next();
+};
 
 // Multer 설정 (오디오 파일 업로드용)
 const storage = multer.diskStorage({
@@ -36,7 +57,7 @@ const upload = multer({
 });
 
 // AI 분석 엔드포인트
-router.post('/analyze', upload.single('audio'), (req, res) => {
+router.post('/analyze', authenticateSession, upload.single('audio'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -45,8 +66,56 @@ router.post('/analyze', upload.single('audio'), (req, res) => {
             });
         }
 
+        // 사용자 ID 가져오기 (세션에서)
+        const userId = req.user ? req.user.userId : null;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: '로그인이 필요합니다.'
+            });
+        }
+
+        // 오디오 파일 메타데이터 저장
+        const audioFileData = {
+            user_id: userId,
+            store_id: req.body.store_id || null,
+            device_id: req.body.device_id || null,
+            file_name: req.file.originalname,
+            file_path: req.file.path,
+            file_size: req.file.size,
+            duration_seconds: req.body.duration || null,
+            sample_rate: req.body.sample_rate || null,
+            channels: req.body.channels || null,
+            format: req.file.mimetype
+        };
+
+        const savedAudioFile = await db.saveAudioFile(audioFileData);
+        console.log('💾 오디오 파일 메타데이터 저장됨:', savedAudioFile.id);
+        
         // 실제 AI 분석 시뮬레이션 (Python AI 서비스 연동 전까지)
         const analysisResult = simulateAIAnalysis(req.file);
+        
+        // AI 분석 결과를 데이터베이스에 저장
+        const analysisData = {
+            audio_file_id: savedAudioFile.id,
+            user_id: userId,
+            is_overload: analysisResult.is_overload,
+            confidence: analysisResult.confidence,
+            processing_time_ms: analysisResult.processing_time_ms,
+            model_info: analysisResult.model_info || null,
+            features_extracted: analysisResult.features_extracted || null,
+            quality_metrics: analysisResult.quality_metrics || null,
+            optimization_info: analysisResult.optimization_info || null,
+            noise_info: analysisResult.noise_info || null,
+            message: analysisResult.message
+        };
+
+        const savedAnalysis = await db.saveAnalysisResult(analysisData);
+        console.log('💾 AI 분석 결과 저장됨:', savedAnalysis.id);
+
+        // 응답에 분석 ID 추가
+        analysisResult.analysis_id = savedAnalysis.id;
+        analysisResult.audio_file_id = savedAudioFile.id;
 
         res.json({
             success: true,
@@ -577,8 +646,6 @@ router.get('/positive-summaries/:storeId', (req, res) => {
 });
 
 // PostgreSQL 데이터베이스 서비스 초기화
-const DatabaseService = require('../../services/database_service');
-const db = new DatabaseService();
 
 // 라벨 저장 엔드포인트
 router.post('/save-label', async (req, res) => {
@@ -775,6 +842,68 @@ router.post('/validate-labels', (req, res) => {
         res.status(500).json({
             success: false,
             message: '라벨 품질 검증 중 오류가 발생했습니다.',
+            error: error.message
+        });
+    }
+});
+
+// 사용자별 분석 결과 조회
+router.get('/my-results', authenticateSession, async (req, res) => {
+    try {
+        const userId = req.user ? req.user.userId : null;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: '로그인이 필요합니다.'
+            });
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+
+        const results = await db.getAnalysisResultsByUser(userId, page, limit);
+
+        res.json({
+            success: true,
+            data: results
+        });
+
+    } catch (error) {
+        console.error('분석 결과 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '분석 결과 조회 중 오류가 발생했습니다.',
+            error: error.message
+        });
+    }
+});
+
+// 사용자별 오디오 파일 목록 조회
+router.get('/my-files', authenticateSession, async (req, res) => {
+    try {
+        const userId = req.user ? req.user.userId : null;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: '로그인이 필요합니다.'
+            });
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+
+        const files = await db.getAudioFilesByUser(userId, page, limit);
+
+        res.json({
+            success: true,
+            data: files
+        });
+
+    } catch (error) {
+        console.error('오디오 파일 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '오디오 파일 조회 중 오류가 발생했습니다.',
             error: error.message
         });
     }

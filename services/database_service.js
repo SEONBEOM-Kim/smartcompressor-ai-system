@@ -110,6 +110,84 @@ class DatabaseService {
                 )
             `);
 
+            // users 테이블 (사용자 관리)
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    full_name VARCHAR(100),
+                    phone VARCHAR(20),
+                    role VARCHAR(20) DEFAULT 'user',
+                    additional_info JSONB,
+                    is_active BOOLEAN DEFAULT true,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP
+                )
+            `);
+            
+            // additional_info 컬럼 추가 (기존 테이블에)
+            await client.query(`
+                ALTER TABLE users 
+                ADD COLUMN IF NOT EXISTS additional_info JSONB
+            `);
+
+            // audio_files 테이블 (오디오 파일 메타데이터)
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS audio_files (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id),
+                    store_id INTEGER,
+                    device_id INTEGER,
+                    file_name VARCHAR(255) NOT NULL,
+                    file_path VARCHAR(500) NOT NULL,
+                    file_size BIGINT,
+                    duration_seconds DECIMAL(10, 2),
+                    sample_rate INTEGER,
+                    channels INTEGER,
+                    format VARCHAR(20),
+                    upload_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    is_processed BOOLEAN DEFAULT false
+                )
+            `);
+
+            // ai_analysis_results 테이블 (AI 분석 결과)
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS ai_analysis_results (
+                    id SERIAL PRIMARY KEY,
+                    audio_file_id INTEGER REFERENCES audio_files(id),
+                    user_id INTEGER REFERENCES users(id),
+                    is_overload BOOLEAN NOT NULL,
+                    confidence DECIMAL(5, 4) NOT NULL,
+                    processing_time_ms INTEGER,
+                    model_info JSONB,
+                    features_extracted JSONB,
+                    quality_metrics JSONB,
+                    optimization_info JSONB,
+                    noise_info JSONB,
+                    analysis_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    message TEXT
+                )
+            `);
+
+            // monitoring_data 테이블 (실시간 모니터링 데이터)
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS monitoring_data (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id),
+                    store_id INTEGER,
+                    device_id INTEGER,
+                    temperature DECIMAL(5, 2),
+                    vibration_level DECIMAL(8, 4),
+                    power_consumption DECIMAL(8, 2),
+                    audio_level DECIMAL(8, 4),
+                    status VARCHAR(20),
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+
             // 인덱스 생성
             await client.query(`
                 CREATE INDEX IF NOT EXISTS idx_labels_timestamp ON labels(created_at);
@@ -398,6 +476,180 @@ class DatabaseService {
     generateHash(fileName) {
         const crypto = require('crypto');
         return crypto.createHash('md5').update(fileName + Date.now()).digest('hex');
+    }
+
+    // ===== 사용자 관리 메서드들 =====
+    
+    async createUser(userData) {
+        const { username, email, password_hash, full_name, phone, role = 'user', additional_info } = userData;
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `INSERT INTO users (username, email, password_hash, full_name, phone, role, additional_info)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+                [username, email, password_hash, full_name, phone, role, JSON.stringify(additional_info)]
+            );
+            return res.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    async getUserByUsername(username) {
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                'SELECT * FROM users WHERE username = $1 AND is_active = true',
+                [username]
+            );
+            return res.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    async getUserByEmail(email) {
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                'SELECT * FROM users WHERE email = $1 AND is_active = true',
+                [email]
+            );
+            return res.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    async updateUserLastLogin(userId) {
+        const client = await this.pool.connect();
+        try {
+            await client.query(
+                'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
+                [userId]
+            );
+        } finally {
+            client.release();
+        }
+    }
+
+    // ===== 오디오 파일 관리 메서드들 =====
+    
+    async saveAudioFile(audioData) {
+        const { user_id, store_id, device_id, file_name, file_path, file_size, duration_seconds, sample_rate, channels, format } = audioData;
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `INSERT INTO audio_files (user_id, store_id, device_id, file_name, file_path, file_size, duration_seconds, sample_rate, channels, format)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+                [user_id, store_id, device_id, file_name, file_path, file_size, duration_seconds, sample_rate, channels, format]
+            );
+            return res.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    async getAudioFilesByUser(userId, page = 1, limit = 20) {
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `SELECT * FROM audio_files WHERE user_id = $1 
+                 ORDER BY upload_timestamp DESC LIMIT $2 OFFSET $3`,
+                [userId, limit, (page - 1) * limit]
+            );
+            const totalRes = await client.query('SELECT COUNT(*) FROM audio_files WHERE user_id = $1', [userId]);
+            const total = parseInt(totalRes.rows[0].count, 10);
+
+            return {
+                files: res.rows,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    total_pages: Math.ceil(total / limit)
+                }
+            };
+        } finally {
+            client.release();
+        }
+    }
+
+    // ===== AI 분석 결과 관리 메서드들 =====
+    
+    async saveAnalysisResult(analysisData) {
+        const { audio_file_id, user_id, is_overload, confidence, processing_time_ms, model_info, features_extracted, quality_metrics, optimization_info, noise_info, message } = analysisData;
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `INSERT INTO ai_analysis_results (audio_file_id, user_id, is_overload, confidence, processing_time_ms, model_info, features_extracted, quality_metrics, optimization_info, noise_info, message)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+                [audio_file_id, user_id, is_overload, confidence, processing_time_ms, model_info, features_extracted, quality_metrics, optimization_info, noise_info, message]
+            );
+            return res.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    async getAnalysisResultsByUser(userId, page = 1, limit = 20) {
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `SELECT aar.*, af.file_name, af.upload_timestamp 
+                 FROM ai_analysis_results aar
+                 LEFT JOIN audio_files af ON aar.audio_file_id = af.id
+                 WHERE aar.user_id = $1 
+                 ORDER BY aar.analysis_timestamp DESC LIMIT $2 OFFSET $3`,
+                [userId, limit, (page - 1) * limit]
+            );
+            const totalRes = await client.query('SELECT COUNT(*) FROM ai_analysis_results WHERE user_id = $1', [userId]);
+            const total = parseInt(totalRes.rows[0].count, 10);
+
+            return {
+                results: res.rows,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    total_pages: Math.ceil(total / limit)
+                }
+            };
+        } finally {
+            client.release();
+        }
+    }
+
+    // ===== 모니터링 데이터 관리 메서드들 =====
+    
+    async saveMonitoringData(monitoringData) {
+        const { user_id, store_id, device_id, temperature, vibration_level, power_consumption, audio_level, status } = monitoringData;
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `INSERT INTO monitoring_data (user_id, store_id, device_id, temperature, vibration_level, power_consumption, audio_level, status)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+                [user_id, store_id, device_id, temperature, vibration_level, power_consumption, audio_level, status]
+            );
+            return res.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    async getMonitoringDataByUser(userId, hours = 24) {
+        const client = await this.pool.connect();
+        try {
+            const res = await client.query(
+                `SELECT * FROM monitoring_data 
+                 WHERE user_id = $1 AND timestamp >= NOW() - INTERVAL '${hours} hours'
+                 ORDER BY timestamp DESC`,
+                [userId]
+            );
+            return res.rows;
+        } finally {
+            client.release();
+        }
     }
 
     // 데이터베이스 연결 종료

@@ -596,67 +596,100 @@ function showRegisterModal() {
 }
 
 // 로그인 처리
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     
-    const email = document.getElementById('loginEmail').value;
+    const username = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
-    // 간단한 클라이언트 사이드 로그인 검증
-    if (email === 'admin' && password === 'admin123') {
-        localStorage.setItem('authToken', 'demo_token_123');
-        currentUser = {
-            id: 1,
-            email: 'admin',
-            name: '관리자',
-            role: 'admin'
-        };
-        updateLoginStatus();
-        // 모달 닫기 (Bootstrap 5 방식)
-        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-        if (modal) {
-            modal.hide();
-        }
-        alert('로그인 성공! 관리자 대시보드로 이동합니다.');
-        // 관리자 대시보드로 이동
-        window.location.href = '/admin/';
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            currentUser = data.user;
+            updateLoginStatus();
+            
+            // 모달 닫기 (Bootstrap 5 방식)
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            alert('로그인 성공! 관리자 대시보드로 이동합니다.');
+            // 관리자 대시보드로 이동
+            window.location.href = '/admin/';
         } else {
-        alert('잘못된 사용자명 또는 비밀번호입니다.\n\n데모용 계정:\n사용자명: admin\n비밀번호: admin123');
+            alert('로그인 실패: ' + data.message);
         }
+    } catch (error) {
+        console.error('로그인 오류:', error);
+        alert('로그인 중 오류가 발생했습니다.');
+    }
 }
 
 // 회원가입 처리
-function handleRegister(event) {
+async function handleRegister(event) {
     event.preventDefault();
     
-    const name = document.getElementById('registerName').value;
+    const username = document.getElementById('registerName').value;
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     const phone = document.getElementById('registerPhone').value;
-    const company = document.getElementById('registerCompany').value;
+    const full_name = document.getElementById('registerCompany').value; // 회사명을 full_name으로 사용
     const marketing_agree = document.getElementById('marketingAgree').checked;
     
-    fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, email, password, phone, company, marketing_agree })
-    })
-    .then(response => response.json())
-    .then(data => {
+    // 간단한 검증
+    if (!username || !email || !password) {
+        alert('사용자명, 이메일, 비밀번호는 필수입니다.');
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert('비밀번호는 최소 6자 이상이어야 합니다.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                username, 
+                email, 
+                password, 
+                phone, 
+                full_name, 
+                marketing_agree 
+            })
+        });
+
+        const data = await response.json();
+
         if (data.success) {
-            $('#registerModal').modal('hide');
+            // 모달 닫기 (Bootstrap 5 방식)
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+            if (modal) {
+                modal.hide();
+            }
             alert('회원가입 성공! 로그인해주세요.');
             showLoginModal();
         } else {
             alert(data.message || '회원가입 실패');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('회원가입 오류:', error);
         alert('회원가입 중 오류가 발생했습니다.');
-    });
+    }
 }
 
 // 이벤트 리스너 설정
