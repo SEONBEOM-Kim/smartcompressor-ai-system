@@ -1,34 +1,52 @@
 #!/bin/bash
-# 502 오류 해결 스크립트
+# 502 에러 해결 스크립트
 
-echo "🔧 502 오류 해결 시작..."
+echo "🔧 Signalcraft 502 에러 해결 시작..."
 
-# 프로젝트 디렉토리로 이동
-cd /var/www/smartcompressor
-
-echo "📊 현재 PM2 상태 확인..."
+# 1. 현재 상태 확인
+echo "📊 현재 서비스 상태 확인..."
 pm2 status
+sudo systemctl status nginx
 
-echo "🛑 모든 PM2 프로세스 중지..."
-pm2 delete all || true
+# 2. 포트 사용 상태 확인
+echo "🌐 포트 사용 상태:"
+sudo netstat -tlnp | grep -E ":(3000|80|443)" || echo "포트 확인 권한 없음"
 
-echo "📥 최신 코드 가져오기..."
-git pull origin main
+# 3. PM2 프로세스 재시작
+echo "🔄 PM2 프로세스 재시작..."
+pm2 restart all
 
-echo "📦 의존성 설치..."
-npm install
+# 4. Nginx 설정 테스트
+echo "🔧 Nginx 설정 테스트..."
+sudo nginx -t
 
-echo "🚀 PM2 프로세스 재시작..."
-pm2 start ecosystem.config.js --env production
+if [ $? -eq 0 ]; then
+    echo "✅ Nginx 설정 정상"
+    # Nginx 재시작
+    echo "🔄 Nginx 재시작..."
+    sudo systemctl restart nginx
+else
+    echo "❌ Nginx 설정 오류 발견"
+    echo "🔧 Nginx 설정 파일 확인 중..."
+    sudo cat /etc/nginx/sites-available/signalcraft
+fi
 
-echo "⏳ 서버 시작 대기 (5초)..."
-sleep 5
-
-echo "📊 PM2 상태 확인..."
-pm2 status
+# 5. 서버 응답 테스트
+echo "⏳ 서버 시작 대기 (10초)..."
+sleep 10
 
 echo "🌐 서버 응답 테스트..."
 curl -s http://localhost:3000 || echo "❌ 로컬 서버 응답 없음"
+curl -s http://localhost:3000/api/auth/verify || echo "❌ API 응답 없음"
 
-echo "✅ 502 오류 해결 완료!"
-echo "🌐 이제 https://signalcraft.kr로 접속해보세요!"
+# 6. HTTPS 테스트
+echo "🔒 HTTPS 테스트..."
+curl -s -I https://signalcraft.kr || echo "❌ HTTPS 응답 없음"
+
+# 7. 최종 상태 확인
+echo "📊 최종 상태 확인..."
+pm2 status
+sudo systemctl status nginx
+
+echo "✅ 502 에러 해결 완료!"
+echo "🌐 https://signalcraft.kr로 접속해보세요!"
