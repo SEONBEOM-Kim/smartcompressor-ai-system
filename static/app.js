@@ -659,7 +659,13 @@ async function handleLogin(event) {
 
         if (data.success) {
             currentUser = data.user;
-            updateLoginStatus();
+            
+            // 로컬 스토리지에 저장
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            localStorage.setItem('authToken', 'session-token'); // 임시 토큰
+            
+            // UI 직접 업데이트 (세션 검증 없이)
+            showLoggedInUI(data.user);
             
             // 모달 닫기 (Bootstrap 5 방식)
             const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
