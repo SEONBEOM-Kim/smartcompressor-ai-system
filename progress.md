@@ -2,6 +2,150 @@
 
 ## Date: October 12, 2025
 
+## Frontend Architecture Structure
+
+### JavaScript Directory Structure
+```
+static/js/
+├── archived/                    # Archived JavaScript files
+├── auth/                        # Authentication modules
+│   ├── auth-manager.js          # Authentication management
+│   └── kakao-oauth.js           # Kakao OAuth functionality
+├── customer/                    # Customer dashboard modules
+│   └── customer-dashboard.js    # Customer dashboard functionality
+├── dashboard/                   # Main dashboard modules
+│   ├── charts/                  # Chart-related modules
+│   │   ├── anomaly-chart.js
+│   │   ├── chart-manager.js
+│   │   ├── device-status-chart.js
+│   │   ├── energy-chart.js
+│   │   ├── power-chart.js
+│   │   ├── temperature-chart.js
+│   │   └── vibration-chart.js
+│   ├── data/                    # Data management modules
+│   │   ├── api-client.js
+│   │   └── data-loader.js
+│   ├── ui/                      # UI management modules
+│   │   ├── card-updater.js
+│   │   ├── section-manager.js
+│   │   └── table-renderer.js
+│   └── utils/                   # Utility functions
+│       ├── formatters.js
+│       └── helpers.js
+├── landing/                     # Landing page modules
+│   ├── ai-diagnosis-demo.js     # AI diagnosis demo functionality
+│   ├── ai-diagnosis.js          # AI diagnosis functionality
+│   └── utils.js                 # Utility functions for landing page
+├── mobile_app/                  # Mobile application modules
+│   ├── charts/                  # Mobile chart modules
+│   │   └── monitoring-chart.js
+│   ├── data/                    # Mobile data modules
+│   │   ├── api-client.js
+│   │   ├── data-loader.js
+│   │   └── offline-storage.js
+│   ├── main-module.js           # Main module entry point
+│   ├── pwa/                     # PWA-related modules
+│   │   ├── notification-handler.js
+│   │   └── pwa-manager.js
+│   ├── sw.js                    # Service worker
+│   ├── ui/                      # Mobile UI modules
+│   │   ├── dashboard-updater.js
+│   │   ├── navigation-manager.js
+│   │   ├── notification-renderer.js
+│   │   └── payment-renderer.js
+│   └── utils/                   # Mobile utility functions
+│       ├── formatters.js
+│       └── helpers.js
+├── notification_dashboard/      # Notification dashboard modules
+│   ├── data/                    # Notification data modules
+│   │   ├── api-client.js
+│   │   └── data-loader.js
+│   ├── forms/                   # Notification form modules
+│   │   ├── notification-sender.js
+│   │   ├── settings-manager.js
+│   │   └── template-creator.js
+│   ├── notification_dashboard.js # Entry point for notification dashboard
+│   ├── ui/                      # Notification UI modules
+│   │   ├── channel-renderer.js
+│   │   ├── history-renderer.js
+│   │   ├── overview-renderer.js
+│   │   ├── tab-manager.js
+│   │   └── template-renderer.js
+│   └── utils/                   # Notification utility functions
+│       ├── formatters.js
+│       └── toast-manager.js
+├── ui/                          # General UI modules
+│   ├── modal-manager.js
+│   └── navbar-renderer.js
+├── app.js                       # Main application entry point
+└── ... (other legacy files moved to archived/)
+```
+
+### Template Directory Structure
+```
+templates/
+├── admin/                       # Admin-related templates
+├── customer/                    # Customer-specific templates
+├── modules/                     # Reusable template modules
+├── ai_demo.html                 # AI demonstration page
+├── ai_models.html               # AI models page
+├── ai_predict.html              # AI prediction page
+├── ai_test.html                 # AI testing page
+├── ai_training.html             # AI training page
+├── ai_upload.html               # AI upload page
+├── audio_recorder_client.html   # Audio recorder client page
+├── base.html                    # Base template with customer dashboard script
+├── base.htmly                   # Alternative base template with customer dashboard script
+├── dashboard.html               # Main dashboard page
+├── diagnosis_report.html        # Diagnosis report page
+├── faq.html                     # FAQ page
+├── home.html                    # Home page
+├── index.html                   # Landing page
+├── index.html.backup            # Backup of original index.html
+├── login_success.html           # Login success page
+├── login.html                   # Login page
+├── marketing_landing_page.html  # Marketing landing page
+├── mobile_app.html              # Mobile application page
+├── notification_dashboard.html  # Notification dashboard page
+├── pricing.html                 # Pricing page
+└── showcase.html                # Showcase page
+```
+
+## Add New Files
+
+### Instructions
+To add a new file to the architecture:
+
+1. Determine which functional module the file belongs to
+2. Place the file in the appropriate subdirectory
+3. Update this document to reflect the new file
+4. Update any HTML templates that need to reference the new file
+5. Add the file to the appropriate build or import process if needed
+
+## Remove Files
+
+### Instructions
+To remove a file from the architecture:
+
+1. Verify that the file is not referenced in any HTML templates
+2. Update HTML templates to remove references to the file
+3. Update this document to remove references to the file
+4. Consider archiving instead of deleting to preserve for potential future use
+5. Delete the file if sure it's no longer needed
+
+## Modify Files
+
+### Instructions
+To modify an existing file:
+
+1. Update the file with the required changes
+2. Verify that functionality remains intact
+3. Update this document if the file's purpose or location changes
+4. Update any dependent files that might be affected
+5. Update HTML templates if the modification affects how the file is referenced
+
+---
+
 ### Completed: Frontend Modularization
 
 #### Overview
@@ -266,3 +410,80 @@ Successfully completed the modularization of the main `notification_dashboard.js
 
 #### Verification
 All functionality remains intact after modularization. The notification dashboard works exactly as before but with a much cleaner, more maintainable code structure following the component-based architecture principles. The modular approach allows for better code organization and future enhancements.
+
+---
+
+### Completed: JavaScript File Organization and Cleanup
+
+#### Overview
+Successfully completed the organization and cleanup of JavaScript files in the static/js directory for better maintainability and structure.
+
+#### Tasks Completed
+
+1. **Identified unused JavaScript files**: Found 7 JavaScript files that were not referenced in any HTML templates
+   - `ai-analyzer.js`
+   - `analytics.js`
+   - `audio-recorder.js`
+   - `diagnosis-controller.js`
+   - `diagnosis-ui.js`
+   - `enhanced-registration.js`
+   - `notification-manager.js`
+
+2. **Created archived directory**: Created `static/js/archived/` directory to store unused files for backup
+
+3. **Moved unused files to archived directory**: All 7 unused files were moved to the archived directory for potential future reference
+
+4. **Identified used JavaScript files and their locations**:
+   - `ai-diagnosis-demo.js` used in `ai_demo.html` and related to landing page functionality
+   - `customer-dashboard.js` used in `base.html` and `base.htmly` and related to customer dashboard functionality
+   - `sw.js` used in `mobile_app.html` for service worker functionality
+
+5. **Created appropriate directories**:
+   - `static/js/landing/` for landing page related JavaScript
+   - `static/js/customer/` for customer-related JavaScript
+   - `static/js/mobile_app/` for mobile application related JavaScript
+
+6. **Moved used files to appropriate directories**:
+   - `ai-diagnosis-demo.js` moved to `static/js/landing/`
+   - `customer-dashboard.js` moved to `static/js/customer/`
+   - `sw.js` moved to `static/js/mobile_app/`
+
+7. **Updated HTML templates to reference new file paths**:
+   - Updated `ai_demo.html` to use `/static/js/landing/ai-diagnosis-demo.js`
+   - Updated `base.html` to use `/static/js/customer/customer-dashboard.js`
+   - Updated `base.htmly` to use `/static/js/customer/customer-dashboard.js`
+   - Updated `mobile_app.html` to use `/static/js/mobile_app/sw.js`
+
+#### Benefits Achieved
+
+- **Improved organization**: JavaScript files are now organized by functionality in appropriate directories
+- **Reduced clutter**: Unused files have been archived, reducing directory clutter and confusion
+- **Enhanced maintainability**: Related files are grouped together, making it easier to understand and update functionality
+- **Better structure**: The project now has a more logical and consistent file structure
+- **Backward compatibility**: All HTML templates were updated to maintain functionality after file reorganization
+- **Future reference**: Archived files are preserved in case they are needed for future development
+
+#### Files Created/Modified
+
+1. `static/js/archived/` - Directory created to store archived JavaScript files
+2. `static/js/landing/` - Directory created for landing page JavaScript files
+3. `static/js/customer/` - Directory created for customer dashboard JavaScript files
+4. Updated HTML templates:
+   - `templates/ai_demo.html` - Updated script reference for ai-diagnosis-demo.js
+   - `templates/base.html` - Updated script reference for customer-dashboard.js
+   - `templates/base.htmly` - Updated script reference for customer-dashboard.js
+   - `templates/mobile_app.html` - Updated script reference for sw.js
+5. Moved JavaScript files:
+   - `ai-analyzer.js` → `static/js/archived/`
+   - `analytics.js` → `static/js/archived/`
+   - `audio-recorder.js` → `static/js/archived/`
+   - `diagnosis-controller.js` → `static/js/archived/`
+   - `diagnosis-ui.js` → `static/js/archived/`
+   - `enhanced-registration.js` → `static/js/archived/`
+   - `notification-manager.js` → `static/js/archived/`
+   - `ai-diagnosis-demo.js` → `static/js/landing/`
+   - `customer-dashboard.js` → `static/js/customer/`
+   - `sw.js` → `static/js/mobile_app/`
+
+#### Verification
+All functionality remains intact after reorganization. All HTML templates correctly reference the new file paths, and the application works exactly as before but with a much cleaner, more maintainable code structure. The modular approach allows for better code organization and future enhancements.

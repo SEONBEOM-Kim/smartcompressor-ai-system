@@ -420,7 +420,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/static/js/sw.js')
+                navigator.serviceWorker.register('/static/js/mobile_app/sw.js')
                     .then(registration => {
                         console.log('Service Worker 등록 성공:', registration);
                     })
