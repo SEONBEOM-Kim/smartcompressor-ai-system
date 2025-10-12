@@ -25,7 +25,39 @@ app.use(express.static(path.join(__dirname, '../static')));
 
 // 메인 페이지 (쇼윈도 - 로그인 화면)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../static/showcase.html'));
+    res.sendFile(path.join(__dirname, '../static/pages/showcase.html'));
+});
+
+// Additional static page routes
+app.get('/index', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/index.html'));
+});
+
+app.get('/showcase', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/showcase.html'));
+});
+
+app.get('/audio_recorder_client', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/audio_recorder_client.html'));
+});
+
+// Labeling-related routes
+app.get('/labeling/interface', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/labeling/interface.html'));
+});
+
+app.get('/labeling/management', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/labeling/management.html'));
+});
+
+// Testing-related routes
+app.get('/testing/noise_cancellation', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/testing/noise_cancellation.html'));
+});
+
+// Storage-related routes
+app.get('/storage/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/storage/dashboard.html'));
 });
 
 // API 라우트

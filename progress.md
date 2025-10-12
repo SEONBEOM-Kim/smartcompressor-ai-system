@@ -146,6 +146,79 @@ To modify an existing file:
 
 ---
 
+### Completed: Common Utilities Integration
+
+#### Overview
+Successfully completed the integration of common utilities across multiple modules to reduce code duplication and improve maintainability.
+
+#### Tasks Completed
+
+1. **Created directory structure**: `static/js/common/` and `static/js/common/utils/`
+2. **Created common utility files**:
+   - `static/js/common/utils/formatters.js` - Consolidates all formatting functions from various modules
+   - `static/js/common/utils/helpers.js` - Consolidates all helper functions from various modules
+   - `static/js/common/index.js` - Main export file for all common utilities
+3. **Integrated common utilities into existing modules**:
+   - Updated `static/js/dashboard/` modules to import from common utilities
+   - Updated `static/js/notification_dashboard/` modules to import from common utilities
+   - Updated `static/js/mobile_app/` modules to import from common utilities
+4. **Ensured backward compatibility**:
+   - Maintained global window function registrations where required
+   - Updated import statements to use aliases and avoid naming conflicts
+5. **Updated all referencing modules**:
+   - Updated UI modules (table-renderer.js, channel-renderer.js, etc.) to use imported functions
+   - Ensured all modules that previously had duplicated functions now use the common ones
+
+#### Functions Consolidated
+
+**Formatters Module:**
+- `formatDate` - Formats dates in Korean format (from dashboard utils)
+- `formatDateTime` - Formats dates with fallback (from notification_dashboard utils)
+- `formatTime` - Formats relative time (from mobile_app utils)
+- `getStatusText` - Maps status codes to display text
+- `getStatusClass` - Maps status codes to CSS classes
+- `getPriorityClass` - Maps priority levels to CSS classes
+- `getHealthClass` - Maps health scores to CSS classes
+- `getTypeColor` - Maps notification types to color classes
+- `getTypeDisplayName` - Maps notification types to display names
+- `getPriorityColor` - Maps priority levels to color classes
+- `getChannelIcon` - Maps channel names to icon classes
+- `getChannelDisplayName` - Maps channel names to display names
+
+**Helpers Module:**
+- `showAlert` - Shows alert messages (from dashboard utils)
+- `showToast` - Shows toast notifications (from notification_dashboard utils)
+- `startAutoRefreshHelper` - Starts auto-refresh intervals (from dashboard utils)
+- `stopAutoRefreshHelper` - Stops auto-refresh intervals (from dashboard utils)
+- `openModal` - Opens Bootstrap modals (from dashboard utils)
+- `closeModal` - Closes Bootstrap modals (from dashboard utils)
+- `handleOnlineStatus` - Handles online/offline status changes (from mobile_app utils)
+- `showOfflineModal` - Shows offline modals (from mobile_app utils)
+
+#### Benefits Achieved
+
+- **Reduced code duplication**: Eliminated duplicate utility functions across modules
+- **Improved maintainability**: Common functions are now maintained in a single location
+- **Enhanced consistency**: All modules now use identical utility functions
+- **Easier updates**: Changes to common utilities automatically propagate to all modules
+- **Better organization**: Related utility functions are grouped in a dedicated common directory
+- **Maintained compatibility**: All existing functionality preserved with backward compatibility
+
+#### Files Created/Modified
+
+1. `static/js/common/utils/formatters.js` - Common formatting functions
+2. `static/js/common/utils/helpers.js` - Common helper functions
+3. `static/js/common/index.js` - Aggregated exports for common utilities
+4. Updated all dashboard module utility files to import from common
+5. Updated all notification_dashboard module utility files to import from common
+6. Updated all mobile_app module utility files to import from common
+7. Updated dependent UI modules to use imported functions
+
+#### Verification
+All functionality remains intact after integration. All modules correctly import and use the common utilities, and no regressions were introduced. The application works exactly as before but with a more maintainable code structure following the principle of single source of truth for common utilities.
+
+---
+
 ### Completed: Frontend Modularization
 
 #### Overview

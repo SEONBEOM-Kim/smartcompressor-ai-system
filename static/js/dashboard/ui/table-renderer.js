@@ -1,4 +1,9 @@
 // static/js/dashboard/ui/table-renderer.js
+import { getStatusClass as getStatusClassFmt, getStatusText as getStatusTextFmt, 
+         getHealthClass as getHealthClassFmt, getPriorityClass as getPriorityClassFmt, 
+         formatDate as formatDateFmt } 
+         from '../../common/utils/formatters.js';
+
 class TableRenderer {
     updateStoresTable(stores) {
         const tbody = document.getElementById('storesTableBody');
@@ -84,30 +89,23 @@ class TableRenderer {
         });
     }
 
-    // These utility methods will be implemented in formatters.js but referenced here
     getStatusClass(status) {
-        // This will be implemented in formatters.js but needs to be accessible here
-        // For now, we'll reference the global function
-        return window.getStatusClass ? window.getStatusClass(status) : 'secondary';
+        return getStatusClassFmt(status);
     }
 
     getStatusText(status) {
-        // This will be implemented in formatters.js but needs to be accessible here
-        return window.getStatusText ? window.getStatusText(status) : status;
+        return getStatusTextFmt(status);
     }
 
     getHealthClass(score) {
-        // This will be implemented in formatters.js but needs to be accessible here
-        return window.getHealthClass ? window.getHealthClass(score) : 'critical';
+        return getHealthClassFmt(score);
     }
 
     getPriorityClass(priority) {
-        // This will be implemented in formatters.js but needs to be accessible here
-        return window.getPriorityClass ? window.getPriorityClass(priority) : 'secondary';
+        return getPriorityClassFmt(priority);
     }
 
     formatDate(dateString) {
-        // This will be implemented in formatters.js but needs to be accessible here
-        return window.formatDate ? window.formatDate(dateString) : 'N/A';
+        return formatDateFmt(dateString);
     }
 }

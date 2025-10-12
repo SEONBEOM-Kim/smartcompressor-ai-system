@@ -1,18 +1,7 @@
-function formatTime(timestamp) {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
+import { formatTime as commonFormatTime } from '../../../common/utils/formatters.js';
 
-    if (diff < 60000) {
-        return '방금 전';
-    } else if (diff < 3600000) {
-        return `${Math.floor(diff / 60000)}분 전`;
-    } else if (diff < 86400000) {
-        return `${Math.floor(diff / 3600000)}시간 전`;
-    } else {
-        return date.toLocaleDateString('ko-KR');
-    }
-}
+// Export the common formatTime function
+export { commonFormatTime as formatTime };
 
 function hideLoadingScreen() {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -28,4 +17,4 @@ function hideLoadingScreen() {
     }
 }
 
-export { formatTime, hideLoadingScreen };
+export { hideLoadingScreen };

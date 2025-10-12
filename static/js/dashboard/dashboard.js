@@ -1,4 +1,9 @@
 // static/js/dashboard/dashboard.js
+import { showAlert, startAutoRefreshHelper, stopAutoRefreshHelper, openModal, closeModal } 
+         from '../../common/utils/helpers.js';
+import { getStatusClass, getStatusText, getPriorityClass, getHealthClass, formatDate } 
+         from '../../common/utils/formatters.js';
+
 let chartManager;
 let dataLoader;
 let tableRenderer;

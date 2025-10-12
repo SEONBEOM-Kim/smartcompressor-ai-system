@@ -1,26 +1,8 @@
-function handleOnlineStatus(isOnline, callback) {
-    const statusIndicator = document.getElementById('connectionStatus');
-    if (statusIndicator) {
-        const icon = statusIndicator.querySelector('i');
-        if (isOnline) {
-            icon.className = 'fas fa-wifi';
-            icon.style.color = 'var(--status-normal)';
-        } else {
-            icon.className = 'fas fa-wifi-slash';
-            icon.style.color = 'var(--status-error)';
-            showOfflineModal();
-        }
-    }
-    
-    if (callback && typeof callback === 'function') {
-        callback(isOnline);
-    }
-}
+import { handleOnlineStatus as commonHandleOnlineStatus, showOfflineModal as commonShowOfflineModal } 
+         from '../../../common/utils/helpers.js';
 
-function showOfflineModal() {
-    const modal = new bootstrap.Modal(document.getElementById('offlineModal'));
-    modal.show();
-}
+// Export the common functions
+export { commonHandleOnlineStatus as handleOnlineStatus, commonShowOfflineModal as showOfflineModal };
 
 function animateDiagnosisProgress() {
     const progressFill = document.querySelector('.progress-fill');
@@ -80,8 +62,6 @@ function showDiagnosisError(showToastCallback) {
 }
 
 export { 
-    handleOnlineStatus, 
-    showOfflineModal, 
     animateDiagnosisProgress, 
     showDiagnosisResult, 
     showDiagnosisError 

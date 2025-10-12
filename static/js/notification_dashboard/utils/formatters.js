@@ -2,6 +2,10 @@
  * Formatters for Notification Dashboard
  * Contains utility functions for formatting data
  */
+import { formatDateTime as commonFormatDateTime } from '../../../common/utils/formatters.js';
+
+// Export the common formatDateTime function
+export { commonFormatDateTime as formatDateTime };
 
 /**
  * Get the appropriate icon for a channel
@@ -82,27 +86,4 @@ export function getPriorityColor(priority) {
         'urgent': 'danger'
     };
     return colors[priority] || 'secondary';
-}
-
-/**
- * Format a date string to a readable format
- * @param {string} dateString - Date string to format
- * @returns {string} Formatted date string
- */
-export function formatDateTime(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    
-    // Check if the date is valid
-    if (isNaN(date.getTime())) {
-        return '';
-    }
-    
-    return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
 }
