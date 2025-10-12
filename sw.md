@@ -1,307 +1,102 @@
-static/js/dashboard.js 모듈화를 위한 구체적인 플랜을 제시하겠습니다. 이 파일은 약 847줄의 코드를 포함하고 있으며 dashboard.js:1-14 , 다음과 같은 주요 기능들로 구성되어 있습니다.
+static/js/notification_dashboard.js 모듈화 플랜
+static/js/notification_dashboard.js는 약 552줄의 코드로 구성된 Slack/Discord 스타일의 알림 관리 대시보드입니다.[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:1-216]
 
-현재 dashboard.js의 구조 분석
+현재 구조 분석
 주요 기능 영역
-차트 관리 (약 230줄): 6개의 Chart.js 차트 초기화 및 업데이트 dashboard.js:79-256
-데이터 로딩 (약 90줄): API 호출 및 데이터 페칭 dashboard.js:258-343
-테이블 렌더링 (약 150줄): 매장, 디바이스, 알림 테이블 업데이트 dashboard.js:377-409
-섹션 관리 (약 80줄): 탭 전환 및 네비게이션 dashboard.js:36-77
-유틸리티 함수 (약 100줄): 날짜 포맷, 상태 변환 등 dashboard.js:526-554
-Phase 1: 폴더 구조 생성
-static/js/dashboard/  
-  ├── charts/  
-  │   ├── chart-manager.js (새로 생성)  
-  │   ├── energy-chart.js (새로 생성)  
-  │   ├── device-status-chart.js (새로 생성)  
-  │   ├── temperature-chart.js (새로 생성)  
-  │   ├── vibration-chart.js (새로 생성)  
-  │   ├── power-chart.js (새로 생성)  
-  │   └── anomaly-chart.js (새로 생성)  
+탭 관리 (약 80줄): 5개 탭(개요, 채널, 템플릿, 히스토리, 설정) 전환[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:46-81]
+데이터 로딩 (약 200줄): API 호출 및 데이터 페칭[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:83-113]
+UI 렌더링 (약 150줄): 통계 카드, 채널 상태, 테이블 업데이트[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:115-161]
+알림 전송 (약 40줄): 빠른 알림 전송 폼 처리[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:299-345]
+유틸리티 함수 (약 120줄): 아이콘, 색상, 날짜 포맷 등[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:433-552]
+모듈화 폴더 구조
+static/js/notification_dashboard/  
   ├── data/  
-  │   ├── data-loader.js (새로 생성)  
-  │   └── api-client.js (새로 생성)  
+  │   ├── api-client.js  
+  │   └── data-loader.js  
   ├── ui/  
-  │   ├── table-renderer.js (새로 생성)  
-  │   ├── section-manager.js (새로 생성)  
-  │   └── card-updater.js (새로 생성)  
+  │   ├── tab-manager.js  
+  │   ├── overview-renderer.js  
+  │   ├── channel-renderer.js  
+  │   ├── template-renderer.js  
+  │   └── history-renderer.js  
+  ├── forms/  
+  │   ├── notification-sender.js  
+  │   ├── settings-manager.js  
+  │   └── template-creator.js  
   ├── utils/  
-  │   ├── formatters.js (새로 생성)  
-  │   └── helpers.js (새로 생성)  
-  └── dashboard.js (진입점만 유지)  
-Phase 2: 차트 모듈 분리 (우선순위 1)
-2.1 차트 매니저 생성
-static/js/dashboard/charts/chart-manager.js
+  │   ├── formatters.js  
+  │   └── toast-manager.js  
+  └── notification_dashboard.js (진입점)  
+Phase 1: 데이터 레이어 분리 (2-3일)
+1.1 API 클라이언트 생성
+/api/notifications/status, /api/notifications/channels, /api/notifications/history 등 모든 API 호출을 api-client.js로 통합
+각 엔드포인트별 메서드 분리 (fetchStatus(), fetchChannels(), fetchHistory(), sendNotification() 등)
+1.2 데이터 로더 생성
+API 클라이언트를 사용하여 탭별 데이터 로딩 로직을 data-loader.js로 이동
+loadOverview(), loadChannels(), loadTemplates(), loadHistory() 메서드 구현
+에러 핸들링 및 로딩 상태 관리
+Phase 2: UI 렌더링 레이어 분리 (2-3일)
+2.1 탭 매니저 생성
+탭 전환 로직을 tab-manager.js로 분리[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:47-82]
+탭 이벤트 리스너 설정
+현재 활성 탭 상태 관리
+2.2 개요 렌더러 생성
+통계 카드 업데이트 로직을 overview-renderer.js로 이동
+채널 상태 표시 로직 분리
+최근 알림 테이블 렌더링 로직 분리
+2.3 채널 렌더러 생성
+채널 목록 표시 로직을 channel-renderer.js로 이동[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:178-215]
+채널 카드 생성 로직 분리
+2.4 템플릿 렌더러 생성
+템플릿 목록 표시 로직을 template-renderer.js로 이동
+템플릿 카드 생성 및 관리 로직 분리
+2.5 히스토리 렌더러 생성
+알림 히스토리 테이블 렌더링 로직을 history-renderer.js로 이동
+필터링 UI 업데이트 로직 분리
+Phase 3: 폼 처리 레이어 분리 (1-2일)
+3.1 알림 전송 핸들러 생성
+빠른 알림 전송 폼 처리를 notification-sender.js로 이동[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:307-344]
+폼 검증 로직 분리
+전송 성공/실패 처리 로직 분리
+3.2 설정 매니저 생성
+설정 로드 및 저장 로직을 settings-manager.js로 이동[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:299-305]
+설정 폼 이벤트 리스너 설정
+3.3 템플릿 생성기 생성
+템플릿 생성 폼 처리를 template-creator.js로 이동
+템플릿 모달 관리 로직 분리
+Phase 4: 유틸리티 레이어 분리 (1일)
+4.1 포맷터 생성
+채널 아이콘 매핑 함수를 formatters.js로 이동[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:434-444]
+채널 표시 이름 변환 함수 이동
+타입 색상 및 표시 이름 변환 함수 이동
+우선순위 색상 변환 함수 이동
+날짜 포맷팅 함수 이동[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:490-499]
+4.2 토스트 매니저 생성
+Bootstrap 토스트 생성 로직을 toast-manager.js로 이동[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:501-526]
+토스트 컨테이너 생성 로직 분리
+Phase 5: 진입점 간소화 (1일)
+5.1 새로운 notification_dashboard.js 구조
+모든 모듈 인스턴스 생성 및 초기화
+전역 함수 등록 (기존 호환성 유지)
+DOMContentLoaded 이벤트 핸들러 설정
+자동 새로고침 설정
+5.2 전역 함수 유지
+loadHistory(), createTemplate() 등 HTML에서 호출되는 전역 함수 유지[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:539-545]
+Phase 6: HTML 업데이트 (1일)
+6.1 스크립트 로드 순서 변경
+templates/notification_dashboard.html에서 모듈 파일들을 순서대로 로드[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: templates/notification_dashboard.html:473-476]:
 
-// static/js/dashboard/charts/chart-manager.js  
-class ChartManager {  
-    constructor() {  
-        this.charts = {};  
-    }  
-  
-    initializeAllCharts() {  
-        this.initializeEnergyChart();  
-        this.initializeDeviceStatusChart();  
-        this.initializeTemperatureChart();  
-        this.initializeVibrationChart();  
-        this.initializePowerChart();  
-        this.initializeAnomalyChart();  
-    }  
-  
-    initializeEnergyChart() {  
-        // static/js/dashboard.js:82-120의 로직 이동  
-    }  
-  
-    initializeDeviceStatusChart() {  
-        // static/js/dashboard.js:123-145의 로직 이동  
-    }  
-  
-    // ... 나머지 차트 초기화 메서드  
-}
-2.2 개별 차트 클래스 분리
-각 차트를 독립된 클래스로 분리:
-
-static/js/dashboard/charts/energy-chart.js
-
-class EnergyChart {  
-    constructor(canvasId) {  
-        this.canvas = document.getElementById(canvasId);  
-        this.chart = null;  
-        this.init();  
-    }  
-  
-    init() {  
-        // Chart.js 초기화 로직  
-    }  
-  
-    update(data) {  
-        if (this.chart && data) {  
-            this.chart.data.labels = data.labels || [];  
-            this.chart.data.datasets[0].data = data.values || [];  
-            this.chart.update();  
-        }  
-    }  
-}
-Phase 3: 데이터 로딩 모듈 분리 (우선순위 2)
-3.1 API 클라이언트 생성
-static/js/dashboard/data/api-client.js
-
-class DashboardApiClient {  
-    constructor(baseUrl = '/api/dashboard') {  
-        this.baseUrl = baseUrl;  
-    }  
-  
-    async fetchSummary() {  
-        // static/js/dashboard.js:259-273의 로직 이동  
-        const response = await fetch(`${this.baseUrl}/summary`);  
-        return response.json();  
-    }  
-  
-    async fetchStores() {  
-        // static/js/dashboard.js:290-301의 로직 이동  
-    }  
-  
-    async fetchDevices() {  
-        // static/js/dashboard.js:304-315의 로직 이동  
-    }  
-  
-    async fetchAnalytics() {  
-        // static/js/dashboard.js:318-329의 로직 이동  
-    }  
-  
-    async fetchNotifications() {  
-        // static/js/dashboard.js:332-343의 로직 이동  
-    }  
-}
-3.2 데이터 로더 생성
-static/js/dashboard/data/data-loader.js
-
-class DataLoader {  
-    constructor(apiClient) {  
-        this.apiClient = apiClient;  
-    }  
-  
-    async loadOverviewData() {  
-        // static/js/dashboard.js:276-287의 로직 이동  
-    }  
-  
-    async loadStoresData() {  
-        // static/js/dashboard.js:290-301의 로직 이동  
-    }  
-  
-    // ... 나머지 데이터 로딩 메서드  
-}
-Phase 4: UI 렌더링 모듈 분리 (우선순위 3)
-4.1 테이블 렌더러 생성
-static/js/dashboard/ui/table-renderer.js
-
-class TableRenderer {  
-    updateStoresTable(stores) {  
-        // static/js/dashboard.js:378-409의 로직 이동  
-    }  
-  
-    updateDevicesTable(devices) {  
-        // static/js/dashboard.js:412-443의 로직 이동  
-    }  
-  
-    updateNotificationsTable(notifications) {  
-        // static/js/dashboard.js:472-489의 로직 이동  
-    }  
-}
-4.2 섹션 매니저 생성
-static/js/dashboard/ui/section-manager.js
-
-class SectionManager {  
-    constructor() {  
-        this.currentSection = 'overview';  
-    }  
-  
-    showSection(sectionName) {  
-        // static/js/dashboard.js:36-77의 로직 이동  
-    }  
-  
-    setupNavigation() {  
-        // 네비게이션 이벤트 리스너 설정  
-    }  
-}
-4.3 카드 업데이터 생성
-static/js/dashboard/ui/card-updater.js
-
-class CardUpdater {  
-    updateOverviewCards(summary) {  
-        // static/js/dashboard.js:346-353의 로직 이동  
-    }  
-}
-Phase 5: 유틸리티 함수 분리 (우선순위 4)
-5.1 포맷터 생성
-static/js/dashboard/utils/formatters.js
-
-// 날짜 포맷팅  
-function formatDate(dateString) {  
-    // static/js/dashboard.js:543-554의 로직 이동  
-}  
-  
-// 상태 텍스트 변환  
-function getStatusText(status) {  
-    // static/js/dashboard.js:492-503의 로직 이동  
-}  
-  
-// 상태 클래스 변환  
-function getStatusClass(status) {  
-    // static/js/dashboard.js:505-516의 로직 이동  
-}  
-  
-// 우선순위 클래스 변환  
-function getPriorityClass(priority) {  
-    // static/js/dashboard.js:533-541의 로직 이동  
-}  
-  
-// 헬스 스코어 클래스 변환  
-function getHealthClass(score) {  
-    // static/js/dashboard.js:526-531의 로직 이동  
-}
-Phase 6: 새로운 dashboard.js 구조
-static/js/dashboard/dashboard.js (진입점만 유지)
-
-// static/js/dashboard/dashboard.js  
-let chartManager;  
-let dataLoader;  
-let tableRenderer;  
-let sectionManager;  
-let cardUpdater;  
-let apiClient;  
-let refreshInterval;  
-  
-document.addEventListener('DOMContentLoaded', function() {  
-    initializeDashboard();  
-    loadDashboardData();  
-    setupEventListeners();  
-    startAutoRefresh();  
-});  
-  
-function initializeDashboard() {  
-    console.log('대시보드 초기화 중...');  
-      
-    // 인스턴스 생성  
-    apiClient = new DashboardApiClient();  
-    chartManager = new ChartManager();  
-    dataLoader = new DataLoader(apiClient);  
-    tableRenderer = new TableRenderer();  
-    sectionManager = new SectionManager();  
-    cardUpdater = new CardUpdater();  
-      
-    // 초기화  
-    chartManager.initializeAllCharts();  
-    sectionManager.setupNavigation();  
-      
-    console.log('대시보드 초기화 완료');  
-}  
-  
-async function loadDashboardData() {  
-    try {  
-        const data = await apiClient.fetchSummary();  
-          
-        if (data.success) {  
-            cardUpdater.updateOverviewCards(data.summary);  
-            chartManager.charts.energy.update(data.energy_data);  
-            chartManager.charts.deviceStatus.update(data.device_status);  
-        }  
-    } catch (error) {  
-        console.error('대시보드 데이터 로드 실패:', error);  
-        showAlert('데이터 로드에 실패했습니다.', 'danger');  
-    }  
-}  
-  
-// 전역 함수로 등록 (기존 호환성 유지)  
-window.showSection = (section) => sectionManager.showSection(section);  
-window.editStore = (storeId) => { /* ... */ };  
-window.deleteStore = (storeId) => { /* ... */ };  
-window.editDevice = (deviceId) => { /* ... */ };  
-window.deleteDevice = (deviceId) => { /* ... */ };
-Phase 7: HTML 파일 업데이트
-templates/dashboard.html 스크립트 로드 순서 변경 dashboard.html:581-584 :
-
-<!-- 기존 -->  
-<script src="/static/js/dashboard.js"></script>  
-  
-<!-- 모듈화 후 -->  
-<script src="/static/js/dashboard/utils/formatters.js"></script>  
-<script src="/static/js/dashboard/charts/chart-manager.js"></script>  
-<script src="/static/js/dashboard/data/api-client.js"></script>  
-<script src="/static/js/dashboard/data/data-loader.js"></script>  
-<script src="/static/js/dashboard/ui/table-renderer.js"></script>  
-<script src="/static/js/dashboard/ui/section-manager.js"></script>  
-<script src="/static/js/dashboard/ui/card-updater.js"></script>  
-<script src="/static/js/dashboard/dashboard.js"></script>
-실행 단계
-Step 1: 차트 모듈 분리 (3-4일)
-static/js/dashboard/charts/ 폴더 생성
-chart-manager.js 및 개별 차트 클래스 생성
-차트 초기화 및 업데이트 로직 이동
-테스트: 모든 차트 정상 렌더링 확인
-Step 2: 데이터 로딩 모듈 분리 (2-3일)
-static/js/dashboard/data/ 폴더 생성
-api-client.js, data-loader.js 생성
-API 호출 로직 이동
-테스트: 데이터 페칭 및 표시 정상 작동 확인
-Step 3: UI 렌더링 모듈 분리 (2-3일)
-static/js/dashboard/ui/ 폴더 생성
-table-renderer.js, section-manager.js, card-updater.js 생성
-UI 업데이트 로직 이동
-테스트: 테이블, 섹션 전환, 카드 업데이트 정상 작동 확인
-Step 4: 유틸리티 함수 분리 (1일)
-static/js/dashboard/utils/ 폴더 생성
-formatters.js, helpers.js 생성
-공통 함수 이동
-테스트: 날짜 포맷, 상태 변환 정상 작동 확인
-Step 5: dashboard.js 간소화 (1일)
-진입점 로직만 남기고 나머지 제거
-전역 함수 등록 유지 (기존 호환성)
-전체 대시보드 테스트
-Step 6: HTML 업데이트 및 최종 검증 (1일)
-templates/dashboard.html 스크립트 로드 순서 업데이트
-전체 기능 테스트
-배포 파이프라인 테스트
-체크리스트
- static/js/dashboard/charts/chart-manager.js 생성 및 테스트
- 개별 차트 클래스 생성 (6개)
- `static/
+유틸리티 → 데이터 → UI → 폼 → 진입점 순서
+실행 체크리스트
+ API 클라이언트 및 데이터 로더 생성
+ 탭 매니저 및 렌더러 5개 생성
+ 폼 핸들러 3개 생성
+ 유틸리티 함수 분리
+ 진입점 간소화 (552줄 → 100줄 목표)
+ HTML 스크립트 로드 순서 업데이트
+ 전체 기능 테스트 (5개 탭 모두)
+ 배포 파이프라인 테스트
+주의사항
+전역 함수 호환성: HTML에서 onclick 등으로 호출되는 함수들은 전역으로 유지
+Bootstrap 의존성: 토스트, 모달 등 Bootstrap 컴포넌트 사용 유지
+빌드 프로세스 불필요: 전통적인 스크립트 태그 방식으로 즉시 적용 가능
