@@ -560,3 +560,61 @@ Successfully completed the organization and cleanup of JavaScript files in the s
 
 #### Verification
 All functionality remains intact after reorganization. All HTML templates correctly reference the new file paths, and the application works exactly as before but with a much cleaner, more maintainable code structure. The modular approach allows for better code organization and future enhancements.
+
+---
+
+### Completed: Static HTML and Flask Template Organization
+
+#### Overview
+Successfully completed the organization of HTML files by properly categorizing static HTML files from Flask templates as outlined in the suggestion.md document.
+
+#### Tasks Completed
+
+1. **Analyzed HTML Files**: Distinguished between static HTML files in the `static/` directory and Flask templates in the `templates/` directory
+
+2. **Created Directory Structure**: Implemented the proper directory structure with `static/pages/` and subdirectories:
+   - `static/pages/` - Root for static HTML pages
+   - `static/pages/labeling/` - For labeling-related pages
+   - `static/pages/testing/` - For testing-related pages
+   - `static/pages/storage/` - For storage-related pages
+
+3. **Moved Static HTML Files**: Relocated static HTML files to appropriate directories:
+   - `static/index.html` → `static/pages/index.html`
+   - `static/showcase.html` → `static/pages/showcase.html`
+   - `static/human_labeling_interface.html` → `static/pages/labeling/interface.html`
+   - `static/labeling_management_dashboard.html` → `static/pages/labeling/management.html`
+   - `static/noise_cancellation_test.html` → `static/pages/testing/noise_cancellation.html`
+   - `static/smart_storage_dashboard.html` → `static/pages/storage/dashboard.html`
+   - `static/audio_recorder_client.html` → `static/pages/audio_recorder_client.html`
+
+4. **Updated Server Routing**: Modified `server/app.js` to handle the new file locations:
+   - Updated root route (`/`) to serve `static/pages/showcase.html`
+   - Added specific routes for each static page:
+     - `/index` → `static/pages/index.html`
+     - `/showcase` → `static/pages/showcase.html`
+     - `/audio_recorder_client` → `static/pages/audio_recorder_client.html`
+     - `/labeling/interface` → `static/pages/labeling/interface.html`
+     - `/labeling/management` → `static/pages/labeling/management.html`
+     - `/testing/noise_cancellation` → `static/pages/testing/noise_cancellation.html`
+     - `/storage/dashboard` → `static/pages/storage/dashboard.html`
+
+5. **Updated Internal Links**: Modified internal links in HTML files to reference the new routes and locations
+
+6. **Verification**: Confirmed that all pages are functioning correctly after reorganization
+
+#### Benefits Achieved
+
+- **Improved Organization**: Static HTML files are now properly separated from Flask templates
+- **Better Maintainability**: Clearer project structure with distinct purposes for each directory
+- **Enhanced Scalability**: New static pages can be easily added in the appropriate subdirectories
+- **Maintained Compatibility**: All existing functionality preserved with backward compatibility
+- **Clearer Routing**: Specific routes for each static page make navigation more intuitive
+
+#### Files Created/Modified
+
+1. `static/pages/` directory and subdirectories - New directory structure
+2. All previously static HTML files - Moved to appropriate locations
+3. `server/app.js` - Updated routing to handle new file locations
+
+#### Verification
+All functionality remains intact after reorganization. The server correctly serves the showcase page at the root URL and other static pages at their designated routes. The project now has a cleaner, more maintainable structure with static HTML files properly separated from Flask templates.

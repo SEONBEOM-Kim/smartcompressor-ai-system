@@ -175,8 +175,3 @@ class IntegratedAIDiagnosis {
         }
     }
 }
-
-// 페이지 로드 시 자동 초기화
-document.addEventListener('DOMContentLoaded', () => {
-    new IntegratedAIDiagnosis();
-});
