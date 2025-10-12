@@ -1,209 +1,307 @@
-# Answer
+static/js/dashboard.js 모듈화를 위한 구체적인 플랜을 제시하겠습니다. 이 파일은 약 847줄의 코드를 포함하고 있으며 dashboard.js:1-14 , 다음과 같은 주요 기능들로 구성되어 있습니다.
 
-랜딩 페이지 모듈화를 완료했다면, 다음 단계는 **`static/app.js` 모듈화**를 추천합니다. 이 파일은 800줄 이상의 코드를 포함하고 있으며[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:0-833], 모든 페이지에서 공통으로 사용되는 핵심 기능을 담당하고 있습니다.<cite />
+현재 dashboard.js의 구조 분석
+주요 기능 영역
+차트 관리 (약 230줄): 6개의 Chart.js 차트 초기화 및 업데이트 dashboard.js:79-256
+데이터 로딩 (약 90줄): API 호출 및 데이터 페칭 dashboard.js:258-343
+테이블 렌더링 (약 150줄): 매장, 디바이스, 알림 테이블 업데이트 dashboard.js:377-409
+섹션 관리 (약 80줄): 탭 전환 및 네비게이션 dashboard.js:36-77
+유틸리티 함수 (약 100줄): 날짜 포맷, 상태 변환 등 dashboard.js:526-554
+Phase 1: 폴더 구조 생성
+static/js/dashboard/  
+  ├── charts/  
+  │   ├── chart-manager.js (새로 생성)  
+  │   ├── energy-chart.js (새로 생성)  
+  │   ├── device-status-chart.js (새로 생성)  
+  │   ├── temperature-chart.js (새로 생성)  
+  │   ├── vibration-chart.js (새로 생성)  
+  │   ├── power-chart.js (새로 생성)  
+  │   └── anomaly-chart.js (새로 생성)  
+  ├── data/  
+  │   ├── data-loader.js (새로 생성)  
+  │   └── api-client.js (새로 생성)  
+  ├── ui/  
+  │   ├── table-renderer.js (새로 생성)  
+  │   ├── section-manager.js (새로 생성)  
+  │   └── card-updater.js (새로 생성)  
+  ├── utils/  
+  │   ├── formatters.js (새로 생성)  
+  │   └── helpers.js (새로 생성)  
+  └── dashboard.js (진입점만 유지)  
+Phase 2: 차트 모듈 분리 (우선순위 1)
+2.1 차트 매니저 생성
+static/js/dashboard/charts/chart-manager.js
 
-## Phase 2: app.js 모듈화 (우선순위 2)
-
-### 현재 app.js의 구조
-
-`static/app.js`는 다음 기능들을 포함합니다:
-- 인증 관리 (로그인/로그아웃)[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:30-54]
-- Kakao OAuth 통합[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:355-477]
-- UI 상태 관리 (네비게이션 렌더링)[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:56-150]
-- 모달 시스템[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:520-640]
-- 전역 함수 등록[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:757-760]
-
-### 2.1 폴더 구조 생성
-
-```
-static/js/
-  ├── auth/
-  │   ├── auth-manager.js (새로 생성)
-  │   ├── kakao-oauth.js (새로 생성)
-  │   └── session-validator.js (새로 생성)
-  ├── ui/
-  │   ├── navbar-renderer.js (새로 생성)
-  │   ├── modal-manager.js (새로 생성)
-  │   └── personalized-content.js (새로 생성)
-  └── app.js (진입점만 유지)
-```
-
-### 2.2 인증 모듈 분리
-
-**`static/js/auth/auth-manager.js` 생성:**
-
-```javascript
-// static/js/auth/auth-manager.js
-class AuthManager {
-    constructor() {
-        this.currentUser = null;
-        this.authToken = null;
-    }
-
-    async updateLoginStatus() {
-        // static/app.js:30-54의 로직 이동
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            this.showLoggedOutUI();
-            return;
-        }
-        // ... 나머지 로직
-    }
-
-    async handleLogin(username, password) {
-        // static/app.js:643-693의 로직 이동
-    }
-
-    async logout() {
-        // static/app.js:695-750의 로직 이동
-    }
+// static/js/dashboard/charts/chart-manager.js  
+class ChartManager {  
+    constructor() {  
+        this.charts = {};  
+    }  
+  
+    initializeAllCharts() {  
+        this.initializeEnergyChart();  
+        this.initializeDeviceStatusChart();  
+        this.initializeTemperatureChart();  
+        this.initializeVibrationChart();  
+        this.initializePowerChart();  
+        this.initializeAnomalyChart();  
+    }  
+  
+    initializeEnergyChart() {  
+        // static/js/dashboard.js:82-120의 로직 이동  
+    }  
+  
+    initializeDeviceStatusChart() {  
+        // static/js/dashboard.js:123-145의 로직 이동  
+    }  
+  
+    // ... 나머지 차트 초기화 메서드  
 }
-```
+2.2 개별 차트 클래스 분리
+각 차트를 독립된 클래스로 분리:
 
-**`static/js/auth/kakao-oauth.js` 생성:**
+static/js/dashboard/charts/energy-chart.js
 
-```javascript
-// static/js/auth/kakao-oauth.js
-class KakaoOAuth {
-    kakaoLogin() {
-        // static/app.js:356-383의 로직 이동
-    }
-
-    handleKakaoCallback() {
-        // static/app.js:386-405의 로직 이동
-    }
+class EnergyChart {  
+    constructor(canvasId) {  
+        this.canvas = document.getElementById(canvasId);  
+        this.chart = null;  
+        this.init();  
+    }  
+  
+    init() {  
+        // Chart.js 초기화 로직  
+    }  
+  
+    update(data) {  
+        if (this.chart && data) {  
+            this.chart.data.labels = data.labels || [];  
+            this.chart.data.datasets[0].data = data.values || [];  
+            this.chart.update();  
+        }  
+    }  
 }
-```
+Phase 3: 데이터 로딩 모듈 분리 (우선순위 2)
+3.1 API 클라이언트 생성
+static/js/dashboard/data/api-client.js
 
-### 2.3 UI 모듈 분리
-
-**`static/js/ui/navbar-renderer.js` 생성:**
-
-```javascript
-// static/js/ui/navbar-renderer.js
-class NavbarRenderer {
-    showLoggedInUI(user) {
-        // static/app.js:57-150의 로직 이동
-    }
-
-    showLoggedOutUI() {
-        // static/app.js:280-353의 로직 이동
-    }
+class DashboardApiClient {  
+    constructor(baseUrl = '/api/dashboard') {  
+        this.baseUrl = baseUrl;  
+    }  
+  
+    async fetchSummary() {  
+        // static/js/dashboard.js:259-273의 로직 이동  
+        const response = await fetch(`${this.baseUrl}/summary`);  
+        return response.json();  
+    }  
+  
+    async fetchStores() {  
+        // static/js/dashboard.js:290-301의 로직 이동  
+    }  
+  
+    async fetchDevices() {  
+        // static/js/dashboard.js:304-315의 로직 이동  
+    }  
+  
+    async fetchAnalytics() {  
+        // static/js/dashboard.js:318-329의 로직 이동  
+    }  
+  
+    async fetchNotifications() {  
+        // static/js/dashboard.js:332-343의 로직 이동  
+    }  
 }
-```
+3.2 데이터 로더 생성
+static/js/dashboard/data/data-loader.js
 
-**`static/js/ui/modal-manager.js` 생성:**
-
-```javascript
-// static/js/ui/modal-manager.js
-class ModalManager {
-    showLoginModal() {
-        // static/app.js:521-570의 로직 이동
-    }
-
-    showRegisterModal() {
-        // static/app.js:572-640의 로직 이동
-    }
+class DataLoader {  
+    constructor(apiClient) {  
+        this.apiClient = apiClient;  
+    }  
+  
+    async loadOverviewData() {  
+        // static/js/dashboard.js:276-287의 로직 이동  
+    }  
+  
+    async loadStoresData() {  
+        // static/js/dashboard.js:290-301의 로직 이동  
+    }  
+  
+    // ... 나머지 데이터 로딩 메서드  
 }
-```
+Phase 4: UI 렌더링 모듈 분리 (우선순위 3)
+4.1 테이블 렌더러 생성
+static/js/dashboard/ui/table-renderer.js
 
-### 2.4 새로운 app.js 구조
+class TableRenderer {  
+    updateStoresTable(stores) {  
+        // static/js/dashboard.js:378-409의 로직 이동  
+    }  
+  
+    updateDevicesTable(devices) {  
+        // static/js/dashboard.js:412-443의 로직 이동  
+    }  
+  
+    updateNotificationsTable(notifications) {  
+        // static/js/dashboard.js:472-489의 로직 이동  
+    }  
+}
+4.2 섹션 매니저 생성
+static/js/dashboard/ui/section-manager.js
 
-```javascript
-// static/app.js (진입점만 유지)
-const API_BASE_URL = window.location.origin;
+class SectionManager {  
+    constructor() {  
+        this.currentSection = 'overview';  
+    }  
+  
+    showSection(sectionName) {  
+        // static/js/dashboard.js:36-77의 로직 이동  
+    }  
+  
+    setupNavigation() {  
+        // 네비게이션 이벤트 리스너 설정  
+    }  
+}
+4.3 카드 업데이터 생성
+static/js/dashboard/ui/card-updater.js
 
-// 전역 인스턴스
-let authManager;
-let navbarRenderer;
-let modalManager;
-let kakaoOAuth;
+class CardUpdater {  
+    updateOverviewCards(summary) {  
+        // static/js/dashboard.js:346-353의 로직 이동  
+    }  
+}
+Phase 5: 유틸리티 함수 분리 (우선순위 4)
+5.1 포맷터 생성
+static/js/dashboard/utils/formatters.js
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Signalcraft 애플리케이션이 초기화되었습니다.');
-    
-    // 인스턴스 생성
-    authManager = new AuthManager();
-    navbarRenderer = new NavbarRenderer();
-    modalManager = new ModalManager();
-    kakaoOAuth = new KakaoOAuth();
-    
-    // 초기화
-    setupEventListeners();
-    checkLoginSuccess();
-    kakaoOAuth.handleKakaoCallback();
-    authManager.updateLoginStatus();
-});
+// 날짜 포맷팅  
+function formatDate(dateString) {  
+    // static/js/dashboard.js:543-554의 로직 이동  
+}  
+  
+// 상태 텍스트 변환  
+function getStatusText(status) {  
+    // static/js/dashboard.js:492-503의 로직 이동  
+}  
+  
+// 상태 클래스 변환  
+function getStatusClass(status) {  
+    // static/js/dashboard.js:505-516의 로직 이동  
+}  
+  
+// 우선순위 클래스 변환  
+function getPriorityClass(priority) {  
+    // static/js/dashboard.js:533-541의 로직 이동  
+}  
+  
+// 헬스 스코어 클래스 변환  
+function getHealthClass(score) {  
+    // static/js/dashboard.js:526-531의 로직 이동  
+}
+Phase 6: 새로운 dashboard.js 구조
+static/js/dashboard/dashboard.js (진입점만 유지)
 
-// 전역 함수로 등록 (기존 호환성 유지)
-window.showLoginModal = () => modalManager.showLoginModal();
-window.showRegisterModal = () => modalManager.showRegisterModal();
-window.updateLoginStatus = () => authManager.updateLoginStatus();
-window.kakaoLogin = () => kakaoOAuth.kakaoLogin();
-```
+// static/js/dashboard/dashboard.js  
+let chartManager;  
+let dataLoader;  
+let tableRenderer;  
+let sectionManager;  
+let cardUpdater;  
+let apiClient;  
+let refreshInterval;  
+  
+document.addEventListener('DOMContentLoaded', function() {  
+    initializeDashboard();  
+    loadDashboardData();  
+    setupEventListeners();  
+    startAutoRefresh();  
+});  
+  
+function initializeDashboard() {  
+    console.log('대시보드 초기화 중...');  
+      
+    // 인스턴스 생성  
+    apiClient = new DashboardApiClient();  
+    chartManager = new ChartManager();  
+    dataLoader = new DataLoader(apiClient);  
+    tableRenderer = new TableRenderer();  
+    sectionManager = new SectionManager();  
+    cardUpdater = new CardUpdater();  
+      
+    // 초기화  
+    chartManager.initializeAllCharts();  
+    sectionManager.setupNavigation();  
+      
+    console.log('대시보드 초기화 완료');  
+}  
+  
+async function loadDashboardData() {  
+    try {  
+        const data = await apiClient.fetchSummary();  
+          
+        if (data.success) {  
+            cardUpdater.updateOverviewCards(data.summary);  
+            chartManager.charts.energy.update(data.energy_data);  
+            chartManager.charts.deviceStatus.update(data.device_status);  
+        }  
+    } catch (error) {  
+        console.error('대시보드 데이터 로드 실패:', error);  
+        showAlert('데이터 로드에 실패했습니다.', 'danger');  
+    }  
+}  
+  
+// 전역 함수로 등록 (기존 호환성 유지)  
+window.showSection = (section) => sectionManager.showSection(section);  
+window.editStore = (storeId) => { /* ... */ };  
+window.deleteStore = (storeId) => { /* ... */ };  
+window.editDevice = (deviceId) => { /* ... */ };  
+window.deleteDevice = (deviceId) => { /* ... */ };
+Phase 7: HTML 파일 업데이트
+templates/dashboard.html 스크립트 로드 순서 변경 dashboard.html:581-584 :
 
-### 2.5 HTML 파일 업데이트
-
-모든 HTML 파일에서 스크립트 로드 순서 변경:
-
-```html
-<!-- 기존 -->
-<script src="/static/app.js"></script>
-
-<!-- 모듈화 후 -->
-<script src="/static/js/auth/auth-manager.js"></script>
-<script src="/static/js/auth/kakao-oauth.js"></script>
-<script src="/static/js/ui/navbar-renderer.js"></script>
-<script src="/static/js/ui/modal-manager.js"></script>
-<script src="/static/app.js"></script>
-```
-
-## 실행 단계
-
-### Step 1: 인증 모듈 분리 (2-3일)
-1. `static/js/auth/` 폴더 생성
-2. `auth-manager.js`, `kakao-oauth.js` 파일 생성
-3. 로그인/로그아웃 로직 이동
-4. 테스트: 로그인, 로그아웃, Kakao OAuth 정상 작동 확인
-
-### Step 2: UI 모듈 분리 (2-3일)
-1. `static/js/ui/` 폴더 생성
-2. `navbar-renderer.js`, `modal-manager.js` 파일 생성
-3. UI 렌더링 로직 이동
-4. 테스트: 네비게이션 바, 모달 정상 작동 확인
-
-### Step 3: app.js 간소화 (1일)
-1. 진입점 로직만 남기고 나머지 제거
-2. 전역 함수 등록 유지 (기존 호환성)
-3. 전체 페이지 테스트
-
-### Step 4: 다른 페이지 업데이트 (1-2일)
-1. `templates/dashboard.html`[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: templates/dashboard.html:581-584]
-2. `templates/mobile_app.html`[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: templates/mobile_app.html:414-417]
-3. 모든 HTML 파일에서 스크립트 로드 순서 업데이트
-
-## 체크리스트
-
-- [ ] `static/js/auth/auth-manager.js` 생성 및 테스트
-- [ ] `static/js/auth/kakao-oauth.js` 생성 및 테스트
-- [ ] `static/js/ui/navbar-renderer.js` 생성 및 테스트
-- [ ] `static/js/ui/modal-manager.js` 생성 및 테스트
-- [ ] `app.js` 간소화 (800줄 → 100줄 목표)
-- [ ] 모든 페이지에서 인증 기능 정상 작동 확인
-- [ ] 배포 파이프라인 테스트
-
-## 주의사항
-
-1. **전역 함수 호환성 유지**: 기존 HTML에서 `onclick="showLoginModal()"` 같은 인라인 이벤트 핸들러가 있으므로 전역 함수 등록 필수[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/app.js:757-760]
-2. **의존성 순서**: 모듈 파일들을 `app.js`보다 먼저 로드해야 함
-3. **localStorage 접근**: 모든 모듈에서 `localStorage`를 사용하므로 브라우저 호환성 확인
-
-# Notes
-
-`app.js` 모듈화가 완료되면, 다음 단계는 `static/js/dashboard.js` (800줄 이상)[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/dashboard.js:1-847], `static/js/mobile_app.js`[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/mobile_app.js:1-675], `static/js/notification_dashboard.js`[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: static/js/notification_dashboard.js:1-552] 순서로 진행하는 것을 권장합니다. 각 파일은 독립적인 페이지에서 사용되므로 병렬로 작업 가능합니다.
-
-Wiki pages you might want to explore:
-- [Frontend Applications (SEONBEOM-Kim/smartcompressor-ai-system)](/wiki/SEONBEOM-Kim/smartcompressor-ai-system#3)
-
-Wiki pages you might want to explore:
-- [Overview (SEONBEOM-Kim/smartcompressor-ai-system)](/wiki/SEONBEOM-Kim/smartcompressor-ai-system#1)
+<!-- 기존 -->  
+<script src="/static/js/dashboard.js"></script>  
+  
+<!-- 모듈화 후 -->  
+<script src="/static/js/dashboard/utils/formatters.js"></script>  
+<script src="/static/js/dashboard/charts/chart-manager.js"></script>  
+<script src="/static/js/dashboard/data/api-client.js"></script>  
+<script src="/static/js/dashboard/data/data-loader.js"></script>  
+<script src="/static/js/dashboard/ui/table-renderer.js"></script>  
+<script src="/static/js/dashboard/ui/section-manager.js"></script>  
+<script src="/static/js/dashboard/ui/card-updater.js"></script>  
+<script src="/static/js/dashboard/dashboard.js"></script>
+실행 단계
+Step 1: 차트 모듈 분리 (3-4일)
+static/js/dashboard/charts/ 폴더 생성
+chart-manager.js 및 개별 차트 클래스 생성
+차트 초기화 및 업데이트 로직 이동
+테스트: 모든 차트 정상 렌더링 확인
+Step 2: 데이터 로딩 모듈 분리 (2-3일)
+static/js/dashboard/data/ 폴더 생성
+api-client.js, data-loader.js 생성
+API 호출 로직 이동
+테스트: 데이터 페칭 및 표시 정상 작동 확인
+Step 3: UI 렌더링 모듈 분리 (2-3일)
+static/js/dashboard/ui/ 폴더 생성
+table-renderer.js, section-manager.js, card-updater.js 생성
+UI 업데이트 로직 이동
+테스트: 테이블, 섹션 전환, 카드 업데이트 정상 작동 확인
+Step 4: 유틸리티 함수 분리 (1일)
+static/js/dashboard/utils/ 폴더 생성
+formatters.js, helpers.js 생성
+공통 함수 이동
+테스트: 날짜 포맷, 상태 변환 정상 작동 확인
+Step 5: dashboard.js 간소화 (1일)
+진입점 로직만 남기고 나머지 제거
+전역 함수 등록 유지 (기존 호환성)
+전체 대시보드 테스트
+Step 6: HTML 업데이트 및 최종 검증 (1일)
+templates/dashboard.html 스크립트 로드 순서 업데이트
+전체 기능 테스트
+배포 파이프라인 테스트
+체크리스트
+ static/js/dashboard/charts/chart-manager.js 생성 및 테스트
+ 개별 차트 클래스 생성 (6개)
+ `static/
