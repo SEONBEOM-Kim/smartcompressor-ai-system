@@ -194,6 +194,57 @@ To modify an existing file:
 
 ---
 
+### 2025-10-13: Feature Cards Styling Update
+
+- **Objective:** Enhance the visual design of the main features section by styling the three feature items as interactive cards with improved spacing.
+- **Changes:**
+    - **Updated HTML Structure:** Changed from `feature-item` to `feature-card` elements in `static/landing-components/features.html`
+    - **Increased Heading Padding:** Added more padding below the "왜 Signalcraft인가?" heading (48px)
+    - **Added Card Styling:** Implemented card-based styling with hover effects, consistent padding, and visual depth
+    - **Enhanced Interactions:** Added hover effects with slight elevation and shadow for better user experience
+    - **Improved Layout:** Added consistent spacing between cards and better vertical rhythm
+- **Benefits:**
+    - **Better Visual Hierarchy:** Increased padding below the heading clearly separates it from the feature cards
+    - **Enhanced Interactivity:** Hover effects provide visual feedback to users
+    - **Modern Design:** Card-based layout follows contemporary design practices
+    - **Improved Readability:** Consistent spacing and styling enhances content consumption
+
+---
+
+### 2025-10-13: Hero Section Video Integration
+
+- **Objective:** Enhance the hero section by adding a video to better demonstrate the product functionality.
+- **Changes:**
+    - **Created Video Directory:** Created `static/videos/` directory to store video assets
+    - **Updated Hero Component:** Modified `static/landing-components/hero.html` to include video element with autoplay, muted, and loop attributes
+    - **Enhanced CSS Styling:** Added styles in `static/css/landing.css` for video container with proper spacing, borders, and shadow effects
+    - **Maintained Text Separation:** Kept text content separate from video for better readability and visual hierarchy
+    - **Responsive Design:** Ensured video scales appropriately on different screen sizes
+- **Benefits:**
+    - **Improved Engagement:** Video content captures user attention and better demonstrates product value
+    - **Better Content Hierarchy:** Separation of text and video maintains readability while adding visual interest
+    - **Professional Appearance:** Styled video container with borders and shadows adds visual depth
+    - **Optimized Performance:** Using autoplay with muted attribute ensures smooth playback without user interaction
+
+---
+
+### 2025-10-13: Hero Section Video Positioning and Sizing
+
+- **Objective:** Position the video at the top of the hero section, make it as wide as the features section, and ensure proper layout order (video first, then text).
+- **Changes:**
+    - **Updated HTML Structure:** Reordered content in `static/landing-components/hero.html` so video appears before text content
+    - **Adjusted Video Width:** Set video container width to match the features section (1100px max-width)
+    - **Enhanced Centering:** Ensured video is properly centered within the container
+    - **Increased Top Space:** Added increased top padding to the hero section to make it more visually prominent
+    - **Improved Spacing:** Added more space between video and text content for better visual hierarchy
+- **Benefits:**
+    - **Better Visual Hierarchy:** Video now appears first and draws attention immediately upon page load
+    - **Consistent Width:** Video now matches the width of the features section for visual consistency
+    - **Improved Layout:** Proper positioning and spacing create a more polished look
+    - **Enhanced Attention:** Increased top padding and video positioning ensure the hero section draws user attention
+
+---
+
 ### Completed: Common Utilities Integration
 
 #### Overview
