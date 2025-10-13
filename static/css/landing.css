@@ -32,9 +32,17 @@ section {
     border-bottom: 1px solid var(--border-color);
 }
 
+section:not(.hero) .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
 /* Hero section has more top padding to draw attention */
 .hero {
     padding: 40px 0 60px 0;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
 }
 
 .btn {
@@ -140,19 +148,123 @@ section {
     color: #000;
 }
 
+/* Mobile Navigation */
+.mobile-menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
 
+.hamburger {
+    height: 3px;
+    width: 100%;
+    background-color: var(--text-color);
+    border-radius: 3px;
+    transition: all 0.3s ease-in-out;
+}
+
+.mobile-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    max-width: 80vw;
+    height: 100vh;
+    background-color: var(--background-color);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+}
+
+.mobile-nav.active {
+    transform: translateX(0);
+}
+
+.mobile-nav-content {
+    padding: 20px;
+    padding-top: 70px; /* Account for header height */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-nav a {
+    display: block;
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.1rem;
+}
+
+.mobile-nav a.btn {
+    background-color: var(--primary-color);
+    color: #000;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Show mobile menu toggle on small screens */
+@media (max-width: 768px) {
+    .main-nav {
+        display: none;
+    }
+    
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    .logo {
+        margin-right: 0;
+    }
+    
+    .main-header .container {
+        justify-content: space-between;
+    }
+}
 
 /* Hero Section */
 .hero {
-    text-align: center;
-    padding: 100px 0;
     position: relative;
     overflow: hidden;
+    min-height: 400px; /* Ensure enough space for the video */
+    text-align: center; /* Center all text content */
 }
 
 .hero-content {
     position: relative;
     z-index: 2;
+    max-width: 1100px;
+    width: 100%;
+    padding: 0 20px;
+    margin: 0 auto;
+    padding-top: 40px; /* Add top padding to maintain spacing */
 }
 
 .status-indicator {
@@ -186,13 +298,15 @@ section {
     max-width: 600px;
     margin: 0 auto 32px auto;
     line-height: 1.6;
+    word-break: keep-all; /* Prevent breaking words */
+    white-space: normal; /* Allow normal text wrapping */
 }
 
 .hero-video-container {
     position: relative;
     margin: 0 auto 40px; /* Increased margin to provide more space below video */
-    max-width: 1100px; /* Same width as the container */
-    width: 100%;
+    width: 100vw;
+    max-width: 100%; /* Override the 1100px constraint */
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -201,9 +315,11 @@ section {
 
 .hero-video {
     width: 100%;
+    height: auto;
     display: block;
-    max-height: 500px;
-    object-fit: cover;
+    max-height: 100vh; /* Limit to viewport height to prevent overly tall videos */
+    min-height: 300px; /* Ensure it has a minimum height */
+    object-fit: cover; /* Maintain aspect ratio while covering container */
 }
 
 .text-highlight {
@@ -240,11 +356,49 @@ section {
     text-align: center;
 }
 
+.features {
+    text-align: center;
+}
+
+.features-image-container {
+    position: relative;
+    margin: 0 auto 40px; /* Increased margin to provide more space below image */
+    max-width: 1100px; /* Same width as the hero video container */
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+}
+
+.features-image {
+    width: 100%;
+    display: block;
+    max-height: 500px; /* Same max-height as the hero video */
+    object-fit: cover;
+}
+
 .feature-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
-    margin-bottom: 60px; /* Add space before detailed sections */
+    margin: 0 auto 60px auto; /* Add space before detailed sections, center the grid */
+    max-width: 1100px; /* Match container width */
+    justify-content: center; /* Center the grid items */
+}
+
+.feature-card {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Center content inside card */
 }
 
 .feature-card {
