@@ -25,4 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadComponent('pricing-placeholder', '/static/landing-components/pricing.html');
     loadComponent('footer-placeholder', '/static/landing-components/footer.html');
+    
+    // Load detailed feature components after main features section loads
+    setTimeout(() => {
+        loadComponent('feature-detailed-ai-analysis', '/static/landing-components/features/ai-analysis.html');
+        loadComponent('feature-detailed-monitoring', '/static/landing-components/features/monitoring.html');
+        loadComponent('feature-detailed-notifications', '/static/landing-components/features/notifications.html');
+        loadComponent('feature-detailed-mobile-access', '/static/landing-components/features/mobile-access.html');
+        loadComponent('feature-detailed-integrations', '/static/landing-components/features/integrations.html');
+    }, 100); // Small delay to ensure parent container is available
 });
