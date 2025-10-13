@@ -3,7 +3,7 @@
         <h2 class="section-title">요금제</h2>
         <p class="section-subtitle">매장 규모에 맞는 최적의 선택을 하세요.</p>
         <div class="pricing-grid">
-            <div class="pricing-card">
+            <div class="pricing-card" onclick="selectPlan('essential')" tabindex="0" role="button">
                 <h3 class="pricing-title">에센셜</h3>
                 <p class="pricing-price">29,000<span class="price-unit">원/월</span></p>
                 <ul class="pricing-features">
@@ -11,9 +11,9 @@
                     <li>고장 징후 알림 (경보기)</li>
                     <li>이메일 & 챗봇 지원</li>
                 </ul>
-                <button class="btn btn-secondary w-100" onclick="selectPlan('essential')">선택하기</button>
+                <button class="btn btn-secondary w-100" tabindex="-1">선택하기</button>
             </div>
-            <div class="pricing-card popular">
+            <div class="pricing-card popular" onclick="selectPlan('standard')" tabindex="0" role="button">
                 <h3 class="pricing-title">스탠다드</h3>
                 <p class="pricing-price">59,000<span class="price-unit">원/월</span></p>
                 <ul class="pricing-features">
@@ -22,9 +22,9 @@
                     <li>AI 진단 리포트</li>
                     <li>전화 & 이메일 지원</li>
                 </ul>
-                <button class="btn btn-primary w-100" onclick="selectPlan('standard')">선택하기</button>
+                <button class="btn btn-primary w-100" tabindex="-1">선택하기</button>
             </div>
-            <div class="pricing-card">
+            <div class="pricing-card" onclick="selectPlan('premium')" tabindex="0" role="button">
                 <h3 class="pricing-title">프리미엄</h3>
                 <p class="pricing-price">99,000<span class="price-unit">원/월</span></p>
                 <ul class="pricing-features">
@@ -32,7 +32,7 @@
                     <li>24/7 실시간 모니터링</li>
                     <li>전담 매니저 및 긴급 출동</li>
                 </ul>
-                <button class="btn btn-secondary w-100" onclick="selectPlan('premium')">선택하기</button>
+                <button class="btn btn-secondary w-100" tabindex="-1">선택하기</button>
             </div>
         </div>
     </div>

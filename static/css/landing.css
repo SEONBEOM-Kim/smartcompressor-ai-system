@@ -89,29 +89,19 @@ section:not(.hero) .container {
     top: 0;
     background-color: var(--background-color);
     z-index: 1000;
-    height: 200px; /* Increased to accommodate large logo */
-    display: flex;
-    align-items: center;
 }
 
 .main-header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 100%;
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
 }
 
 .logo {
-    color: #fff;
-    text-decoration: none;
     display: flex;
     align-items: center;
-    margin-right: auto; /* Push other elements to the right */
-    margin-top: 10px; /* Move logo down by 10px to align with button */
+    text-decoration: none;
+    color: #fff;
 }
 
 .logo:hover {
@@ -121,18 +111,12 @@ section:not(.hero) .container {
 .logo-icon {
     height: 180px;
     width: 180px;
-    vertical-align: middle;
-    object-fit: contain; /* Maintains aspect ratio */
-    max-height: 180px; /* Show full size */
-    max-width: 180px;
-    padding: 0; /* Reset padding */
 }
 
 .main-nav {
     display: flex;
     align-items: center;
     gap: 20px;
-    margin-left: auto; /* Push to the right side */
 }
 
 .main-nav a {
@@ -238,6 +222,8 @@ section:not(.hero) .container {
     
     .mobile-menu-toggle {
         display: flex;
+        align-self: flex-start; /* Align toggle to top */
+        margin-top: 10px; /* Add small top margin for toggle button */
     }
     
     .logo {
@@ -497,11 +483,29 @@ section:not(.hero) .container {
     border-radius: 12px;
     padding: 32px;
     text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pricing-card:active {
+    transform: translateY(-2px) scale(0.99);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
 .pricing-card.popular {
     border-color: var(--primary-color);
     transform: scale(1.05);
+}
+
+/* Combine popular and hover states */
+.pricing-card.popular:hover {
+    transform: scale(1.08);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
 }
 
 .pricing-title {
@@ -560,6 +564,20 @@ section:not(.hero) .container {
     flex-direction: row-reverse;  /* Alternates the order for even sections */
 }
 
+/* For desktop: ensure mobile-access feature has image on right (text first visually) */
+@media (min-width: 769px) {
+    #feature-detailed-mobile-access .feature-content {
+        flex-direction: row-reverse;
+    }
+}
+
+/* For mobile, ensure monitoring shows image first (reverse the desktop order) */
+@media (max-width: 768px) {
+    #feature-detailed-monitoring .feature-content {
+        flex-direction: column-reverse; /* Image will be first since HTML order was swapped */
+    }
+}
+
 .feature-content h3 {
     font-size: 2rem;
     font-weight: 700;
@@ -613,6 +631,7 @@ section:not(.hero) .container {
     height: auto;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    min-width: 250px; /* Ensure minimum size on mobile */
 }
 
 .feature-text {
@@ -621,6 +640,83 @@ section:not(.hero) .container {
 
 .feature-text .btn {
     margin-top: 16px;
+}
+
+/* Mobile Improvements for Features */
+/* Mobile-specific line break */
+.break-mobile {
+    display: inline-block;
+}
+
+@media (max-width: 768px) {
+    .break-mobile {
+        display: block;
+    }
+    
+    .feature-content {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+    }
+    
+    /* For mobile, ensure all feature sections follow same image-then-text order */
+    .feature-detail-section .feature-content {
+        flex-direction: column;
+    }
+    
+    .feature-text, .feature-media {
+        flex: none;
+        width: 100%;
+    }
+    
+    .feature-content h3 {
+        font-size: 1.8rem;
+    }
+    
+    .feature-content h4 {
+        font-size: 1.2rem;
+    }
+    
+    .feature-content p {
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+    
+    .feature-content ul li {
+        font-size: 0.95rem;
+    }
+    
+    /* Improve main features section on mobile */
+    .feature-cards {
+        grid-template-columns: 1fr; /* Single column on mobile */
+        gap: 20px;
+    }
+    
+    .feature-card {
+        padding: 24px;
+        min-height: auto;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.4rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.95rem;
+    }
+    
+    .section-title {
+        font-size: 2.2rem;
+    }
+    
+    /* Adjust image container for mobile */
+    .features-image-container {
+        margin: 0 auto 30px;
+    }
+    
+    .features-image {
+        max-height: 300px; /* Smaller max-height for mobile */
+    }
 }
 
 /* Footer */
