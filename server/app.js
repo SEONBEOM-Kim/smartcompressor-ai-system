@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const corsMiddleware = require('./middleware/cors');
 const cookieParser = require('cookie-parser');
+const SQLiteDatabaseService = require('../services/sqlite_database_service');
 
 // 라우트 import
 const authRoutes = require('./routes/authRoutes');
@@ -12,12 +13,50 @@ const monitoringRoutes = require('./routes/monitoringRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
+const db = new SQLiteDatabaseService();
 
 // 미들웨어 설정
 app.use(corsMiddleware);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// 세션 검증 미들웨어 (authRoutes.js에서 가져옴)
+const verifySession = async (req, res, next) => {
+    try {
+        const sessionId = req.cookies.sessionId;
+        if (!sessionId) {
+            return res.status(401).redirect('/'); // 세션 없으면 홈으로
+        }
+        const session = await db.getSession(sessionId);
+        if (!session) {
+            return res.status(401).redirect('/'); // 유효하지 않은 세션이면 홈으로
+        }
+        req.user = {
+            userId: session.user_id,
+            username: session.username,
+            role: session.role
+        };
+        next();
+    } catch (error) {
+        console.error('세션 검증 오류:', error);
+        return res.status(500).redirect('/');
+    }
+};
+
+// 관리자 권한 확인 미들웨어
+const ensureAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        return next();
+    }
+    res.status(403).send('<h1>403 Forbidden</h1><p>접근 권한이 없습니다. 관리자만 접근할 수 있습니다.</p><a href="/">홈으로 돌아가기</a>');
+};
+
+// 보호할 직원용 자산 라우트 (정적 파일 서빙보다 먼저 와야 함)
+app.get('/static/js/enhanced-registration.js', [verifySession, ensureAdmin], (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/js/enhanced-registration.js'));
+});
+
 
 // 정적 파일 서빙
 app.use('/static', express.static(path.join(__dirname, '../static')));
@@ -33,12 +72,21 @@ app.get('/index', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/index.html'));
 });
 
-app.get('/showcase', (req, res) => {
+// [보안 적용] /showcase 경로는 이제 관리자만 접근 가능
+app.get('/showcase', [verifySession, ensureAdmin], (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/showcase.html'));
 });
 
 app.get('/audio_recorder_client', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/audio_recorder_client.html'));
+});
+
+app.get('/terms', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/legal.html'));
+});
+
+app.get('/privacy', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/legal.html'));
 });
 
 // Labeling-related routes

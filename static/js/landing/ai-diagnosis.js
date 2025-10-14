@@ -37,6 +37,8 @@ class IntegratedAIDiagnosis {
             this.showStatus('❌ 이 브라우저는 녹음 기능을 지원하지 않습니다. 최신 Chrome, Firefox, Safari를 사용해주세요.', 'danger');
             if (this.recordBtn) this.recordBtn.disabled = true;
             return false;
+        } else {
+            if (this.recordBtn) this.recordBtn.disabled = false;
         }
 
         if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
@@ -79,6 +81,8 @@ class IntegratedAIDiagnosis {
             this.mediaRecorder.onstop = () => {
                 this.audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
                 this.analyzeBtn.disabled = false;
+                this.recordBtn.style.display = 'none';
+                this.analyzeBtn.style.display = 'inline-block';
                 this.showStatus('✅ 녹음 완료! 진단하기 버튼을 클릭하세요.', 'success');
             };
 
@@ -149,6 +153,10 @@ class IntegratedAIDiagnosis {
             </div>
         `;
         this.result.style.display = 'block';
+
+        // Reset for next cycle
+        this.analyzeBtn.style.display = 'none';
+        this.recordBtn.style.display = 'inline-block';
     }
 
     showDetailedReport() {
@@ -172,6 +180,9 @@ class IntegratedAIDiagnosis {
         }
         if (this.reportBtn) {
             this.reportBtn.style.display = 'none';
+        }
+        if (this.analyzeBtn) {
+            this.analyzeBtn.style.display = 'none';
         }
     }
 }

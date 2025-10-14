@@ -1,174 +1,447 @@
-정적 html 은 static/ 에 flask 템플릿은 templates/ 에 옮기고싶어 . 플랜을 세워줘
-Fast
-Searched across SEONBEOM-Kim/smartcompressor-ai-system
-Answer
-정적 HTML 파일들을 static/에, Flask 템플릿을 templates/로 재구성하는 플랜을 제시하겠습니다.
+Backend Services Overview
+Relevant source files
+app.py
+package.json
+routes/enhanced_auth_routes.py
+scripts/deploy-ec2-pm2.ps1
+scripts/deploy-ec2-pm2.sh
+server/app.js
+server/routes/notificationRoutes.js
+Purpose and Scope
+This document describes the dual-backend architecture of the Signalcraft system, where Node.js (Express) and Python (Flask) applications run concurrently to serve different system responsibilities. This page covers the architectural pattern, service boundaries, port configuration, and coordination mechanisms between the two backends.
 
-현재 상황 분석
-프로젝트에는 두 가지 유형의 HTML 파일이 혼재되어 있습니다:
+For details on how these backends are deployed and managed, see Infrastructure & Deployment. For information on specific route implementations and business logic, see Node.js Express Server and Flask Python Server.
 
-정적 HTML (Flask 템플릿 기능 불필요):
+Architectural Pattern: Dual-Backend Design
+The system employs a parallel backend architecture where two independent application servers operate simultaneously on the same EC2 instance. This design allows the system to leverage the strengths of both ecosystems: Node.js for its asynchronous I/O and JavaScript ecosystem, and Python for its AI/ML libraries and data processing capabilities.
 
-static/human_labeling_interface.html human_labeling_interface.html:1-6
-static/labeling_management_dashboard.html labeling_management_dashboard.html:1-6
-static/noise_cancellation_test.html noise_cancellation_test.html:1-6
-static/smart_storage_dashboard.html smart_storage_dashboard.html:1-6
-static/index.html (메인 랜딩 페이지)
-static/showcase.html (로그인 페이지) showcase.html:315-330
-Flask 템플릿 (이미 올바른 위치):
+Backend Architecture Diagram
 
-templates/dashboard.html dashboard.html:1-16
-templates/mobile_app.html mobile_app.html:1-23
-templates/notification_dashboard.html notification_dashboard.html:1-11
-Phase 1: 폴더 구조 생성 (1일)
-1.1 새 폴더 생성
-mkdir -p static/pages
-1.2 최종 구조
-static/  
-  ├── pages/           # 정적 HTML (새로 생성)  
-  │   ├── index.html  
-  │   ├── showcase.html  
-  │   ├── labeling/  
-  │   │   ├── interface.html  
-  │   │   └── management.html  
-  │   ├── testing/  
-  │   │   └── noise_cancellation.html  
-  │   └── storage/  
-  │       └── dashboard.html  
-  ├── js/              # JavaScript 파일  
-  ├── css/             # CSS 파일  
-  └── icons/           # 아이콘 파일  
-  
-templates/           # Flask 템플릿 (기존 유지)  
-  ├── dashboard.html  
-  ├── mobile_app.html  
-  └── notification_dashboard.html  
-Phase 2: 파일 이동 (2-3일)
-2.1 정적 HTML 파일 이동
-이동 매핑:
 
-# 메인 페이지  
-static/index.html → static/pages/index.html  
-static/showcase.html → static/pages/showcase.html  
-  
-# 라벨링 관련  
-static/human_labeling_interface.html → static/pages/labeling/interface.html  
-static/labeling_management_dashboard.html → static/pages/labeling/management.html  
-  
-# 테스트 페이지  
-static/noise_cancellation_test.html → static/pages/testing/noise_cancellation.html  
-  
-# 스토리지  
-static/smart_storage_dashboard.html → static/pages/storage/dashboard.html
-2.2 Flask 템플릿 확인
-templates/ 폴더의 파일들은 이미 올바른 위치에 있으므로 이동 불필요
 
-Phase 3: 서버 라우팅 업데이트 (2-3일)
-3.1 Node.js Express 서버 수정
-server.js 업데이트: app.js:22-29
 
-// 정적 파일 서빙 경로 업데이트  
-app.use('/static', express.static(path.join(__dirname, '../static')));  
-  
-// 메인 페이지 라우팅 수정  
-app.get('/', (req, res) => {  
-    res.sendFile(path.join(__dirname, '../static/pages/showcase.html'));  
-});  
-  
-// 추가 정적 페이지 라우팅  
-app.get('/index', (req, res) => {  
-    res.sendFile(path.join(__dirname, '../static/pages/index.html'));  
-});
-3.2 Flask 앱 라우팅 확인
-Flask 템플릿 라우팅은 이미 올바르게 설정되어 있습니다: app.py:132-148
 
-Phase 4: 내부 링크 업데이트 (2-3일)
-4.1 관리자 대시보드 링크 수정
-admin/templates/admin_dashboard.html 업데이트: admin_dashboard.html:385-412
 
-<!-- 기존 -->  
-<a href="/static/human_labeling_interface.html">  
-  
-<!-- 수정 후 -->  
-<a href="/static/pages/labeling/interface.html">
-4.2 쇼케이스 페이지 링크 수정
-static/showcase.html 업데이트: showcase.html:384-397
 
-<!-- 기존 -->  
-<a href="/static/audio_recorder_client.html">  
-<a href="/static/human_labeling_interface.html">  
-  
-<!-- 수정 후 -->  
-<a href="/static/pages/audio_recorder_client.html">  
-<a href="/static/pages/labeling/interface.html">
-4.3 모든 HTML 파일 내부 링크 검색 및 수정
-# 링크 검색  
-grep -r "href=\"/static/.*\.html\"" static/ templates/ admin/  
-  
-# 각 파일에서 경로 업데이트
-Phase 5: CSS/JS 상대 경로 수정 (1-2일)
-5.1 이동된 HTML 파일의 리소스 경로 확인
-파일 이동 후 CSS/JS 참조가 깨지지 않도록 확인:
 
-<!-- 기존 (static/ 루트에 있을 때) -->  
-<link href="/static/css/dashboard.css" rel="stylesheet">  
-<script src="/static/js/dashboard.js"></script>  
-  
-<!-- 이동 후 (static/pages/에 있을 때) - 변경 불필요 -->  
-<link href="/static/css/dashboard.css" rel="stylesheet">  
-<script src="/static/js/dashboard.js"></script>
-절대 경로(/static/)를 사용하므로 대부분 수정 불필요
 
-Phase 6: Nginx 설정 업데이트 (1일)
-6.1 Nginx 정적 파일 서빙 확인
-Nginx 설정에서 정적 파일 경로가 올바른지 확인:
 
-location /static/ {  
-    alias /var/www/smartcompressor/static/;  
-    expires 30d;  
-}
-Phase 7: 배포 파이프라인 테스트 (1-2일)
-7.1 GitHub Actions 워크플로우 확인
-배포 스크립트가 새 폴더 구조를 인식하는지 확인:
 
-7.2 로컬 테스트
-# 서버 재시작  
-pm2 restart all  
-  
-# 각 페이지 접근 테스트  
-curl http://localhost:3000/  
-curl http://localhost:3000/static/pages/labeling/interface.html  
-curl http://localhost:3000/dashboard
-실행 체크리스트
-Phase 1 완료 기준
- static/pages/ 폴더 생성
- 하위 폴더 구조 생성 (labeling/, testing/, storage/)
-Phase 2 완료 기준
- 모든 정적 HTML 파일 이동
- 원본 파일 백업 (삭제 전)
- Flask 템플릿 위치 확인
-Phase 3 완료 기준
- server.js 라우팅 업데이트
- Flask 라우팅 확인
- 서버 재시작 및 테스트
-Phase 4 완료 기준
- 관리자 대시보드 링크 수정
- 쇼케이스 페이지 링크 수정
- 모든 내부 링크 검증
-Phase 5 완료 기준
- CSS/JS 경로 확인
- 브라우저에서 리소스 로딩 테스트
-Phase 6 완료 기준
- Nginx 설정 확인
- Nginx 재시작
-Phase 7 완료 기준
- 로컬 환경 전체 테스트
- 프로덕션 배포 테스트
- 모든 페이지 접근 가능 확인
-주의사항
-점진적 마이그레이션: 한 번에 모든 파일을 이동하지 말고 단계별로 진행
-백업 필수: 파일 이동 전 전체 프로젝트 백업
-링크 검증: 모든 내부 링크가 정상 작동하는지 확인
-배포 파이프라인 영향: GitHub Actions 워크플로우가 새 구조를 인식하는지 확인
-Notes
-현재 프로젝트는 정적 HTML과 Flask 템플릿이 혼재되어 있어 구조가 명확하지 않습니다. 이 플랜을 따라 재구성하면 파일 유형별로 명확히 분리되어 유지보수가 훨씬 쉬워집니다. 특히 static/pages/ 폴더를 기능별로 하위 분류하면 프로젝트가 성장해도 관리가 용이합니다. Flask 템플릿은 이미 templates/ 폴더에 올바르게 위치하고 있으므로 추가 작업이 필요 없습니다
+
+
+
+Sources: 
+app.py
+1-184
+ 
+server/app.js
+1-118
+ Diagram 1 from system architecture
+
+Node.js Express Backend
+The Express backend is the primary entry point for user-facing operations, authentication, and real-time communication.
+
+Application Structure
+The Express application is structured in server/app.js with modular route imports:
+
+Component	File Path	Purpose
+Main Application	server/app.js	Express app configuration and middleware setup
+Authentication Routes	server/routes/authRoutes.js	User login, registration, session management
+AI Routes	server/routes/aiRoutes.js	AI analysis request proxying
+Admin Routes	server/routes/adminRoutes.js	Administrative operations
+Kakao Routes	server/routes/kakaoRoutes.js	Kakao OAuth integration
+Monitoring Routes	server/routes/monitoringRoutes.js	System monitoring endpoints
+Notification Routes	server/routes/notificationRoutes.js	Real-time notification streaming
+Sources: 
+server/app.js
+1-118
+
+Express Application Initialization
+
+
+
+
+
+
+
+
+
+
+
+Sources: 
+server/app.js
+1-44
+
+Express Middleware Stack
+The Express backend configures middleware in the following order 
+server/app.js
+16-24
+:
+
+CORS Middleware - Cross-origin request handling
+JSON Body Parser - Parses JSON payloads with 10MB limit
+URL-encoded Parser - Handles form submissions with 10MB limit
+Cookie Parser - Extracts and parses cookies
+Express Route Responsibilities
+Route Prefix	Module	Primary Functions
+/api/auth	authRoutes	Login, registration, session verification, logout
+/api/ai	aiRoutes	AI analysis request handling
+/api/kakao	kakaoRoutes	Kakao OAuth flow, token exchange
+/api/monitoring	monitoringRoutes	Server health checks, metrics
+/api/notifications	notificationRoutes	SSE stream, notification history
+/admin	adminRoutes	Administrative dashboard and operations
+/	Static handler	Serves showcase.html as landing page
+Sources: 
+server/app.js
+26-43
+
+Express Port Configuration
+The Express server listens on port 3000 by default, configured through server.js which imports the Express app from server/app.js. This is the standard port used in all deployment scripts and referenced in health checks.
+
+Sources: 
+package.json
+10
+ 
+scripts/deploy-ec2-pm2.sh
+56-57
+
+Flask Python Backend
+The Flask backend specializes in AI/ML operations, IoT sensor data processing, and Python-specific services that require scientific computing libraries.
+
+Application Factory Pattern
+Flask uses the application factory pattern in app.py:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sources: 
+app.py
+43-150
+
+Flask Blueprint Architecture
+Flask organizes routes using blueprints, registered in create_app() 
+app.py
+74-101
+:
+
+Blueprint	URL Prefix	Module Path	Primary Responsibility
+main_bp	/	routes.main_routes	Root endpoints, static pages
+auth_bp	/api/auth	routes.auth_routes	Basic authentication
+enhanced_auth_bp	/api/auth	routes.enhanced_auth_routes	4-step enhanced registration
+ai_bp	/api	routes.ai_routes	AI analysis, model inference
+esp32_bp	/api/esp32	routes.esp32_routes	IoT device communication
+notification_bp	/api/notifications	routes.notification_routes	Notification dispatch
+kakao_notification_bp	Various	routes.kakao_notification_routes	Kakao message integration
+kakao_auth_bp	/auth/kakao	routes.kakao_auth_routes	Kakao OAuth
+iot_sensor_bp	/api/sensors	routes.iot_sensor_routes	Sensor data endpoints
+dashboard_bp	/dashboard	routes.dashboard_routes	Dashboard UI
+mobile_app_bp	/mobile_app	routes.mobile_app_routes	Mobile application API
+Sources: 
+app.py
+16-31
+ 
+app.py
+74-101
+
+Flask API Compatibility Routes
+Flask provides compatibility routes for frontend requests that may target either backend 
+app.py
+107-130
+:
+
+@app.route('/api/auth/login', methods=['POST'])
+@app.route('/api/auth/register', methods=['POST'])
+@app.route('/api/auth/logout', methods=['POST'])
+@app.route('/api/auth/verify', methods=['GET'])
+@app.route('/api/lightweight-analyze', methods=['POST'])
+These routes delegate to the appropriate blueprint handlers, ensuring requests reach the correct service regardless of which backend receives them.
+
+Sources: 
+app.py
+107-130
+
+Flask Port Configuration
+The Flask application runs on port 8000 by default 
+app.py
+163
+ configured through the PORT environment variable. This port is distinct from the Express port to avoid conflicts.
+
+Sources: 
+app.py
+163-183
+
+Flask Service Initialization
+Flask initializes background services during application startup 
+app.py
+34-42
+:
+
+Service	Import Path	Initialization Call	Purpose
+ensemble_ai_service	services.ai_service	Import only	AI model ensemble for predictions
+sensor_data_service	services.sensor_data_service	Import only	Sensor data processing
+realtime_streaming_service	services.realtime_streaming_service	Import only	Real-time data streaming
+sensor_monitoring_service	services.sensor_monitoring_service	start_monitoring()	Continuous sensor monitoring loop
+firmware_ota_service	services.firmware_ota_service	Import only	Firmware over-the-air updates
+Sources: 
+app.py
+34-42
+ 
+app.py
+104
+
+Backend Coordination and Responsibilities
+Service Responsibility Matrix
+The following table defines which backend handles specific functional areas:
+
+Functional Area	Primary Backend	Rationale
+User authentication (login/register)	Both (Node.js primary)	Node.js handles initial auth, Flask provides enhanced registration
+Session management	Node.js	Express middleware and cookie handling
+Kakao OAuth	Both	Redundant implementation for reliability
+AI audio analysis	Flask	Python ML libraries (librosa, sklearn)
+ESP32 sensor data	Flask	Python data processing capabilities
+Real-time notifications (SSE)	Node.js	Express streaming response handling
+Kakao notifications	Flask	Python Kakao SDK integration
+Dashboard rendering	Flask	Template rendering via Jinja2
+Static file serving	Node.js	Express static middleware
+Admin operations	Both	Node.js for UI, Flask for Python-specific tasks
+Sources: 
+app.py
+1-184
+ 
+server/app.js
+1-118
+
+Data Sharing via SQLite
+Both backends access the same SQLite database file, enabling data consistency:
+
+
+
+
+
+
+
+Sources: 
+app.py
+52-53
+ Diagram 3 from system architecture
+
+Both backends use the same database initialization function init_db() from models.database, ensuring schema consistency. For detailed schema information, see Data Storage & Models.
+
+Routing Strategy and URL Patterns
+Nginx Reverse Proxy Configuration
+Nginx routes requests to the appropriate backend based on URL patterns. The general pattern is:
+
+URL Pattern	Target Backend	Target Port
+/api/auth/*	Node.js	3000
+/api/ai/*	Node.js	3000
+/api/kakao/*	Node.js	3000
+/api/monitoring/*	Node.js	3000
+/api/notifications/*	Node.js	3000
+/api/lightweight-analyze	Flask	8000
+/api/esp32/*	Flask	8000
+/dashboard	Flask	8000
+/mobile_app	Flask	8000
+/admin	Node.js	3000
+/* (default)	Node.js	3000
+Sources: Diagram 1 from system architecture, 
+app.py
+127-130
+
+Request Flow Diagram
+Sources: 
+server/app.js
+32-37
+ 
+app.py
+127-130
+
+Process Management and Lifecycle
+PM2 Configuration
+Both backends are managed by PM2 through ecosystem.config.js. The Node.js backend is explicitly configured in the PM2 ecosystem file, while the Flask backend is started separately but still monitored by PM2.
+
+Deployment Process:
+
+PM2 deletes all existing processes 
+scripts/deploy-ec2-pm2.sh
+37-40
+All Node.js and Python processes are killed forcefully
+PM2 starts the Node.js server using the ecosystem configuration
+Flask is started either manually or through a separate PM2 process definition
+Sources: 
+scripts/deploy-ec2-pm2.sh
+37-62
+ 
+scripts/deploy-ec2-pm2.ps1
+42-68
+
+Health Check Endpoints
+Both backends expose health check endpoints for deployment verification:
+
+Node.js Health Check:
+
+GET http://localhost:3000/api/auth/verify
+This endpoint is called during deployment to verify the Express server is responding 
+scripts/deploy-ec2-pm2.sh
+56-57
+
+Flask Health Check: The Flask backend can be verified through any of its registered routes, though no specific health check endpoint is defined in the provided code.
+
+Sources: 
+scripts/deploy-ec2-pm2.sh
+56-57
+ 
+scripts/deploy-ec2-pm2.ps1
+62
+
+CORS Configuration
+Express CORS Setup
+Express uses a dedicated CORS middleware module 
+server/app.js
+3
+ that configures cross-origin access for the web application.
+
+Sources: 
+server/app.js
+17
+
+Flask CORS Setup
+Flask uses the flask_cors library with explicit origin whitelisting 
+app.py
+57-61
+:
+
+CORS(app,
+     origins=['https://signalcraft.kr', 'https://www.signalcraft.kr'],
+     allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     supports_credentials=True)
+Flask also implements a @app.before_request handler for OPTIONS preflight requests 
+app.py
+64-72
+ ensuring proper CORS negotiation.
+
+Sources: 
+app.py
+57-72
+
+Enhanced Authentication System
+The Flask backend provides an enhanced registration system through enhanced_auth_routes.py that captures additional business context during user registration 
+routes/enhanced_auth_routes.py
+1-325
+
+Enhanced Registration Flow
+
+
+
+
+
+
+
+Sources: 
+routes/enhanced_auth_routes.py
+21-124
+
+Enhanced Registration Data Structure
+The enhanced registration captures the following additional fields beyond basic authentication:
+
+Category	Fields
+Business Context	company, position, industry, company_size, company_email, address
+Requirements	purpose (array), budget, timeline, device_count
+Notification Preferences	email_alerts, email_newsletter, sms_alerts, kakao_alerts
+Legal Agreements	privacy_agree, terms_agree, marketing_agree
+Sources: 
+routes/enhanced_auth_routes.py
+60-82
+
+Real-Time Communication Architecture
+Server-Sent Events (SSE) in Express
+The Express backend provides Server-Sent Events for real-time notifications through notificationRoutes.js 
+server/routes/notificationRoutes.js
+1-120
+:
+
+
+
+
+
+
+
+
+
+Sources: 
+server/routes/notificationRoutes.js
+5-31
+
+The SSE implementation includes:
+
+Initial connection confirmation message
+30-second heartbeat to maintain connection 
+server/routes/notificationRoutes.js
+19-21
+Cleanup on client disconnect 
+server/routes/notificationRoutes.js
+24-27
+Error Handling Strategy
+Express Error Middleware
+Express implements a centralized error handler that catches connection errors and server errors 
+server/app.js
+98-115
+:
+
+502 Bad Gateway: Detects ECONNREFUSED and ETIMEDOUT errors
+500 Internal Server Error: Generic fallback with conditional error details in development mode
+Flask Error Handling
+Flask does not implement a global error handler in app.py. Error handling is delegated to individual route handlers within each blueprint.
+
+Sources: 
+server/app.js
+98-115
+
+Deployment Coordination
+Both backends are deployed simultaneously through the CI/CD pipeline. The deployment process in deploy-ec2-pm2.sh performs the following steps for both services:
+
+Code Update: git pull origin main
+Dependency Installation: npm install (Node.js dependencies)
+Process Cleanup: Kill all existing Node.js and Python processes
+Service Start: PM2 starts the ecosystem configuration
+Health Verification: Curl test against Express endpoints
+The Flask application dependencies (Python packages) are managed separately and assumed to be pre-installed or installed through a separate step not shown in the provided deployment scripts.
+
+Sources: 
+scripts/deploy-ec2-pm2.sh
+19-63
+
+Summary
+The dual-backend architecture provides:
+
+Technology-appropriate service distribution: Node.js handles I/O-intensive operations (authentication, real-time streaming), while Flask handles CPU-intensive operations (AI inference, data processing)
+Redundant authentication paths: Both backends can handle authentication, providing fallback capability
+Shared data consistency: SQLite provides a single source of truth for user and session data
+Independent scalability: Each backend can be scaled or restarted independently
+Clear service boundaries: Routing rules enforce separation of concerns
+This architecture enables the system to leverage the best features of both JavaScript and Python ecosystems while maintaining operational simplicity through shared infrastructure and data storage.
+
+Sources: 
+app.py
+1-184
+ 
+server/app.js
+1-118
+ 
+package.json
+1-50
+ all deployment scripts

@@ -19,6 +19,7 @@ body {
     font-family: var(--font-main);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
 }
 
 .container {
@@ -99,6 +100,18 @@ section:not(.hero) .container {
 .btn-outline-light:hover {
     background-color: #ffffff;
     color: #000000;
+}
+
+.btn-demo {
+    background-color: var(--primary-color);
+    color: #000;
+    border: none;
+}
+
+.btn-demo:hover {
+    background-color: #00c260;
+    color: #000;
+    transform: translateY(-2px);
 }
 
 .w-100 {
@@ -508,6 +521,9 @@ section:not(.hero) .container {
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .pricing-card:hover {
@@ -553,10 +569,13 @@ section:not(.hero) .container {
 .pricing-features {
     list-style: none;
     margin-bottom: 32px;
+    padding-left: 0;
+    text-align: center;
 }
 
 .pricing-features li {
     margin-bottom: 12px;
+    text-align: center;
 }
 
 /* Feature Detail Sections */
@@ -752,4 +771,19 @@ section:not(.hero) .container {
 .main-footer .container {
     border-top: 1px solid var(--border-color);
     padding-top: 40px;
+}
+
+/* Styles for AI Diagnosis Result Card (from index.html) */
+.result-card.overload {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+}
+
+.result-card.normal {
+    background-color: #e8f5e8;
+    border-left: 4px solid #4caf50;
+}
+
+.ai-diagnosis-section {
+    border: 1px solid #dee2e6;
 }
