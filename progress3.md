@@ -399,3 +399,39 @@ To modularize the AI Diagnosis feature, improve the user experience of the demo 
 *   The AI Diagnosis feature is now a reusable, self-contained component.
 *   The user flow is more intuitive and less cluttered.
 *   The component is now fully functional and robust.
+
+---
+
+### 2025-10-14: Footer Refinement and Legal Page Implementation
+
+**Objective:**
+To enhance the website's footer, create dedicated pages for the Terms of Service and Privacy Policy, and ensure a consistent user experience and design across all pages, including a functional dark mode and proper navigation.
+
+**Changes Made:**
+
+1.  **Footer Component Refinement (`footer.html`):**
+    *   The footer was restructured into a professional 3-column layout:
+        *   **Column 1:** Contains a brief company description and copyright notice.
+        *   **Column 2:** Features "Quick Links" (Home, Features, Pricing, Demo) for easy navigation.
+        *   **Column 3:** Includes links to legal pages and contact information.
+    *   This change was made directly in `static/landing-components/footer.html` to improve site-wide information accessibility.
+
+2.  **Legal Page Architecture Overhaul:**
+    *   **Initial Approach (Standalone Pages):** Initially, `terms.html` and `privacy.html` were created as standalone HTML files. This led to several issues:
+        *   The sticky header overlapped the content.
+        *   Dark mode was not applied correctly.
+        *   Footer navigation links were broken.
+    *   **Revised Approach (Template-based):** To solve these inconsistencies, the architecture was refactored to mirror the main landing page (`static/pages/index.html`).
+        *   A new template, `static/pages/legal.html`, was created. This template loads all the same CSS and JavaScript files as the main landing page, ensuring a consistent environment.
+        *   `terms.html` and `privacy.html` were converted into content-only components, which are dynamically loaded into the `legal.html` template.
+        *   The Express server (`server/app.js`) was updated to serve `legal.html` for both the `/terms` and `/privacy` routes.
+
+3.  **CSS and JavaScript Enhancements:**
+    *   **Styling:** A new `.legal-container` CSS class was added to `landing.css` to style the legal text for readability in dark mode.
+    *   **Dynamic Link Correction:** A JavaScript snippet was added to `legal.html` to dynamically fix the footer's "Quick Links". It prepends a `/` to the `href` attributes (e.g., `href="#features"` becomes `href="/#features"`), ensuring they correctly navigate back to the main landing page sections from the legal pages.
+
+**Benefits:**
+*   **Consistent UX/UI:** The legal pages now share the exact same look, feel, and behavior as the main landing page, including the header, footer, and dark mode.
+*   **Improved Navigation:** All navigation links, including the footer's "Quick Links", are now fully functional across the entire site.
+*   **Maintainable Architecture:** The template-based approach is more robust and easier to maintain, as the header and footer are shared components, and styling is centralized in `landing.css`.
+*   **Professionalism:** The site now includes standard, accessible legal pages and a more informative footer, increasing user trust.
