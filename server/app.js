@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, '../static')));
 
 // 메인 페이지 (쇼윈도 - 로그인 화면)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../static/pages/showcase.html'));
+    res.sendFile(path.join(__dirname, '../static/pages/index.html'));
 });
 
 // Additional static page routes

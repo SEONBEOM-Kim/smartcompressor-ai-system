@@ -65,7 +65,8 @@ section:not(.hero) .container {
 }
 
 .btn-primary:hover {
-    background-color: #fff;
+    background-color: #00c260;  /* darker green */
+    transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -76,6 +77,28 @@ section:not(.hero) .container {
 
 .btn-secondary:hover {
     background-color: #3c3c3c;
+}
+
+.btn-light {
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+}
+
+.btn-light:hover {
+    background-color: #e6e6e6;
+    color: #000000;
+}
+
+.btn-outline-light {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+
+.btn-outline-light:hover {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 .w-100 {

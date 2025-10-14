@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Ensure components are loaded only after all managers are ready
+function loadComponentsWhenReady() {
     const loadComponent = (id, url, callback) => {
         fetch(url)
             .then(response => response.text())
@@ -34,4 +35,32 @@ document.addEventListener('DOMContentLoaded', () => {
         loadComponent('feature-detailed-mobile-access', '/static/landing-components/features/mobile-access.html');
         loadComponent('feature-detailed-integrations', '/static/landing-components/features/integrations.html');
     }, 100); // Small delay to ensure parent container is available
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if managers are ready, otherwise wait for them
+    if (typeof authManager !== 'undefined' && 
+        typeof modalManager !== 'undefined' && 
+        typeof navbarRenderer !== 'undefined' && 
+        typeof kakaoOAuth !== 'undefined') {
+        // Managers are already available, load components immediately
+        loadComponentsWhenReady();
+    } else {
+        // Managers aren't available yet, wait and check periodically
+        const checkManagersInterval = setInterval(() => {
+            if (typeof authManager !== 'undefined' && 
+                typeof modalManager !== 'undefined' && 
+                typeof navbarRenderer !== 'undefined' && 
+                typeof kakaoOAuth !== 'undefined') {
+                
+                clearInterval(checkManagersInterval);
+                loadComponentsWhenReady();
+            }
+        }, 50); // Check every 50ms
+        
+        // Clear the interval after 5 seconds to prevent infinite loop
+        setTimeout(() => {
+            clearInterval(checkManagersInterval);
+        }, 5000);
+    }
 });

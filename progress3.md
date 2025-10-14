@@ -83,26 +83,36 @@ static/js/
 ```
 templates/
 ├── admin/                       # Admin-related templates
+│   ├── ai_dashboard.html        # AI dashboard page
+│   ├── ai_demo.html             # AI demonstration page
+│   ├── ai_models.html           # AI models page
+│   ├── ai_predict.html          # AI prediction page
+│   ├── ai_test.html             # AI testing page
+│   ├── ai_training.html         # AI training page
+│   ├── ai_upload.html           # AI upload page
+│   ├── analytics.html           # Analytics page
+│   ├── base_admin.html          # Admin base template
+│   ├── base.html                # Alternative base template for admin
+│   ├── customers.html           # Customer management page
+│   ├── dashboard.html           # Admin dashboard page
+│   ├── freezers.html            # Freezer management page
+│   └── ml_management.html       # ML model management page
 ├── customer/                    # Customer-specific templates
+│   ├── audio_recorder_client.html # Audio recorder client page
+│   ├── contact.html             # Contact page
+│   ├── dashboard.html           # Customer dashboard page
+│   ├── diagnosis_report.html    # Diagnosis report page
+│   ├── login_success.html       # Login success page
+│   ├── marketing_landing_page.html # Marketing landing page
+│   ├── mobile_app.html          # Mobile application page
+│   └── notification_dashboard.html # Notification dashboard page
 ├── modules/                     # Reusable template modules
-├── ai_demo.html                 # AI demonstration page
-├── ai_models.html               # AI models page
-├── ai_predict.html              # AI prediction page
-├── ai_test.html                 # AI testing page
-├── ai_training.html             # AI training page
-├── ai_upload.html               # AI upload page
-├── audio_recorder_client.html   # Audio recorder client page
+│   └── customer_dashboard.html  # Reusable customer dashboard component
 ├── base.html                    # Base template with customer dashboard script
-├── base.htmly                   # Alternative base template with customer dashboard script
-├── dashboard.html               # Main dashboard page
-├── diagnosis_report.html        # Diagnosis report page
 ├── faq.html                     # FAQ page
 ├── home.html                    # Home page
-├── login_success.html           # Login success page
+├── index.html                   # Main index/landing page
 ├── login.html                   # Login page
-├── marketing_landing_page.html  # Marketing landing page
-├── mobile_app.html              # Mobile application page
-├── notification_dashboard.html  # Notification dashboard page
 ├── pricing.html                 # Pricing page
 └── showcase.html                # Showcase page
 ```
@@ -264,3 +274,122 @@ Improve visual consistency by centering text and elements in key sections.
 - Better readability with centered content
 - Enhanced user experience with symmetrical design
 - Maintained responsive layout
+
+---
+
+## 2025-10-13: Comprehensive Login System Implementation
+
+### Objective
+Implement a complete login system with multiple authentication options, registration, and password recovery functionality.
+
+### Changes Made
+- **Enhanced Login Modal** (`static/js/ui/modal-manager.js`):
+  - Added OAuth login options (Kakao, Google)
+  - Implemented comprehensive email/password login
+  - Added "Remember me" functionality
+  - Created password recovery flow
+  - Implemented proper form validation
+
+- **Enhanced Registration Modal** (`static/js/ui/modal-manager.js`):
+  - Added detailed registration form with name fields
+  - Implemented password confirmation validation
+  - Added optional phone and company fields
+  - Added terms of service and marketing consent checkboxes
+
+- **Password Recovery Modal** (`static/pages/index.html`):
+  - Created dedicated modal for password reset
+  - Added email validation for reset requests
+
+- **Script Loading Order** (`static/pages/index.html`):
+  - Reordered script loading to ensure class dependencies are met
+  - Added proper loading sequence for AuthManager, KakaoOAuth, NavbarRenderer, and ModalManager
+  - Added Bootstrap and jQuery dependencies
+
+- **Robust Initialization** (`static/app.js`):
+  - Implemented safety checks for class existence before instantiation
+  - Added error handling for missing classes
+  - Created conditional execution for manager-dependent functions
+  - Added custom event dispatch for initialization completion
+
+- **Module Loader Synchronization** (`static/js/ui/module-loader.js`):
+  - Added wait mechanism for managers to initialize before loading components
+  - Implemented polling approach with safety timeout
+  - Ensured header component loads only after managers are ready
+
+- **Global Function Enhancements** (`static/app.js`):
+  - Updated all global functions with safety checks
+  - Added fallback mechanisms for uninitialized managers
+  - Implemented timeout-based retry logic
+
+### Benefits
+- Complete authentication flow with multiple options (OAuth, email/password)
+- Improved user experience with comprehensive forms and validation
+- Robust error handling and initialization order
+- Proper script loading sequence preventing "class not defined" errors
+- Enhanced security with proper form validation and OAuth integration
+- Better user guidance with appropriate messaging throughout the flow
+
+---
+
+## 2025-10-13: Login Modal Component Refinement
+
+### Objective
+Improve the login modal with dark mode styling, logo consistency, proper sizing, and error handling.
+
+### Changes Made
+- **Dark Mode Styling** (`static/landing-components/login-modal.html`, `static/landing-components/register-modal.html`):
+  - Applied dark background with light text throughout modal components
+  - Changed primary buttons to light buttons with dark text for contrast
+  - Updated form elements to match dark theme with appropriate contrast
+
+- **Logo Background Consistency** (`static/landing-components/login-modal.html`, `static/landing-components/register-modal.html`):
+  - Added circular background area around logo matching the landing page header background
+  - Used consistent `#000000` background to maintain visual consistency between landing page and modals
+
+- **Modal Sizing Improvements** (`static/landing-components/login-modal.html`, `static/landing-components/register-modal.html`):
+  - Reduced login modal size from default to `modal-sm` for better UX
+  - Changed registration modal from `modal-lg` to default size to prevent overwhelming users
+
+- **Error Handling Enhancement** (`static/js/ui/modal-manager.js`):
+  - Added checks to verify function existence before attaching event listeners
+  - Implemented proper response status checking during modal loading
+  - Added console warnings for missing functions instead of throwing errors
+
+- **Showcase Page Integration** (`templates/showcase.html`):
+  - Added login button to showcase page header
+  - Implemented modal loading functionality for both login and registration modals
+  - Maintained all authentication features in showcase page context
+
+### Benefits
+- Enhanced visual consistency with landing page header through consistent logo styling
+- Improved user experience with appropriately sized modals
+- Better error handling preventing console errors when functions are not available
+- Consistent dark mode design language across both authentication modals
+- Seamless integration of authentication modals in both landing and showcase pages
+
+---
+
+## 2025-10-14: Template Directory Restructure and Cleanup
+
+### Objective
+Organize and clean up template files according to the architecture specification with proper categorization.
+
+### Changes Made
+- **Removed Duplicate Files:**
+  - Deleted `base.htmly` (duplicate of base.html with missing auth manager script)
+  - Deleted `index.html.backup` (backup file)
+
+- **Reorganized Templates by Function:**
+  - **Admin Templates:** Moved all AI-related files (ai_demo.html, ai_models.html, ai_predict.html, ai_test.html, ai_training.html, ai_upload.html) to admin/ directory
+  - **Customer Templates:** Moved customer-facing pages (dashboard.html, diagnosis_report.html, mobile_app.html, notification_dashboard.html, login_success.html, audio_recorder_client.html, marketing_landing_page.html) to customer/ directory
+  - **Preserved Main Templates:** Kept general landing pages (home.html, index.html, login.html, pricing.html, showcase.html) in main templates directory as they serve broader purposes
+
+- **Updated Architecture Documentation:**
+  - Updated the Template Directory Structure section in progress3.md to reflect the new organization
+  - Maintained clear separation between admin, customer, and module templates
+
+### Benefits
+- Improved maintainability with clean separation of concerns
+- Reduced code duplication and redundancy
+- Clearer architecture following specified directory structure
+- Easier navigation and file management for development team

@@ -1,38 +1,7 @@
 // static/js/ui/modal-manager.js
 class ModalManager {
-    showLoginModal() {
+    async showLoginModal() {
         console.log('로그인 모달을 표시합니다.');
-        
-        const modalHtml = `
-            <div class="modal fade" id="loginModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">로그인</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="loginForm">
-                                <div class="mb-3">
-                                    <label for="loginEmail" class="form-label">사용자명 또는 이메일</label>
-                                    <input type="text" class="form-control" id="loginEmail" placeholder="사용자명 또는 이메일을 입력하세요" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="loginPassword" class="form-label">비밀번호</label>
-                                    <input type="password" class="form-control" id="loginPassword" placeholder="비밀번호를 입력하세요" required>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">로그인</button>
-                                </div>
-                            </form>
-                            <div class="text-center mt-3">
-                                <button type="button" class="btn btn-link" onclick="showRegisterModal(); $('#loginModal').modal('hide');">회원가입</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
         
         // 기존 모달 제거
         const existingModal = document.getElementById('loginModal');
@@ -40,68 +9,37 @@ class ModalManager {
             existingModal.remove();
         }
         
-        // 새 모달 추가
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
-        // 모달 표시
-        const modal = new bootstrap.Modal(document.getElementById('loginModal'));
-        modal.show();
-        
-        // 폼 제출 이벤트
-        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        // 외부 모달 HTML 로드
+        try {
+            const response = await fetch('/static/landing-components/login-modal.html');
+            // 응답 상태 확인
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const modalHtml = await response.text();
+            
+            // 새 모달 추가
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // 모달 표시
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+            
+            // 폼 제출 이벤트 - handleLogin 함수가 존재하는 경우에만 연결
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm && typeof handleLogin === 'function') {
+                loginForm.addEventListener('submit', handleLogin);
+            } else {
+                console.warn('handleLogin function is not defined in current context');
+            }
+        } catch (error) {
+            console.error('로그인 모달 로드 오류:', error);
+            alert('로그인 모달을 로드하는 중 오류가 발생했습니다.');
+        }
     }
 
-    showRegisterModal() {
+    async showRegisterModal() {
         console.log('회원가입 모달을 표시합니다.');
-        
-        const modalHtml = `
-            <div class="modal fade" id="registerModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">회원가입</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="registerForm">
-                                <div class="mb-3">
-                                    <label for="registerName" class="form-label">이름</label>
-                                    <input type="text" class="form-control" id="registerName" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="registerEmail" class="form-label">이메일</label>
-                                    <input type="email" class="form-control" id="registerEmail" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="registerPassword" class="form-label">비밀번호</label>
-                                    <input type="password" class="form-control" id="registerPassword" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="registerPhone" class="form-label">전화번호</label>
-                                    <input type="tel" class="form-control" id="registerPhone" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="registerCompany" class="form-label">회사명 (선택)</label>
-                                    <input type="text" class="form-control" id="registerCompany">
-                                </div>
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="marketingAgree">
-                                    <label class="form-check-label" for="marketingAgree">
-                                        마케팅 정보 수신 동의
-                                    </label>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">회원가입</button>
-                                </div>
-                            </form>
-                            <div class="text-center mt-3">
-                                <button type="button" class="btn btn-link" onclick="showLoginModal(); $('#registerModal').modal('hide');">로그인</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
         
         // 기존 모달 제거
         const existingModal = document.getElementById('registerModal');
@@ -109,15 +47,41 @@ class ModalManager {
             existingModal.remove();
         }
         
-        // 새 모달 추가
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        // 외부 모달 HTML 로드
+        try {
+            const response = await fetch('/static/landing-components/register-modal.html');
+            // 응답 상태 확인
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const modalHtml = await response.text();
+            
+            // 새 모달 추가
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // 모달 표시
+            const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+            modal.show();
+            
+            // 폼 제출 이벤트 - handleRegister 함수가 존재하는 경우에만 연결
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm && typeof handleRegister === 'function') {
+                registerForm.addEventListener('submit', handleRegister);
+            } else {
+                console.warn('handleRegister function is not defined in current context');
+            }
+        } catch (error) {
+            console.error('회원가입 모달 로드 오류:', error);
+            alert('회원가입 모달을 로드하는 중 오류가 발생했습니다.');
+        }
+    }
+
+    showPasswordResetModal() {
+        console.log('비밀번호 재설정 모달을 표시합니다.');
         
-        // 모달 표시
-        const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+        // Show the modal that's already in the page
+        const modal = new bootstrap.Modal(document.getElementById('passwordResetModal'));
         modal.show();
-        
-        // 폼 제출 이벤트
-        document.getElementById('registerForm').addEventListener('submit', handleRegister);
     }
 }
 
@@ -125,21 +89,34 @@ class ModalManager {
 async function handleRegister(event) {
     event.preventDefault();
     
-    const username = document.getElementById('registerName').value;
+    const firstName = document.getElementById('registerName').value;
+    const lastName = document.getElementById('registerLastName').value;
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
+    const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
     const phone = document.getElementById('registerPhone').value;
-    const full_name = document.getElementById('registerCompany').value; // 회사명을 full_name으로 사용
-    const marketing_agree = document.getElementById('marketingAgree').checked;
+    const company = document.getElementById('registerCompany').value;
+    const termsAgree = document.getElementById('termsAgree').checked;
+    const marketingAgree = document.getElementById('marketingAgree').checked;
     
-    // 간단한 검증
-    if (!username || !email || !password) {
-        alert('사용자명, 이메일, 비밀번호는 필수입니다.');
+    // Validation
+    if (!firstName || !lastName || !email || !password) {
+        alert('필수 입력 항목을 모두 입력해주세요.');
         return;
     }
     
-    if (password.length < 6) {
-        alert('비밀번호는 최소 6자 이상이어야 합니다.');
+    if (password !== passwordConfirm) {
+        alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+        return;
+    }
+    
+    if (password.length < 8) {
+        alert('비밀번호는 최소 8자 이상이어야 합니다.');
+        return;
+    }
+    
+    if (!termsAgree) {
+        alert('서비스 이용 약관에 동의해주세요.');
         return;
     }
     
@@ -150,11 +127,11 @@ async function handleRegister(event) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                username, 
+                username: firstName + ' ' + lastName,  // Combine first and last name as username
                 email, 
                 password, 
                 phone, 
-                full_name, 
+                full_name: company || '', 
                 marketing_agree 
             })
         });
@@ -162,11 +139,12 @@ async function handleRegister(event) {
         const data = await response.json();
 
         if (data.success) {
-            // 모달 닫기 (Bootstrap 5 방식)
+            // 모달 닫기
             const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
             if (modal) {
                 modal.hide();
             }
+            
             alert('회원가입 성공! 로그인해주세요.');
             showLoginModal();
         } else {
@@ -176,6 +154,52 @@ async function handleRegister(event) {
         console.error('회원가입 오류:', error);
         alert('회원가입 중 오류가 발생했습니다.');
     }
+}
+
+// 비밀번호 재설정 처리
+async function handlePasswordReset(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('resetEmail').value;
+    
+    if (!email) {
+        alert('이메일 주소를 입력해주세요.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('passwordResetModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            alert('비밀번호 재설정 링크가 이메일로 전송되었습니다.');
+            showLoginModal();
+        } else {
+            alert(data.message || '비밀번호 재설정 요청 실패');
+        }
+    } catch (error) {
+        console.error('비밀번호 재설정 오류:', error);
+        alert('비밀번호 재설정 요청 중 오류가 발생했습니다.');
+    }
+}
+
+// OAuth 로그인 처리
+function googleLogin() {
+    alert('구글 로그인 기능은 현재 개발 중입니다. 이메일 로그인을 이용해주세요.');
+    // 실제 구현은 OAuth 라이브러리를 사용하여 구글 로그인 창을 띄우는 방식으로 구현
 }
 
 // 로그인 성공 모달 표시
@@ -257,3 +281,12 @@ function closeLoginSuccessModal() {
         modal.hide();
     }
 }
+
+// 전역 이벤트 리스너 설정
+document.addEventListener('DOMContentLoaded', function() {
+    // 비밀번호 재설정 폼 제출 이벤트
+    const passwordResetForm = document.getElementById('passwordResetForm');
+    if (passwordResetForm) {
+        passwordResetForm.addEventListener('submit', handlePasswordReset);
+    }
+});

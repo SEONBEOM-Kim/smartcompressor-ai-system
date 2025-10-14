@@ -1,0 +1,258 @@
+/* Reusable Animation Effects Component */
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade In Up Animation with Stagger Delay */
+.fadeInUp {
+    animation: fadeInUp 0.8s ease-out both;
+}
+
+/* Staggered Animations for Multiple Elements */
+.fadeInUp-1 { animation-delay: 0.1s; }
+.fadeInUp-2 { animation-delay: 0.2s; }
+.fadeInUp-3 { animation-delay: 0.3s; }
+.fadeInUp-4 { animation-delay: 0.4s; }
+.fadeInUp-5 { animation-delay: 0.5s; }
+.fadeInUp-6 { animation-delay: 0.6s; }
+
+/* Fade In Down Animation */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fadeInDown {
+    animation: fadeInDown 0.8s ease-out both;
+}
+
+/* Fade In Left Animation */
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fadeInLeft {
+    animation: fadeInLeft 0.8s ease-out both;
+}
+
+/* Fade In Right Animation */
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fadeInRight {
+    animation: fadeInRight 0.8s ease-out both;
+}
+
+/* Fade In Animation (No Direction) */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fadeIn {
+    animation: fadeIn 0.8s ease-out both;
+}
+
+/* Fade-in-up animation (the one from showcase.html) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fadeInUp {
+    animation: fadeInUp 0.8s ease-out both;
+}
+
+/* Staggered animations */
+.fadeInUp-1 { animation-delay: 0.1s; }
+.fadeInUp-2 { animation-delay: 0.2s; }
+.fadeInUp-3 { animation-delay: 0.3s; }
+.fadeInUp-4 { animation-delay: 0.4s; }
+.fadeInUp-5 { animation-delay: 0.5s; }
+.fadeInUp-6 { animation-delay: 0.6s; }
+
+/* Fade-in-down animation */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fadeInDown {
+    animation: fadeInDown 0.8s ease-out both;
+}
+
+/* Fade-in-left animation */
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fadeInLeft {
+    animation: fadeInLeft 0.8s ease-out both;
+}
+
+/* Fade-in-right animation */
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fadeInRight {
+    animation: fadeInRight 0.8s ease-out both;
+}
+
+/* Fade-in scale animation */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.fadeInScale {
+    animation: fadeInScale 0.6s ease-out both;
+}
+
+/* Bounce-in animation */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.bounceIn {
+    animation: bounceIn 0.6s ease-out both;
+}
+
+/* Slide-in without fade */
+@keyframes slideIn {
+    from {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slideIn {
+    animation: slideIn 0.6s ease-out both;
+}
+
+/* Common hover animations for interactive elements */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Pulse animation for call-to-action elements */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Glow effect for highlighted elements */
+.glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.glow:hover {
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+}

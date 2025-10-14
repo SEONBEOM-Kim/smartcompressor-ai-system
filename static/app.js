@@ -7,21 +7,56 @@ let navbarRenderer;
 let modalManager;
 let kakaoOAuth;
 
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize managers after DOM is loaded
+function initApp() {
     console.log('Signalcraft 애플리케이션이 초기화되었습니다.');
     
-    // 인스턴스 생성
-    authManager = new AuthManager();
-    navbarRenderer = new NavbarRenderer();
-    modalManager = new ModalManager();
-    kakaoOAuth = new KakaoOAuth();
+    // 인스턴스 생성 - with checks to ensure classes exist
+    if (typeof AuthManager !== 'undefined') {
+        authManager = new AuthManager();
+    } else {
+        console.error('AuthManager class is not available');
+    }
+    
+    if (typeof NavbarRenderer !== 'undefined') {
+        navbarRenderer = new NavbarRenderer();
+    } else {
+        console.error('NavbarRenderer class is not available');
+    }
+    
+    if (typeof ModalManager !== 'undefined') {
+        modalManager = new ModalManager();
+    } else {
+        console.error('ModalManager class is not available');
+    }
+    
+    if (typeof KakaoOAuth !== 'undefined') {
+        kakaoOAuth = new KakaoOAuth();
+    } else {
+        console.error('KakaoOAuth class is not available');
+    }
     
     // 초기화
     setupEventListeners();
     checkLoginSuccess();
-    kakaoOAuth.handleKakaoCallback();
-    authManager.updateLoginStatus();
-});
+    if (kakaoOAuth) {
+        kakaoOAuth.handleKakaoCallback();
+    }
+    if (authManager) {
+        authManager.updateLoginStatus();
+    }
+    
+    // Dispatch a custom event to signal that initialization is complete
+    window.dispatchEvent(new CustomEvent('managersInitialized'));
+}
+
+// Ensure initialization happens after DOM is fully loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    // DOM is already loaded, run init immediately
+    initApp();
+}
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
@@ -29,11 +64,74 @@ function setupEventListeners() {
 }
 
 // 전역 함수로 등록 (기존 호환성 유지)
-window.showLoginModal = () => modalManager.showLoginModal();
-window.showRegisterModal = () => modalManager.showRegisterModal();
-window.updateLoginStatus = () => authManager.updateLoginStatus();
-window.kakaoLogin = () => kakaoOAuth.kakaoLogin();
-window.logout = () => authManager.logout();
+window.showLoginModal = () => {
+    if (typeof ModalManager !== 'undefined' && modalManager) {
+        modalManager.showLoginModal();
+    } else {
+        // If managers aren't initialized, wait a bit and try again
+        setTimeout(() => {
+            if (modalManager) {
+                modalManager.showLoginModal();
+            } else {
+                console.error('ModalManager is still not available after timeout');
+            }
+        }, 100);
+    }
+};
+window.showRegisterModal = () => {
+    if (typeof ModalManager !== 'undefined' && modalManager) {
+        modalManager.showRegisterModal();
+    } else {
+        // If managers aren't initialized, wait a bit and try again
+        setTimeout(() => {
+            if (modalManager) {
+                modalManager.showRegisterModal();
+            } else {
+                console.error('ModalManager is still not available after timeout');
+            }
+        }, 100);
+    }
+};
+window.showPasswordResetModal = () => {
+    if (typeof ModalManager !== 'undefined' && modalManager) {
+        modalManager.showPasswordResetModal();
+    } else {
+        // If managers aren't initialized, wait a bit and try again
+        setTimeout(() => {
+            if (modalManager) {
+                modalManager.showPasswordResetModal();
+            } else {
+                console.error('ModalManager is still not available after timeout');
+            }
+        }, 100);
+    }
+};
+window.updateLoginStatus = () => {
+    if (typeof AuthManager !== 'undefined' && authManager) {
+        authManager.updateLoginStatus();
+    } else {
+        console.error('AuthManager not initialized yet.');
+    }
+};
+window.kakaoLogin = () => {
+    if (typeof KakaoOAuth !== 'undefined' && kakaoOAuth) {
+        kakaoOAuth.kakaoLogin();
+    } else {
+        console.error('KakaoOAuth not initialized yet.');
+    }
+};
+window.googleLogin = () => {
+    // Google OAuth 로그인 구현
+    alert('구글 로그인 기능은 현재 개발 중입니다. 이메일 로그인을 이용해주세요.');
+    // 실제 구현에서는 구글 OAuth 인증 창을 여는 로직이 들어갑니다
+};
+window.logout = () => {
+    if (typeof AuthManager !== 'undefined' && authManager) {
+        authManager.logout();
+    } else {
+        console.error('AuthManager not initialized yet.');
+    }
+};
 window.checkLoginSuccess = checkLoginSuccess;
 window.startDiagnosis = startDiagnosis;
 window.goToDashboard = goToDashboard;
@@ -41,8 +139,20 @@ window.toggleMonitoring = toggleMonitoring;
 window.stopMonitoring = stopMonitoring;
 window.viewDiagnosisHistory = viewDiagnosisHistory;
 window.saveMonitoringSettings = saveMonitoringSettings;
-window.showLoggedInUI = (user) => navbarRenderer.showLoggedInUI(user);
-window.showLoggedOutUI = () => navbarRenderer.showLoggedOutUI();
+window.showLoggedInUI = (user) => {
+    if (typeof NavbarRenderer !== 'undefined' && navbarRenderer) {
+        navbarRenderer.showLoggedInUI(user);
+    } else {
+        console.error('NavbarRenderer not initialized yet.');
+    }
+};
+window.showLoggedOutUI = () => {
+    if (typeof NavbarRenderer !== 'undefined' && navbarRenderer) {
+        navbarRenderer.showLoggedOutUI();
+    } else {
+        console.error('NavbarRenderer not initialized yet.');
+    }
+};
 
 // 진단 시작하기 함수
 function startDiagnosis() {
