@@ -22,94 +22,26 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         timeout: 60s
-        command_timeout: 300s
         script: |
-          echo "🚀 Signalcraft 자동 배포 시작..."
-          echo "📋 배포 정보:"
-          echo "  - 커밋: ${{ github.sha }}"
-          echo "  - 브랜치: ${{ github.ref_name }}"
-          echo "  - 작성자: ${{ github.actor }}"
-          echo "  - 시간: $(date)"
-          
-          # 서버 상태 확인
-          echo "🔍 서버 상태 확인..."
-          whoami
-          pwd
-          ls -la
-          
-          # 프로젝트 디렉토리 확인
-          if [ ! -d "/var/www/smartcompressor" ]; then
-            echo "❌ 프로젝트 디렉토리가 없습니다. 생성 중..."
-            sudo mkdir -p /var/www/smartcompressor
-            sudo chown ubuntu:ubuntu /var/www/smartcompressor
-          fi
-          
-          # 프로젝트 디렉토리로 이동
+          # 1. 프로젝트 디렉토리로 이동
           cd /var/www/smartcompressor
           
-          echo "🔧 502 오류 해결 및 배포 시작..."
-          
-          # Git pull로 최신 코드 가져오기
-          echo "📥 최신 코드 가져오는 중..."
+          # 2. 최신 코드 가져오기
+          echo "📥 Git Pull: 최신 코드를 가져옵니다..."
           git pull origin main
           
-          # Node.js 의존성 업데이트
-          echo "📦 Node.js 의존성 설치 중..."
-          npm install
+          # 3. Node.js 의존성 설치
+          echo "📦 NPM Install: Node.js 패키지를 설치합니다..."
+          npm install --production # --production 플래그는 개발용 패키지를 제외하여 더 가볍게 설치합니다.
           
-          # 기존 서비스 완전 종료
-          echo "🛑 기존 서비스 중지..."
-          pm2 delete all 2>/dev/null || echo "PM2 프로세스 없음"
+          # 4. PM2로 애플리케이션 재시작 (무중단)
+          # ecosystem.config.js 파일이 있다면 reload, 없다면 restart를 사용합니다.
+          echo "🚀 PM2 Reload: 애플리케이션을 무중단으로 재시작합니다..."
+          pm2 reload ecosystem.config.js --env production || pm2 restart all
           
-          # 로그 디렉토리 생성
-          mkdir -p logs
-
-          # PM2 설치 (전역 설치)
-          echo "📦 PM2 전역 설치 중..."
-          npm install -g pm2
-          
-          # PM2 버전 확인
-          echo "📊 PM2 버전 확인..."
-          pm2 --version
-          
-          # systemd 서비스로 서버 시작
-          echo "🚀 systemd 서비스로 서버 시작..."
-          chmod +x scripts/setup-systemd-service.sh
-          ./scripts/setup-systemd-service.sh
-          
-          # 서비스 상태 확인
-          echo "📊 서비스 상태 확인..."
-          sudo systemctl status signalcraft.service
-          
-          # 서버 시작 대기
-          echo "⏳ 서버 시작 대기 (15초)..."
-          sleep 15
-          
-          # 포트 확인
-          echo "🌐 포트 사용 상태:"
-          sudo netstat -tlnp | grep -E ":(3000|80|443)" || echo "포트 확인 권한 없음"
-
-          # 서버 응답 테스트
-          echo "🌐 서버 응답 테스트..."
-          curl -s http://localhost:3000 || echo "❌ 로컬 서버 응답 없음"
-          curl -s http://localhost:3000/api/auth/verify || echo "❌ API 응답 없음"
-          
-          # Nginx 상태 확인
-          echo "🔧 Nginx 상태 확인..."
-          sudo systemctl status nginx || echo "Nginx 상태 확인 실패"
-          
-          # Nginx 설정 테스트
-          echo "🔧 Nginx 설정 테스트..."
-          sudo nginx -t || echo "Nginx 설정 오류"
-          
-          # Nginx 재시작
-          echo "🔄 Nginx 재시작..."
+          # 5. Nginx 웹서버 재시작 (필요시)
+          # Nginx 설정 변경이 없다면 이 부분은 생략해도 괜찮습니다.
+          echo "🔄 Nginx Restart: 웹서버를 재시작합니다..."
           sudo systemctl restart nginx
           
-          # 간단한 배포 실행
-          echo "🚀 간단한 배포 실행..."
-          chmod +x scripts/simple-deploy.sh
-          ./scripts/simple-deploy.sh
-          
-          echo "✅ 502 오류 해결 및 배포 완료: $(date)"
-          echo "🌐 이제 https://signalcraft.kr로 접속해보세요!"
+          echo "✅ 배포가 성공적으로 완료되었습니다!"
