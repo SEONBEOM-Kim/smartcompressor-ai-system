@@ -26,8 +26,6 @@ jobs:
           # 기존 프로세스 종료
           echo "🛑 기존 프로세스 종료..."
           pm2 delete all 2>/dev/null || echo "PM2 프로세스 없음"
-          pkill -f "node server.js" 2>/dev/null || echo "Node.js 프로세스 없음"
-          pkill -f "python.*app.py" 2>/dev/null || echo "Python 프로세스 없음"
           
           # 로그 디렉토리 생성
           mkdir -p logs

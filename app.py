@@ -49,6 +49,23 @@ def create_app():
     # 데이터베이스 초기화
     init_db()
 
+    # Sentry 초기화
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN'),
+        integrations=[
+            FlaskIntegration(),
+            RedisIntegration(),  # Celery 사용 시 필요
+        ],
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        environment=os.getenv('FLASK_ENV', 'production'),
+        release=os.getenv('APP_VERSION', 'unknown')
+    )
+
     # CORS 설정
     # origins를 명확히 지정하여 보안 강화
     CORS(app,

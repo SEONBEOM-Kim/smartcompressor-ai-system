@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass, asdict
 from enum import Enum
-import sqlite3
+# import sqlite3
 import threading
 import queue
 import time
@@ -84,12 +84,14 @@ class OfflineData:
 class OfflineDatabase:
     """오프라인 데이터베이스 관리"""
     
-    def __init__(self, db_path: str = "offline_data.db"):
-        self.db_path = db_path
-        self.init_database()
-    
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
+        logger.info("오프라인 데이터베이스 서비스 초기화 완료")
+
     def init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -131,9 +133,13 @@ class OfflineDatabase:
                 
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def save_offline_data(self, offline_data: OfflineData) -> bool:
         """오프라인 데이터 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -160,9 +166,13 @@ class OfflineDatabase:
         except Exception as e:
             logger.error(f"오프라인 데이터 저장 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_pending_data(self, limit: int = 100) -> List[OfflineData]:
         """동기화 대기 중인 데이터 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -196,9 +206,13 @@ class OfflineDatabase:
         except Exception as e:
             logger.error(f"대기 중인 데이터 조회 실패: {e}")
             return []
-    
+        """
+        return []
+
     def update_sync_status(self, data_id: str, status: SyncStatus, error_message: str = None) -> bool:
         """동기화 상태 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -224,9 +238,13 @@ class OfflineDatabase:
         except Exception as e:
             logger.error(f"동기화 상태 업데이트 실패: {e}")
             return False
-    
+        """
+        return False
+
     def delete_synced_data(self, older_than_days: int = 7) -> int:
         """동기화된 오래된 데이터 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -247,9 +265,13 @@ class OfflineDatabase:
         except Exception as e:
             logger.error(f"오래된 데이터 삭제 실패: {e}")
             return 0
-    
+        """
+        return 0
+
     def get_sync_statistics(self) -> Dict[str, Any]:
         """동기화 통계 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -286,6 +308,8 @@ class OfflineDatabase:
         except Exception as e:
             logger.error(f"동기화 통계 조회 실패: {e}")
             return {}
+        """
+        return {}
 
 class OfflineSyncService:
     """오프라인 동기화 서비스"""
@@ -445,6 +469,8 @@ class OfflineSyncService:
     
     def get_offline_data(self, data_type: DataType = None) -> List[OfflineData]:
         """오프라인 데이터 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with sqlite3.connect(self.db.db_path) as conn:
                 cursor = conn.cursor()
@@ -483,7 +509,9 @@ class OfflineSyncService:
         except Exception as e:
             logger.error(f"오프라인 데이터 조회 실패: {e}")
             return []
-    
+        """
+        return []
+
     def force_sync(self) -> Dict[str, Any]:
         """강제 동기화 실행"""
         try:

@@ -18,7 +18,7 @@ class DatabaseService {
             port: process.env.DB_PORT || 5432,
             max: 20, // 최대 연결 수
             idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 2000,
+            connectionTimeoutMillis: 10000,
         });
 
         this.init();

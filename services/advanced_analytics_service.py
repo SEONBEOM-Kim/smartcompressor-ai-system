@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
-import sqlite3
+# import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor, IsolationForest
@@ -75,9 +75,8 @@ class AnalysisResult:
 class AdvancedAnalyticsService:
     """고급 분석 서비스"""
     
-    def __init__(self, db_path: str = "data/analytics.db"):
-        self.db_path = db_path
-        self.conn = None
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.models = {}
         self.scalers = {}
         
@@ -91,13 +90,14 @@ class AdvancedAnalyticsService:
         }
         
         # 초기화
-        self._init_database()
         self._load_models()
         
         logger.info("고급 분석 서비스 초기화 완료")
     
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             self.conn = sqlite3.connect(self.db_path)
             cursor = self.conn.cursor()
@@ -169,7 +169,9 @@ class AdvancedAnalyticsService:
         except Exception as e:
             logger.error(f"데이터베이스 초기화 오류: {e}")
             raise
-    
+        """
+        pass
+
     def _load_models(self):
         """기존 모델 로드"""
         try:
@@ -196,6 +198,8 @@ class AdvancedAnalyticsService:
     def track_event(self, event_name: str, store_id: str = None, 
                    user_id: str = None, properties: Dict = None) -> bool:
         """이벤트 추적 (Mixpanel 스타일)"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -217,9 +221,13 @@ class AdvancedAnalyticsService:
         except Exception as e:
             logger.error(f"이벤트 추적 오류: {e}")
             return False
-    
+        """
+        return False
+
     def store_metrics(self, metrics: StoreMetrics) -> bool:
         """매장 지표 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -248,9 +256,13 @@ class AdvancedAnalyticsService:
         except Exception as e:
             logger.error(f"매장 지표 저장 오류: {e}")
             return False
-    
+        """
+        return False
+
     def get_store_performance_dashboard(self, store_id: str, days: int = 30) -> Dict:
         """매장별 성능 지표 대시보드 (Google Analytics 스타일)"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 데이터 조회
             query = '''
@@ -329,9 +341,13 @@ class AdvancedAnalyticsService:
         except Exception as e:
             logger.error(f"성능 대시보드 생성 오류: {e}")
             return {'error': str(e)}
-    
+        """
+        return {'error': '데이터베이스 연결이 구현되지 않았습니다.'}
+
     def analyze_compressor_efficiency(self, store_id: str, days: int = 30) -> Dict:
         """압축기 효율성 분석"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 데이터 조회
             query = '''
@@ -405,9 +421,13 @@ class AdvancedAnalyticsService:
         except Exception as e:
             logger.error(f"압축기 효율성 분석 오류: {e}")
             return {'error': str(e)}
-    
+        """
+        return {'error': '데이터베이스 연결이 구현되지 않았습니다.'}
+
     def analyze_power_optimization(self, store_id: str, days: int = 30) -> Dict:
         """전력 사용량 최적화 분석"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 데이터 조회
             query = '''
@@ -487,7 +507,9 @@ class AdvancedAnalyticsService:
         except Exception as e:
             logger.error(f"전력 최적화 분석 오류: {e}")
             return {'error': str(e)}
-    
+        """
+        return {'error': '데이터베이스 연결이 구현되지 않았습니다.'}
+
     def _detect_anomalies(self, data: pd.DataFrame) -> List[Dict]:
         """이상치 탐지"""
         try:

@@ -17,8 +17,7 @@ import numpy as np
 from scipy import signal
 import websockets
 import websockets.exceptions
-import sqlite3
-import threading
+# import sqlite3
 import queue
 
 # 로깅 설정
@@ -294,8 +293,8 @@ class SensorDataProcessor:
 class SensorDataService:
     """센서 데이터 수집 서비스 (Nest 스타일)"""
     
-    def __init__(self, db_path: str = 'data/sensor_data.db'):
-        self.db_path = db_path
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.processor = SensorDataProcessor()
         self.connected_devices = {}
         self.data_queue = queue.Queue()
@@ -303,17 +302,16 @@ class SensorDataService:
         self.websocket_server = None
         self.anomaly_callbacks = []
         
-        # 데이터베이스 초기화
-        self._init_database()
-        
         # 워커 스레드 시작
         self.worker_thread = threading.Thread(target=self._worker_loop, daemon=True)
         self.worker_thread.start()
         
         logger.info("센서 데이터 서비스 초기화 완료")
-    
+
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -377,7 +375,9 @@ class SensorDataService:
             
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def add_anomaly_callback(self, callback: Callable[[AnomalyDetection], None]):
         """이상 감지 콜백 추가"""
         self.anomaly_callbacks.append(callback)
@@ -464,6 +464,8 @@ class SensorDataService:
     
     async def _handle_device_info(self, websocket, data: Dict):
         """디바이스 정보 처리"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             device_id = data['device_id']
             
@@ -498,9 +500,13 @@ class SensorDataService:
             
         except Exception as e:
             logger.error(f"디바이스 정보 처리 오류: {e}")
-    
+        """
+        pass
+
     async def _handle_heartbeat(self, websocket, data: Dict):
         """하트비트 처리"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             device_id = data['device_id']
             
@@ -522,7 +528,9 @@ class SensorDataService:
             
         except Exception as e:
             logger.error(f"하트비트 처리 오류: {e}")
-    
+        """
+        pass
+
     def _worker_loop(self):
         """데이터 처리 워커 루프"""
         self.is_running = True
@@ -562,6 +570,8 @@ class SensorDataService:
     
     def _save_sensor_reading(self, reading: SensorReading):
         """센서 데이터 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -588,9 +598,13 @@ class SensorDataService:
             
         except Exception as e:
             logger.error(f"센서 데이터 저장 오류: {e}")
-    
+        """
+        pass
+
     def _save_anomaly(self, anomaly: AnomalyDetection):
         """이상 감지 결과 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -616,7 +630,9 @@ class SensorDataService:
             
         except Exception as e:
             logger.error(f"이상 감지 저장 오류: {e}")
-    
+        """
+        pass
+
     def _notify_anomaly(self, anomaly: AnomalyDetection):
         """이상 감지 알림"""
         try:
@@ -662,6 +678,8 @@ class SensorDataService:
     
     def get_device_status(self) -> Dict:
         """디바이스 상태 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -694,9 +712,13 @@ class SensorDataService:
         except Exception as e:
             logger.error(f"디바이스 상태 조회 오류: {e}")
             return {'error': str(e)}
-    
+        """
+        return {'error': '데이터베이스 연결이 구현되지 않았습니다.'}
+
     def get_sensor_data(self, device_id: str, hours: int = 24) -> List[Dict]:
         """센서 데이터 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -732,9 +754,13 @@ class SensorDataService:
         except Exception as e:
             logger.error(f"센서 데이터 조회 오류: {e}")
             return []
-    
+        """
+        return []
+
     def get_anomalies(self, device_id: str = None, hours: int = 24) -> List[Dict]:
         """이상 감지 결과 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -776,7 +802,9 @@ class SensorDataService:
         except Exception as e:
             logger.error(f"이상 감지 결과 조회 오류: {e}")
             return []
-    
+        """
+        return []
+
     def stop(self):
         """서비스 중지"""
         self.is_running = False

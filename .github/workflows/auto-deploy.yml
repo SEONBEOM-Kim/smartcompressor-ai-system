@@ -60,8 +60,6 @@ jobs:
           # 기존 서비스 완전 종료
           echo "🛑 기존 서비스 중지..."
           pm2 delete all 2>/dev/null || echo "PM2 프로세스 없음"
-          pkill -f "node server.js" || true
-          pkill -f "python.*app.py" || true
           
           # 로그 디렉토리 생성
           mkdir -p logs

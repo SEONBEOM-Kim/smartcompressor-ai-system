@@ -13,8 +13,6 @@ ls -la
 # 기존 프로세스 종료
 echo "🛑 기존 프로세스 종료..."
 pm2 delete all || true
-pkill -f "node server.js" || true
-pkill -f "python.*app.py" || true
 
 # 로그 디렉토리 생성
 mkdir -p logs

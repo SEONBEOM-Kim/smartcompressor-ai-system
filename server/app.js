@@ -4,6 +4,10 @@ const corsMiddleware = require('./middleware/cors');
 const cookieParser = require('cookie-parser');
 const SQLiteDatabaseService = require('../services/sqlite_database_service');
 
+// Sentry 초기화
+const Sentry = require("@sentry/node");
+const { ProfilingIntegration } = require("@sentry/profiling-node");
+
 // 라우트 import
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
@@ -13,6 +17,18 @@ const monitoringRoutes = require('./routes/monitoringRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  integrations: [
+    new Sentry.Integrations.Http({ tracing: true }),
+    new Sentry.Integrations.Express({ app }),
+    new ProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+  environment: process.env.NODE_ENV || 'production',
+});
 const db = new SQLiteDatabaseService();
 
 // 미들웨어 설정

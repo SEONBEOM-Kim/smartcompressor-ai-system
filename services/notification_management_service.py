@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Set
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
 from enum import Enum
-from sqlite3 import connect
+# from sqlite3 import connect
 import threading
 from collections import defaultdict
 
@@ -103,8 +103,8 @@ class UserNotificationSettings:
 class NotificationManagementService:
     """알림 관리 및 설정 서비스 (Stripe Dashboard 스타일)"""
     
-    def __init__(self, db_path: str = 'data/notification_management.db'):
-        self.db_path = db_path
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.rules = {}
         self.templates = {}
         self.user_settings = {}
@@ -114,17 +114,16 @@ class NotificationManagementService:
         # 알림 처리 스레드
         self.processing_thread = None
         
-        # 데이터베이스 초기화
-        self._init_database()
-        
-        # 기본 규칙 및 템플릿 로드
+        # 기본 규칙 및 템플릿 로드 (메모리)
         self._load_default_rules()
         self._load_default_templates()
         
         logger.info("알림 관리 서비스 초기화 완료")
-    
+
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -206,9 +205,13 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def _load_default_rules(self):
         """기본 알림 규칙 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             default_rules = [
                 {
@@ -268,9 +271,13 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"기본 규칙 로드 실패: {e}")
-    
+        """
+        pass
+
     def _load_default_templates(self):
         """기본 알림 템플릿 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             default_templates = [
                 {
@@ -326,9 +333,13 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"기본 템플릿 로드 실패: {e}")
-    
+        """
+        pass
+
     def create_notification_rule(self, rule_data: Dict) -> bool:
         """알림 규칙 생성"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             rule = NotificationRule(
                 rule_id=rule_data['rule_id'],
@@ -352,9 +363,13 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"알림 규칙 생성 실패: {e}")
             return False
-    
+        """
+        return False
+
     def update_notification_rule(self, rule_id: str, updates: Dict) -> bool:
         """알림 규칙 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if rule_id not in self.rules:
                 return False
@@ -380,9 +395,13 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"알림 규칙 업데이트 실패: {e}")
             return False
-    
+        """
+        return False
+
     def delete_notification_rule(self, rule_id: str) -> bool:
         """알림 규칙 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if rule_id not in self.rules:
                 return False
@@ -402,7 +421,9 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"알림 규칙 삭제 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_notification_rules(self, event_type: str = None) -> List[Dict]:
         """알림 규칙 조회"""
         try:
@@ -424,6 +445,8 @@ class NotificationManagementService:
     
     def create_notification_template(self, template_data: Dict) -> bool:
         """알림 템플릿 생성"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             template = NotificationTemplate(
                 template_id=template_data['template_id'],
@@ -445,7 +468,9 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"알림 템플릿 생성 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_notification_templates(self, event_type: str = None, channel: str = None) -> List[Dict]:
         """알림 템플릿 조회"""
         try:
@@ -466,6 +491,8 @@ class NotificationManagementService:
     
     def update_user_notification_settings(self, user_id: str, settings: Dict) -> bool:
         """사용자 알림 설정 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             user_settings = UserNotificationSettings(
                 user_id=user_id,
@@ -490,9 +517,13 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"사용자 알림 설정 업데이트 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_user_notification_settings(self, user_id: str) -> Optional[Dict]:
         """사용자 알림 설정 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if user_id in self.user_settings:
                 settings = self.user_settings[user_id]
@@ -505,7 +536,9 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"사용자 알림 설정 조회 실패: {e}")
             return None
-    
+        """
+        return None
+
     def send_notification(self, event_data: Dict) -> bool:
         """알림 전송"""
         try:
@@ -649,6 +682,8 @@ class NotificationManagementService:
     def get_notification_history(self, user_id: str = None, store_id: str = None, 
                                limit: int = 100) -> List[Dict]:
         """알림 이력 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -693,9 +728,13 @@ class NotificationManagementService:
         except Exception as e:
             logger.error(f"알림 이력 조회 실패: {e}")
             return []
-    
+        """
+        return []
+
     def _save_rule(self, rule: NotificationRule):
         """규칙 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -721,9 +760,13 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"규칙 저장 실패: {e}")
-    
+        """
+        pass
+
     def _save_template(self, template: NotificationTemplate):
         """템플릿 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -747,9 +790,13 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"템플릿 저장 실패: {e}")
-    
+        """
+        pass
+
     def _save_user_settings(self, settings: UserNotificationSettings):
         """사용자 설정 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -777,9 +824,13 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"사용자 설정 저장 실패: {e}")
-    
+        """
+        pass
+
     def _save_notification_history(self, notification: Dict):
         """알림 이력 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -807,6 +858,8 @@ class NotificationManagementService:
                 
         except Exception as e:
             logger.error(f"알림 이력 저장 실패: {e}")
+        """
+        pass
 
 # 전역 서비스 인스턴스
 notification_management_service = NotificationManagementService()

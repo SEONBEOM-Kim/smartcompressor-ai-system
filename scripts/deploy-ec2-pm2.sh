@@ -36,8 +36,6 @@ ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
     
     echo "🛑 기존 서비스 종료..."
     pm2 delete all || true
-    pkill -f "node server.js" || true
-    pkill -f "python.*app.py" || true
     
     echo "📁 로그 디렉토리 생성..."
     mkdir -p logs

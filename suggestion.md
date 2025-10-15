@@ -1,447 +1,78 @@
-Backend Services Overview
-Relevant source files
-app.py
-package.json
-routes/enhanced_auth_routes.py
-scripts/deploy-ec2-pm2.ps1
-scripts/deploy-ec2-pm2.sh
-server/app.js
-server/routes/notificationRoutes.js
-Purpose and Scope
-This document describes the dual-backend architecture of the Signalcraft system, where Node.js (Express) and Python (Flask) applications run concurrently to serve different system responsibilities. This page covers the architectural pattern, service boundaries, port configuration, and coordination mechanisms between the two backends.
+SQLite 데이터베이스 연결 성공 메시지는 어떤파일들과 관련있는지 알려줘
+Fast
+Searched across SEONBEOM-Kim/smartcompressor-ai-system
+Answer
+"SQLite 데이터베이스 연결 성공" 메시지는 여러 Python 서비스 파일들의 데이터베이스 초기화 로직과 관련되어 있습니다.
 
-For details on how these backends are deployed and managed, see Infrastructure & Deployment. For information on specific route implementations and business logic, see Node.js Express Server and Flask Python Server.
+주요 관련 파일
+1. 센서 데이터 서비스
+services/sensor_data_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/sensor_data_service.py:315-379]
 
-Architectural Pattern: Dual-Backend Design
-The system employs a parallel backend architecture where two independent application servers operate simultaneously on the same EC2 instance. This design allows the system to leverage the strengths of both ecosystems: Node.js for its asynchronous I/O and JavaScript ecosystem, and Python for its AI/ML libraries and data processing capabilities.
+데이터베이스 초기화 후 "데이터베이스 초기화 완료" 메시지를 로깅합니다:
 
-Backend Architecture Diagram
+logger.info("데이터베이스 초기화 완료")
+2. 센서 데이터베이스 서비스
+services/sensor_database_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/sensor_database_service.py:42-130]
 
+SQLite 연결 후 "데이터베이스 초기화 완료" 로그를 출력합니다:
 
+logger.info("데이터베이스 초기화 완료")
+3. 고객 분석 서비스
+services/customer_analytics_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/customer_analytics_service.py:23-91]
 
+SQLite 연결 성공 시 "고객 분석 데이터베이스 초기화 완료" 메시지를 출력합니다:
 
+logger.info("고객 분석 데이터베이스 초기화 완료")
+4. 고급 분석 서비스
+services/advanced_analytics_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/advanced_analytics_service.py:99-171]
 
+데이터베이스 연결 후 "분석 데이터베이스 초기화 완료" 로그를 기록합니다:
 
+logger.info("분석 데이터베이스 초기화 완료")
+5. 오프라인 동기화 서비스
+services/offline_sync_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/offline_sync_service.py:91-133]
 
+SQLite 연결 성공 시 "오프라인 데이터베이스 초기화 완료" 메시지를 출력합니다:
 
+logger.info("오프라인 데이터베이스 초기화 완료")
+6. 알림 관리 서비스
+services/notification_management_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/notification_management_service.py:126-209]
 
+데이터베이스 초기화 실패 시 에러 로그를 출력합니다:
 
+logger.error(f"데이터베이스 초기화 실패: {e}")
+7. A/B 테스팅 서비스
+services/ab_testing_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/ab_testing_service.py:89-167]
 
+SQLite 연결 후 "A/B 테스트 데이터베이스 초기화 완료" 메시지를 로깅합니다:
 
+logger.info("A/B 테스트 데이터베이스 초기화 완료")
+8. 매장 관리 서비스
+services/store_management_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/store_management_service.py:113-187]
 
+데이터베이스 초기화 실패 시 에러를 로깅합니다:
 
-Sources: 
-app.py
-1-184
- 
-server/app.js
-1-118
- Diagram 1 from system architecture
+logger.error(f"데이터베이스 초기화 실패: {e}")
+9. 제품 카탈로그 서비스
+services/product_catalog_service.py[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: services/product_catalog_service.py:114-196]
 
-Node.js Express Backend
-The Express backend is the primary entry point for user-facing operations, authentication, and real-time communication.
+데이터베이스 초기화 실패 시 에러 메시지를 출력합니다:
 
-Application Structure
-The Express application is structured in server/app.js with modular route imports:
+logger.error(f"데이터베이스 초기화 실패: {e}")
+10. 라벨링 데이터베이스 (Node.js)
+data/labeling_database.js[link to Repo SEONBEOM-Kim/smartcompressor-ai-system: data/labeling_database.js:23-67]
 
-Component	File Path	Purpose
-Main Application	server/app.js	Express app configuration and middleware setup
-Authentication Routes	server/routes/authRoutes.js	User login, registration, session management
-AI Routes	server/routes/aiRoutes.js	AI analysis request proxying
-Admin Routes	server/routes/adminRoutes.js	Administrative operations
-Kakao Routes	server/routes/kakaoRoutes.js	Kakao OAuth integration
-Monitoring Routes	server/routes/monitoringRoutes.js	System monitoring endpoints
-Notification Routes	server/routes/notificationRoutes.js	Real-time notification streaming
-Sources: 
-server/app.js
-1-118
+SQLite 초기화 후 콘솔 메시지를 출력합니다:
 
-Express Application Initialization
+console.log('📊 라벨링 데이터베이스 초기화 완료');
+공통 패턴
+모든 서비스는 다음과 같은 공통 패턴을 따릅니다:
 
-
-
-
-
-
-
-
-
-
-
-Sources: 
-server/app.js
-1-44
-
-Express Middleware Stack
-The Express backend configures middleware in the following order 
-server/app.js
-16-24
-:
-
-CORS Middleware - Cross-origin request handling
-JSON Body Parser - Parses JSON payloads with 10MB limit
-URL-encoded Parser - Handles form submissions with 10MB limit
-Cookie Parser - Extracts and parses cookies
-Express Route Responsibilities
-Route Prefix	Module	Primary Functions
-/api/auth	authRoutes	Login, registration, session verification, logout
-/api/ai	aiRoutes	AI analysis request handling
-/api/kakao	kakaoRoutes	Kakao OAuth flow, token exchange
-/api/monitoring	monitoringRoutes	Server health checks, metrics
-/api/notifications	notificationRoutes	SSE stream, notification history
-/admin	adminRoutes	Administrative dashboard and operations
-/	Static handler	Serves showcase.html as landing page
-Sources: 
-server/app.js
-26-43
-
-Express Port Configuration
-The Express server listens on port 3000 by default, configured through server.js which imports the Express app from server/app.js. This is the standard port used in all deployment scripts and referenced in health checks.
-
-Sources: 
-package.json
-10
- 
-scripts/deploy-ec2-pm2.sh
-56-57
-
-Flask Python Backend
-The Flask backend specializes in AI/ML operations, IoT sensor data processing, and Python-specific services that require scientific computing libraries.
-
-Application Factory Pattern
-Flask uses the application factory pattern in app.py:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Sources: 
-app.py
-43-150
-
-Flask Blueprint Architecture
-Flask organizes routes using blueprints, registered in create_app() 
-app.py
-74-101
-:
-
-Blueprint	URL Prefix	Module Path	Primary Responsibility
-main_bp	/	routes.main_routes	Root endpoints, static pages
-auth_bp	/api/auth	routes.auth_routes	Basic authentication
-enhanced_auth_bp	/api/auth	routes.enhanced_auth_routes	4-step enhanced registration
-ai_bp	/api	routes.ai_routes	AI analysis, model inference
-esp32_bp	/api/esp32	routes.esp32_routes	IoT device communication
-notification_bp	/api/notifications	routes.notification_routes	Notification dispatch
-kakao_notification_bp	Various	routes.kakao_notification_routes	Kakao message integration
-kakao_auth_bp	/auth/kakao	routes.kakao_auth_routes	Kakao OAuth
-iot_sensor_bp	/api/sensors	routes.iot_sensor_routes	Sensor data endpoints
-dashboard_bp	/dashboard	routes.dashboard_routes	Dashboard UI
-mobile_app_bp	/mobile_app	routes.mobile_app_routes	Mobile application API
-Sources: 
-app.py
-16-31
- 
-app.py
-74-101
-
-Flask API Compatibility Routes
-Flask provides compatibility routes for frontend requests that may target either backend 
-app.py
-107-130
-:
-
-@app.route('/api/auth/login', methods=['POST'])
-@app.route('/api/auth/register', methods=['POST'])
-@app.route('/api/auth/logout', methods=['POST'])
-@app.route('/api/auth/verify', methods=['GET'])
-@app.route('/api/lightweight-analyze', methods=['POST'])
-These routes delegate to the appropriate blueprint handlers, ensuring requests reach the correct service regardless of which backend receives them.
-
-Sources: 
-app.py
-107-130
-
-Flask Port Configuration
-The Flask application runs on port 8000 by default 
-app.py
-163
- configured through the PORT environment variable. This port is distinct from the Express port to avoid conflicts.
-
-Sources: 
-app.py
-163-183
-
-Flask Service Initialization
-Flask initializes background services during application startup 
-app.py
-34-42
-:
-
-Service	Import Path	Initialization Call	Purpose
-ensemble_ai_service	services.ai_service	Import only	AI model ensemble for predictions
-sensor_data_service	services.sensor_data_service	Import only	Sensor data processing
-realtime_streaming_service	services.realtime_streaming_service	Import only	Real-time data streaming
-sensor_monitoring_service	services.sensor_monitoring_service	start_monitoring()	Continuous sensor monitoring loop
-firmware_ota_service	services.firmware_ota_service	Import only	Firmware over-the-air updates
-Sources: 
-app.py
-34-42
- 
-app.py
-104
-
-Backend Coordination and Responsibilities
-Service Responsibility Matrix
-The following table defines which backend handles specific functional areas:
-
-Functional Area	Primary Backend	Rationale
-User authentication (login/register)	Both (Node.js primary)	Node.js handles initial auth, Flask provides enhanced registration
-Session management	Node.js	Express middleware and cookie handling
-Kakao OAuth	Both	Redundant implementation for reliability
-AI audio analysis	Flask	Python ML libraries (librosa, sklearn)
-ESP32 sensor data	Flask	Python data processing capabilities
-Real-time notifications (SSE)	Node.js	Express streaming response handling
-Kakao notifications	Flask	Python Kakao SDK integration
-Dashboard rendering	Flask	Template rendering via Jinja2
-Static file serving	Node.js	Express static middleware
-Admin operations	Both	Node.js for UI, Flask for Python-specific tasks
-Sources: 
-app.py
-1-184
- 
-server/app.js
-1-118
-
-Data Sharing via SQLite
-Both backends access the same SQLite database file, enabling data consistency:
-
-
-
-
-
-
-
-Sources: 
-app.py
-52-53
- Diagram 3 from system architecture
-
-Both backends use the same database initialization function init_db() from models.database, ensuring schema consistency. For detailed schema information, see Data Storage & Models.
-
-Routing Strategy and URL Patterns
-Nginx Reverse Proxy Configuration
-Nginx routes requests to the appropriate backend based on URL patterns. The general pattern is:
-
-URL Pattern	Target Backend	Target Port
-/api/auth/*	Node.js	3000
-/api/ai/*	Node.js	3000
-/api/kakao/*	Node.js	3000
-/api/monitoring/*	Node.js	3000
-/api/notifications/*	Node.js	3000
-/api/lightweight-analyze	Flask	8000
-/api/esp32/*	Flask	8000
-/dashboard	Flask	8000
-/mobile_app	Flask	8000
-/admin	Node.js	3000
-/* (default)	Node.js	3000
-Sources: Diagram 1 from system architecture, 
-app.py
-127-130
-
-Request Flow Diagram
-Sources: 
-server/app.js
-32-37
- 
-app.py
-127-130
-
-Process Management and Lifecycle
-PM2 Configuration
-Both backends are managed by PM2 through ecosystem.config.js. The Node.js backend is explicitly configured in the PM2 ecosystem file, while the Flask backend is started separately but still monitored by PM2.
-
-Deployment Process:
-
-PM2 deletes all existing processes 
-scripts/deploy-ec2-pm2.sh
-37-40
-All Node.js and Python processes are killed forcefully
-PM2 starts the Node.js server using the ecosystem configuration
-Flask is started either manually or through a separate PM2 process definition
-Sources: 
-scripts/deploy-ec2-pm2.sh
-37-62
- 
-scripts/deploy-ec2-pm2.ps1
-42-68
-
-Health Check Endpoints
-Both backends expose health check endpoints for deployment verification:
-
-Node.js Health Check:
-
-GET http://localhost:3000/api/auth/verify
-This endpoint is called during deployment to verify the Express server is responding 
-scripts/deploy-ec2-pm2.sh
-56-57
-
-Flask Health Check: The Flask backend can be verified through any of its registered routes, though no specific health check endpoint is defined in the provided code.
-
-Sources: 
-scripts/deploy-ec2-pm2.sh
-56-57
- 
-scripts/deploy-ec2-pm2.ps1
-62
-
-CORS Configuration
-Express CORS Setup
-Express uses a dedicated CORS middleware module 
-server/app.js
-3
- that configures cross-origin access for the web application.
-
-Sources: 
-server/app.js
-17
-
-Flask CORS Setup
-Flask uses the flask_cors library with explicit origin whitelisting 
-app.py
-57-61
-:
-
-CORS(app,
-     origins=['https://signalcraft.kr', 'https://www.signalcraft.kr'],
-     allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     supports_credentials=True)
-Flask also implements a @app.before_request handler for OPTIONS preflight requests 
-app.py
-64-72
- ensuring proper CORS negotiation.
-
-Sources: 
-app.py
-57-72
-
-Enhanced Authentication System
-The Flask backend provides an enhanced registration system through enhanced_auth_routes.py that captures additional business context during user registration 
-routes/enhanced_auth_routes.py
-1-325
-
-Enhanced Registration Flow
-
-
-
-
-
-
-
-Sources: 
-routes/enhanced_auth_routes.py
-21-124
-
-Enhanced Registration Data Structure
-The enhanced registration captures the following additional fields beyond basic authentication:
-
-Category	Fields
-Business Context	company, position, industry, company_size, company_email, address
-Requirements	purpose (array), budget, timeline, device_count
-Notification Preferences	email_alerts, email_newsletter, sms_alerts, kakao_alerts
-Legal Agreements	privacy_agree, terms_agree, marketing_agree
-Sources: 
-routes/enhanced_auth_routes.py
-60-82
-
-Real-Time Communication Architecture
-Server-Sent Events (SSE) in Express
-The Express backend provides Server-Sent Events for real-time notifications through notificationRoutes.js 
-server/routes/notificationRoutes.js
-1-120
-:
-
-
-
-
-
-
-
-
-
-Sources: 
-server/routes/notificationRoutes.js
-5-31
-
-The SSE implementation includes:
-
-Initial connection confirmation message
-30-second heartbeat to maintain connection 
-server/routes/notificationRoutes.js
-19-21
-Cleanup on client disconnect 
-server/routes/notificationRoutes.js
-24-27
-Error Handling Strategy
-Express Error Middleware
-Express implements a centralized error handler that catches connection errors and server errors 
-server/app.js
-98-115
-:
-
-502 Bad Gateway: Detects ECONNREFUSED and ETIMEDOUT errors
-500 Internal Server Error: Generic fallback with conditional error details in development mode
-Flask Error Handling
-Flask does not implement a global error handler in app.py. Error handling is delegated to individual route handlers within each blueprint.
-
-Sources: 
-server/app.js
-98-115
-
-Deployment Coordination
-Both backends are deployed simultaneously through the CI/CD pipeline. The deployment process in deploy-ec2-pm2.sh performs the following steps for both services:
-
-Code Update: git pull origin main
-Dependency Installation: npm install (Node.js dependencies)
-Process Cleanup: Kill all existing Node.js and Python processes
-Service Start: PM2 starts the ecosystem configuration
-Health Verification: Curl test against Express endpoints
-The Flask application dependencies (Python packages) are managed separately and assumed to be pre-installed or installed through a separate step not shown in the provided deployment scripts.
-
-Sources: 
-scripts/deploy-ec2-pm2.sh
-19-63
-
-Summary
-The dual-backend architecture provides:
-
-Technology-appropriate service distribution: Node.js handles I/O-intensive operations (authentication, real-time streaming), while Flask handles CPU-intensive operations (AI inference, data processing)
-Redundant authentication paths: Both backends can handle authentication, providing fallback capability
-Shared data consistency: SQLite provides a single source of truth for user and session data
-Independent scalability: Each backend can be scaled or restarted independently
-Clear service boundaries: Routing rules enforce separation of concerns
-This architecture enables the system to leverage the best features of both JavaScript and Python ecosystems while maintaining operational simplicity through shared infrastructure and data storage.
-
-Sources: 
-app.py
-1-184
- 
-server/app.js
-1-118
- 
-package.json
-1-50
- all deployment scripts
+__init__() 메서드에서 _init_database() 호출
+**sqlite3.connect()**로 SQLite 데이터베이스 연결
+테이블 생성 (CREATE TABLE IF NOT EXISTS)
+인덱스 생성 (성능 최적화)
+**conn.commit()**으로 변경사항 저장
+성공 시 로그 메시지 출력
+Notes
+현재 프로젝트는 여러 Python 서비스에서 SQLite를 사용하고 있으며, 각 서비스가 독립적인 데이터베이스 파일을 관리합니다. PostgreSQL로 마이그레이션 시 이 모든 서비스의 데이터베이스 연결 로직을 일관되게 업데이트해야 합니다. 특히 logger.info() 메시지는 서비스 시작 시 데이터베이스 연결 상태를 확인하는 중요한 지표입니다.
