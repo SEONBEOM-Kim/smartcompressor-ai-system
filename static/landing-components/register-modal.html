@@ -1,0 +1,147 @@
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header bg-dark text-light border-secondary">
+                <h5 class="modal-title" id="registerModalLabel">회원가입</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-dark text-light">
+                <div class="text-center mb-4">
+                    <div class="mb-3 p-2 rounded-circle d-inline-flex align-items-center justify-content-center" style="background-color: #000000;">
+                        <img src="/static/images/logo.svg" alt="Signalcraft Logo" class="logo-icon" style="width: 60px; height: 60px;">
+                    </div>
+                    <h4 class="fw-bold text-light">Signalcraft 계정 만들기</h4>
+                    <p class="text-muted mb-0">계정을 만들고 AI 진단 서비스를 시작하세요</p>
+                </div>
+                
+                <form id="registerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="registerName" class="form-label fw-medium text-light">이름</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control bg-dark text-light border-secondary" id="registerName" placeholder="이름을 입력하세요" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="registerLastName" class="form-label fw-medium text-light">성</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control bg-dark text-light border-secondary" id="registerLastName" placeholder="성을 입력하세요" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerEmail" class="form-label fw-medium text-light">이메일 주소</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control bg-dark text-light border-secondary" id="registerEmail" placeholder="이메일 주소를 입력하세요" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerPassword" class="form-label fw-medium text-light">비밀번호</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control bg-dark text-light border-secondary" id="registerPassword" placeholder="비밀번호를 입력하세요 (최소 8자)" required>
+                            <button class="btn btn-outline-light" type="button" id="toggleRegisterPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text text-muted">비밀번호는 최소 8자 이상이어야 합니다</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerPasswordConfirm" class="form-label fw-medium text-light">비밀번호 확인</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control bg-dark text-light border-secondary" id="registerPasswordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+                            <button class="btn btn-outline-light" type="button" id="toggleRegisterConfirmPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerPhone" class="form-label fw-medium text-light">전화번호</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-phone"></i></span>
+                            <input type="tel" class="form-control bg-dark text-light border-secondary" id="registerPhone" placeholder="전화번호를 입력하세요 (선택사항)" />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerCompany" class="form-label fw-medium text-light">회사명 (선택)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-light border-secondary"><i class="fas fa-building"></i></span>
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="registerCompany" placeholder="소속 회사명을 입력하세요">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="termsAgree" required>
+                        <label class="form-check-label text-light" for="termsAgree">
+                            <a href="#" class="text-decoration-none text-light">서비스 이용 약관</a> 및 
+                            <a href="#" class="text-decoration-none text-light">개인정보 처리 방침</a>에 동의합니다
+                        </label>
+                    </div>
+                    
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="marketingAgree">
+                        <label class="form-check-label text-light" for="marketingAgree">
+                            마케팅 정보 수신에 동의합니다
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-light btn-lg py-3 fw-bold text-dark">
+                            <i class="fas fa-user-plus me-2"></i>회원가입
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <p class="mb-1 text-muted">이미 계정이 있으신가요?</p>
+                    <button type="button" class="btn btn-outline-light" onclick="showLoginModal(); $('#registerModal').modal('hide');">
+                        <i class="fas fa-sign-in-alt me-2"></i>로그인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 비밀번호 표시/숨기기 토글 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+        const toggleRegisterConfirmPassword = document.getElementById('toggleRegisterConfirmPassword');
+        const registerPasswordInput = document.getElementById('registerPassword');
+        const registerConfirmPasswordInput = document.getElementById('registerPasswordConfirm');
+        
+        if (toggleRegisterPassword && registerPasswordInput) {
+            toggleRegisterPassword.addEventListener('click', function() {
+                const type = registerPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                registerPasswordInput.setAttribute('type', type);
+                
+                // 아이콘 변경
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        }
+        
+        if (toggleRegisterConfirmPassword && registerConfirmPasswordInput) {
+            toggleRegisterConfirmPassword.addEventListener('click', function() {
+                const type = registerConfirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                registerConfirmPasswordInput.setAttribute('type', type);
+                
+                // 아이콘 변경
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        }
+    });
+</script>

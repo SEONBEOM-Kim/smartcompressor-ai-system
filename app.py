@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-Flask 애플리케이션 메인 파일
-모듈화된 구조로 재구성
-"""
+
 
 import os
 from flask import Flask, jsonify, request
@@ -52,6 +49,23 @@ def create_app():
     # 데이터베이스 초기화
     init_db()
 
+    # Sentry 초기화
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN'),
+        integrations=[
+            FlaskIntegration(),
+            RedisIntegration(),  # Celery 사용 시 필요
+        ],
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        environment=os.getenv('FLASK_ENV', 'production'),
+        release=os.getenv('APP_VERSION', 'unknown')
+    )
+
     # CORS 설정
     # origins를 명확히 지정하여 보안 강화
     CORS(app,
@@ -89,16 +103,12 @@ def create_app():
     app.register_blueprint(enhanced_auth_bp)
     # IoT 센서 시스템 라우트 등록
     app.register_blueprint(iot_sensor_bp)
-# 대시보드 라우트 등록 # NEW
-app.register_blueprint(dashboard_bp)
-# 모바일 앱 라우트 등록 # NEW
-app.register_blueprint(mobile_app_bp)
-# 알림 관리 라우트 등록 # NEW
-app.register_blueprint(notification_bp)
-# 분석 시스템 라우트 등록 # NEW
-app.register_blueprint(analytics_bp)
-# 관리자 시스템 라우트 등록 # NEW
-app.register_blueprint(admin_bp)
+    # 대시보드 라우트 등록 # NEW
+    app.register_blueprint(dashboard_bp)
+    # 모바일 앱 라우트 등록 # NEW
+    app.register_blueprint(mobile_app_bp)
+    # 분석 시스템 라우트 등록 # NEW
+    app.register_blueprint(analytics_bp)
     
     # IoT 센서 서비스 초기화
     sensor_monitoring_service.start_monitoring()
@@ -135,17 +145,23 @@ app.register_blueprint(admin_bp)
         from flask import render_template
         return render_template('dashboard.html')
 
-@app.route('/mobile_app')
-def mobile_app():
-    """모바일 앱 페이지"""
-    from flask import render_template
-    return render_template('mobile_app.html')
+    @app.route('/mobile_app')
+    def mobile_app():
+        """모바일 앱 페이지"""
+        from flask import render_template
+        return render_template('mobile_app.html')
 
-@app.route('/notifications')
-def notification_dashboard():
-    """알림 관리 대시보드 페이지"""
-    from flask import render_template
-    return render_template('notification_dashboard.html')
+    @app.route('/notifications')
+    def notification_dashboard():
+        """알림 관리 대시보드 페이지"""
+        from flask import render_template
+        return render_template('notification_dashboard.html')
+
+    @app.route('/admin')
+    def admin_dashboard():
+        """관리자 대시보드 페이지"""
+        from flask import render_template
+        return render_template('admin_dashboard.html')
 
     return app
 

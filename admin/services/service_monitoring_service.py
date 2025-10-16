@@ -18,6 +18,12 @@ import psutil
 import requests
 import subprocess
 import os
+import sqlalchemy
+from sqlalchemy.exc import OperationalError
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -259,35 +265,49 @@ class ServiceMonitoringService:
             )
     
     def _check_database(self) -> ServiceHealth:
-        """데이터베이스 상태 확인"""
+        """데이터베이스 상태 확인 (PostgreSQL)"""
         try:
-            # SQLite 데이터베이스 파일 확인
-            db_file = 'instance/smartcompressor.db'
-            if os.path.exists(db_file):
-                file_size = os.path.getsize(db_file)
-                status = ServiceStatus.HEALTHY
-                error_rate = 0.0
-            else:
-                status = ServiceStatus.DOWN
-                error_rate = 100.0
-                file_size = 0
+            db_user = os.getenv("DB_USER")
+            db_password = os.getenv("DB_PASSWORD")
+            db_host = os.getenv("DB_HOST")
+            db_port = os.getenv("DB_PORT")
+            db_name = os.getenv("DB_NAME")
+
+            if not all([db_user, db_password, db_host, db_port, db_name]):
+                raise ValueError("데이터베이스 환경 변수가 모두 설정되지 않았습니다.")
+
+            # SQLAlchemy 연결 문자열 생성
+            db_url = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+            
+            engine = sqlalchemy.create_engine(db_url, connect_args={'connect_timeout': 5})
+            
+            # 연결 테스트
+            start_time = time.time()
+            connection = engine.connect()
+            connection.close()
+            response_time = (time.time() - start_time) * 1000  # ms
+
+            logger.info(f"데이터베이스 연결 성공. 응답 시간: {response_time:.2f}ms")
+
+            status = ServiceStatus.HEALTHY
+            error_rate = 0.0
             
             return ServiceHealth(
                 service_name='database',
                 status=status,
                 last_check=datetime.now(),
                 uptime=self._get_uptime('database'),
-                response_time=0.0,
+                response_time=response_time,
                 error_rate=error_rate,
                 metrics={
-                    'file_size': file_size,
-                    'disk_usage': psutil.disk_usage('/').percent
+                    'response_time': response_time,
+                    'active_connections': engine.pool.checkedin()
                 },
                 alerts=[],
                 dependencies=[]
             )
             
-        except Exception as e:
+        except (OperationalError, ValueError) as e:
             logger.error(f"데이터베이스 상태 확인 오류: {e}")
             return ServiceHealth(
                 service_name='database',
@@ -300,7 +320,7 @@ class ServiceMonitoringService:
                 alerts=[],
                 dependencies=[]
             )
-    
+
     def _check_redis(self) -> ServiceHealth:
         """Redis 상태 확인"""
         try:
@@ -475,7 +495,8 @@ class ServiceMonitoringService:
             'response_time': 'ms',
             'error_rate': '%',
             'file_size': 'bytes',
-            'process_count': 'count'
+            'process_count': 'count',
+            'active_connections': 'count'
         }
         return units.get(metric_type, '')
     

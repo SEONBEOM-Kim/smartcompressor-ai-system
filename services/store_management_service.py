@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
 from enum import Enum
-from sqlite3 import connect
+# from sqlite3 import connect
 import json
 import re
 
@@ -95,23 +95,18 @@ class StoreMetrics:
 class StoreManagementService:
     """매장 등록 및 관리 서비스 (Tesla App 스타일)"""
     
-    def __init__(self, db_path: str = 'data/store_management.db'):
-        self.db_path = db_path
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.stores = {}
         self.devices = {}
         self.metrics_cache = {}
         
-        # 데이터베이스 초기화
-        self._init_database()
-        
-        # 기존 데이터 로드
-        self._load_stores()
-        self._load_devices()
-        
         logger.info("매장 관리 서비스 초기화 완료")
-    
+
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -185,9 +180,13 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def _load_stores(self):
         """매장 데이터 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -219,9 +218,13 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"매장 데이터 로드 실패: {e}")
-    
+        """
+        pass
+
     def _load_devices(self):
         """디바이스 데이터 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -249,9 +252,13 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"디바이스 데이터 로드 실패: {e}")
-    
+        """
+        pass
+
     def register_store(self, store_data: Dict) -> Tuple[bool, str]:
         """매장 등록"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 입력 데이터 검증
             validation_result = self._validate_store_data(store_data)
@@ -297,7 +304,9 @@ class StoreManagementService:
         except Exception as e:
             logger.error(f"매장 등록 실패: {e}")
             return False, str(e)
-    
+        """
+        return False, "데이터베이스 연결이 구현되지 않았습니다."
+
     def _validate_store_data(self, store_data: Dict) -> Tuple[bool, str]:
         """매장 데이터 검증"""
         try:
@@ -338,6 +347,8 @@ class StoreManagementService:
     
     def update_store(self, store_id: str, updates: Dict) -> bool:
         """매장 정보 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if store_id not in self.stores:
                 return False
@@ -366,9 +377,13 @@ class StoreManagementService:
         except Exception as e:
             logger.error(f"매장 정보 업데이트 실패: {e}")
             return False
-    
+        """
+        return False
+
     def delete_store(self, store_id: str) -> bool:
         """매장 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if store_id not in self.stores:
                 return False
@@ -392,62 +407,45 @@ class StoreManagementService:
         except Exception as e:
             logger.error(f"매장 삭제 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_store(self, store_id: str) -> Optional[Dict]:
         """매장 정보 조회"""
-        try:
-            if store_id not in self.stores:
-                return None
-            
+        if store_id in self.stores:
             store = self.stores[store_id]
             store_dict = asdict(store)
             store_dict['store_type'] = store.store_type.value
             store_dict['status'] = store.status.value
-            
             return store_dict
-            
-        except Exception as e:
-            logger.error(f"매장 정보 조회 실패: {e}")
-            return None
-    
+        return None
+
     def get_stores_by_owner(self, owner_id: str) -> List[Dict]:
         """소유자별 매장 목록 조회"""
-        try:
-            stores = []
-            
-            for store in self.stores.values():
-                if store.owner_id == owner_id:
-                    store_dict = asdict(store)
-                    store_dict['store_type'] = store.store_type.value
-                    store_dict['status'] = store.status.value
-                    stores.append(store_dict)
-            
-            return stores
-            
-        except Exception as e:
-            logger.error(f"소유자별 매장 목록 조회 실패: {e}")
-            return []
-    
+        stores = []
+        for store in self.stores.values():
+            if store.owner_id == owner_id:
+                store_dict = asdict(store)
+                store_dict['store_type'] = store.store_type.value
+                store_dict['status'] = store.status.value
+                stores.append(store_dict)
+        return stores
+
     def get_all_stores(self, status: str = None) -> List[Dict]:
         """전체 매장 목록 조회"""
-        try:
-            stores = []
-            
-            for store in self.stores.values():
-                if status is None or store.status.value == status:
-                    store_dict = asdict(store)
-                    store_dict['store_type'] = store.store_type.value
-                    store_dict['status'] = store.status.value
-                    stores.append(store_dict)
-            
-            return stores
-            
-        except Exception as e:
-            logger.error(f"전체 매장 목록 조회 실패: {e}")
-            return []
-    
+        stores = []
+        for store in self.stores.values():
+            if status is None or store.status.value == status:
+                store_dict = asdict(store)
+                store_dict['store_type'] = store.store_type.value
+                store_dict['status'] = store.status.value
+                stores.append(store_dict)
+        return stores
+
     def add_device(self, device_data: Dict) -> Tuple[bool, str]:
         """디바이스 추가"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 매장 존재 확인
             if device_data['store_id'] not in self.stores:
@@ -491,7 +489,9 @@ class StoreManagementService:
         except Exception as e:
             logger.error(f"디바이스 추가 실패: {e}")
             return False, str(e)
-    
+        """
+        return False, "데이터베이스 연결이 구현되지 않았습니다."
+
     def _generate_device_id(self, device_type: str, serial_number: str) -> str:
         """디바이스 ID 생성"""
         try:
@@ -506,6 +506,8 @@ class StoreManagementService:
     
     def update_device(self, device_id: str, updates: Dict) -> bool:
         """디바이스 정보 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if device_id not in self.devices:
                 return False
@@ -532,9 +534,13 @@ class StoreManagementService:
         except Exception as e:
             logger.error(f"디바이스 정보 업데이트 실패: {e}")
             return False
-    
+        """
+        return False
+
     def delete_device(self, device_id: str) -> bool:
         """디바이스 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if device_id not in self.devices:
                 return False
@@ -560,64 +566,47 @@ class StoreManagementService:
         except Exception as e:
             logger.error(f"디바이스 삭제 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_device(self, device_id: str) -> Optional[Dict]:
         """디바이스 정보 조회"""
-        try:
-            if device_id not in self.devices:
-                return None
-            
+        if device_id in self.devices:
             device = self.devices[device_id]
             device_dict = asdict(device)
             device_dict['status'] = device.status.value
-            
             return device_dict
-            
-        except Exception as e:
-            logger.error(f"디바이스 정보 조회 실패: {e}")
-            return None
-    
+        return None
+
     def get_devices_by_store(self, store_id: str) -> List[Dict]:
         """매장별 디바이스 목록 조회"""
-        try:
-            devices = []
-            
-            for device in self.devices.values():
-                if device.store_id == store_id:
-                    device_dict = asdict(device)
-                    device_dict['status'] = device.status.value
-                    devices.append(device_dict)
-            
-            return devices
-            
-        except Exception as e:
-            logger.error(f"매장별 디바이스 목록 조회 실패: {e}")
-            return []
-    
+        devices = []
+        for device in self.devices.values():
+            if device.store_id == store_id:
+                device_dict = asdict(device)
+                device_dict['status'] = device.status.value
+                devices.append(device_dict)
+        return devices
+
     def get_store_metrics(self, store_id: str) -> Optional[Dict]:
         """매장 메트릭 조회"""
-        try:
-            if store_id not in self.stores:
-                return None
-            
-            # 캐시된 메트릭이 있으면 반환
-            if store_id in self.metrics_cache:
-                cache_time = self.metrics_cache[store_id].get('last_updated', 0)
-                if time.time() - cache_time < 300:  # 5분 캐시
-                    return self.metrics_cache[store_id]
-            
-            # 메트릭 계산
-            metrics = self._calculate_store_metrics(store_id)
-            
-            # 캐시에 저장
-            self.metrics_cache[store_id] = metrics
-            
-            return metrics
-            
-        except Exception as e:
-            logger.error(f"매장 메트릭 조회 실패: {e}")
+        if store_id not in self.stores:
             return None
-    
+        
+        # 캐시된 메트릭이 있으면 반환
+        if store_id in self.metrics_cache:
+            cache_time = self.metrics_cache[store_id].get('last_updated', 0)
+            if time.time() - cache_time < 300:  # 5분 캐시
+                return self.metrics_cache[store_id]
+        
+        # 메트릭 계산
+        metrics = self._calculate_store_metrics(store_id)
+        
+        # 캐시에 저장
+        self.metrics_cache[store_id] = metrics
+        
+        return metrics
+
     def _calculate_store_metrics(self, store_id: str) -> Dict:
         """매장 메트릭 계산"""
         try:
@@ -678,6 +667,8 @@ class StoreManagementService:
     
     def _save_store(self, store: Store):
         """매장 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -710,9 +701,13 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"매장 저장 실패: {e}")
-    
+        """
+        pass
+
     def _save_device(self, device: StoreDevice):
         """디바이스 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -741,9 +736,13 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"디바이스 저장 실패: {e}")
-    
+        """
+        pass
+
     def _save_store_metrics(self, metrics: Dict):
         """매장 메트릭 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -772,9 +771,13 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"매장 메트릭 저장 실패: {e}")
-    
+        """
+        pass
+
     def _delete_store_devices(self, store_id: str):
         """매장의 모든 디바이스 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -790,6 +793,8 @@ class StoreManagementService:
                 
         except Exception as e:
             logger.error(f"매장 디바이스 삭제 실패: {e}")
+        """
+        pass
 
 # 전역 서비스 인스턴스
 store_management_service = StoreManagementService()

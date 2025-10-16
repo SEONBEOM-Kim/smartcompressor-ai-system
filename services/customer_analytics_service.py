@@ -3,7 +3,7 @@
 고객 행동 패턴, 구매 트렌드, 세그멘테이션 분석
 """
 
-import sqlite3
+# import sqlite3
 import json
 import logging
 from datetime import datetime, timedelta
@@ -16,12 +16,14 @@ logger = logging.getLogger(__name__)
 class CustomerAnalyticsService:
     """고객 분석 서비스"""
     
-    def __init__(self, db_path: str = "data/customer_analytics.db"):
-        self.db_path = db_path
-        self.init_database()
-    
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
+        logger.info("고객 분석 서비스 초기화 완료")
+
     def init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -89,9 +91,13 @@ class CustomerAnalyticsService:
             
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def add_customer(self, customer_data: Dict) -> bool:
         """고객 추가"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -120,9 +126,13 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"고객 추가 실패: {e}")
             return False
-    
+        """
+        return False
+
     def add_purchase(self, purchase_data: Dict) -> bool:
         """구매 기록 추가"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -160,9 +170,13 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"구매 기록 추가 실패: {e}")
             return False
-    
+        """
+        return False
+
     def add_behavior(self, behavior_data: Dict) -> bool:
         """고객 행동 기록 추가"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -187,9 +201,13 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"행동 기록 추가 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_customer_metrics(self, days: int = 30) -> Dict:
         """고객 지표 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -268,9 +286,13 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"고객 지표 조회 실패: {e}")
             return {}
-    
+        """
+        return {}
+
     def get_customer_segments(self) -> List[Dict]:
         """고객 세그먼트 분석"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             
@@ -335,9 +357,13 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"고객 세그먼트 분석 실패: {e}")
             return []
-    
+        """
+        return []
+
     def get_purchase_trends(self, days: int = 30) -> Dict:
         """구매 트렌드 분석"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -388,9 +414,13 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"구매 트렌드 분석 실패: {e}")
             return {}
-    
+        """
+        return {}
+
     def get_behavior_insights(self, days: int = 30) -> Dict:
         """고객 행동 인사이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -445,7 +475,9 @@ class CustomerAnalyticsService:
         except Exception as e:
             logger.error(f"행동 인사이트 분석 실패: {e}")
             return {}
-    
+        """
+        return {}
+
     def generate_customer_report(self, days: int = 30) -> Dict:
         """고객 분석 종합 리포트 생성"""
         try:

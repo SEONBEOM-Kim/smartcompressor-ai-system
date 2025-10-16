@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
 from enum import Enum
-from sqlite3 import connect
+# from sqlite3 import connect
 import json
 import random
 
@@ -93,26 +93,19 @@ class ProductReview:
 class ProductCatalogService:
     """제품 카탈로그 서비스 (Uber Eats & DoorDash 스타일)"""
     
-    def __init__(self, db_path: str = 'data/product_catalog.db'):
-        self.db_path = db_path
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.products = {}
         self.categories = {}
         self.options = {}
         self.reviews = {}
         
-        # 데이터베이스 초기화
-        self._init_database()
-        
-        # 기본 데이터 로드
-        self._load_products()
-        self._load_categories()
-        self._load_options()
-        self._load_reviews()
-        
         logger.info("제품 카탈로그 서비스 초기화 완료")
-    
+
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -194,9 +187,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def _load_products(self):
         """제품 데이터 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -230,9 +227,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 데이터 로드 실패: {e}")
-    
+        """
+        pass
+
     def _load_categories(self):
         """카테고리 데이터 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -255,9 +256,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"카테고리 데이터 로드 실패: {e}")
-    
+        """
+        pass
+
     def _load_options(self):
         """제품 옵션 데이터 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -280,9 +285,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 옵션 데이터 로드 실패: {e}")
-    
+        """
+        pass
+
     def _load_reviews(self):
         """제품 리뷰 데이터 로드"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -306,9 +315,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 리뷰 데이터 로드 실패: {e}")
-    
+        """
+        pass
+
     def create_product(self, product_data: Dict) -> Tuple[bool, str]:
         """제품 생성"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 제품 ID 생성
             product_id = str(uuid.uuid4())
@@ -347,9 +360,13 @@ class ProductCatalogService:
         except Exception as e:
             logger.error(f"제품 생성 실패: {e}")
             return False, str(e)
-    
+        """
+        return False, "데이터베이스 연결이 구현되지 않았습니다."
+
     def update_product(self, product_id: str, updates: Dict) -> bool:
         """제품 정보 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if product_id not in self.products:
                 return False
@@ -379,9 +396,13 @@ class ProductCatalogService:
         except Exception as e:
             logger.error(f"제품 정보 업데이트 실패: {e}")
             return False
-    
+        """
+        return False
+
     def delete_product(self, product_id: str) -> bool:
         """제품 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if product_id not in self.products:
                 return False
@@ -405,158 +426,102 @@ class ProductCatalogService:
         except Exception as e:
             logger.error(f"제품 삭제 실패: {e}")
             return False
-    
+        """
+        return False
+
     def get_product(self, product_id: str) -> Optional[Dict]:
         """제품 정보 조회"""
-        try:
-            if product_id not in self.products:
-                return None
-            
+        if product_id in self.products:
             product = self.products[product_id]
             product_dict = asdict(product)
             product_dict['category'] = product.category.value
             product_dict['status'] = product.status.value
             product_dict['badge'] = product.badge.value if product.badge else None
-            
             return product_dict
-            
-        except Exception as e:
-            logger.error(f"제품 정보 조회 실패: {e}")
-            return None
-    
+        return None
+
     def get_products_by_category(self, category: str, limit: int = 20) -> List[Dict]:
         """카테고리별 제품 목록 조회"""
-        try:
-            products = []
-            
-            for product in self.products.values():
-                if product.category.value == category and product.status == ProductStatus.ACTIVE:
-                    product_dict = asdict(product)
-                    product_dict['category'] = product.category.value
-                    product_dict['status'] = product.status.value
-                    product_dict['badge'] = product.badge.value if product.badge else None
-                    products.append(product_dict)
-                    
-                    if len(products) >= limit:
-                        break
-            
-            return products
-            
-        except Exception as e:
-            logger.error(f"카테고리별 제품 목록 조회 실패: {e}")
-            return []
-    
+        products = []
+        for product in self.products.values():
+            if product.category.value == category and product.status == ProductStatus.ACTIVE:
+                product_dict = asdict(product)
+                product_dict['category'] = product.category.value
+                product_dict['status'] = product.status.value
+                product_dict['badge'] = product.badge.value if product.badge else None
+                products.append(product_dict)
+                if len(products) >= limit:
+                    break
+        return products
+
     def get_recommended_products(self, limit: int = 10) -> List[Dict]:
         """추천 제품 목록 조회"""
-        try:
-            # 평점이 높고 리뷰가 많은 제품들을 추천
-            products = []
-            
-            for product in self.products.values():
-                if product.status == ProductStatus.ACTIVE and product.is_available:
-                    product_dict = asdict(product)
-                    product_dict['category'] = product.category.value
-                    product_dict['status'] = product.status.value
-                    product_dict['badge'] = product.badge.value if product.badge else None
-                    products.append(product_dict)
-            
-            # 평점과 리뷰 수를 기준으로 정렬
-            products.sort(key=lambda x: (x['rating'], x['review_count']), reverse=True)
-            
-            return products[:limit]
-            
-        except Exception as e:
-            logger.error(f"추천 제품 목록 조회 실패: {e}")
-            return []
-    
+        products = []
+        for product in self.products.values():
+            if product.status == ProductStatus.ACTIVE and product.is_available:
+                product_dict = asdict(product)
+                product_dict['category'] = product.category.value
+                product_dict['status'] = product.status.value
+                product_dict['badge'] = product.badge.value if product.badge else None
+                products.append(product_dict)
+        products.sort(key=lambda x: (x['rating'], x['review_count']), reverse=True)
+        return products[:limit]
+
     def get_popular_products(self, limit: int = 10) -> List[Dict]:
         """인기 제품 목록 조회"""
-        try:
-            # 리뷰 수가 많은 제품들을 인기 제품으로 분류
-            products = []
-            
-            for product in self.products.values():
-                if product.status == ProductStatus.ACTIVE and product.is_available:
+        products = []
+        for product in self.products.values():
+            if product.status == ProductStatus.ACTIVE and product.is_available:
+                product_dict = asdict(product)
+                product_dict['category'] = product.category.value
+                product_dict['status'] = product.status.value
+                product_dict['badge'] = product.badge.value if product.badge else None
+                products.append(product_dict)
+        products.sort(key=lambda x: x['review_count'], reverse=True)
+        return products[:limit]
+
+    def search_products(self, query: str, limit: int = 20) -> List[Dict]:
+        """제품 검색"""
+        query = query.lower()
+        products = []
+        for product in self.products.values():
+            if product.status == ProductStatus.ACTIVE and product.is_available:
+                if (query in product.name.lower() or 
+                    query in product.description.lower() or
+                    any(query in ingredient.lower() for ingredient in product.ingredients)):
                     product_dict = asdict(product)
                     product_dict['category'] = product.category.value
                     product_dict['status'] = product.status.value
                     product_dict['badge'] = product.badge.value if product.badge else None
                     products.append(product_dict)
-            
-            # 리뷰 수를 기준으로 정렬
-            products.sort(key=lambda x: x['review_count'], reverse=True)
-            
-            return products[:limit]
-            
-        except Exception as e:
-            logger.error(f"인기 제품 목록 조회 실패: {e}")
-            return []
-    
-    def search_products(self, query: str, limit: int = 20) -> List[Dict]:
-        """제품 검색"""
-        try:
-            query = query.lower()
-            products = []
-            
-            for product in self.products.values():
-                if product.status == ProductStatus.ACTIVE and product.is_available:
-                    # 제품명, 설명, 재료에서 검색
-                    if (query in product.name.lower() or 
-                        query in product.description.lower() or
-                        any(query in ingredient.lower() for ingredient in product.ingredients)):
-                        
-                        product_dict = asdict(product)
-                        product_dict['category'] = product.category.value
-                        product_dict['status'] = product.status.value
-                        product_dict['badge'] = product.badge.value if product.badge else None
-                        products.append(product_dict)
-                        
-                        if len(products) >= limit:
-                            break
-            
-            return products
-            
-        except Exception as e:
-            logger.error(f"제품 검색 실패: {e}")
-            return []
-    
+                    if len(products) >= limit:
+                        break
+        return products
+
     def get_product_options(self, product_id: str) -> List[Dict]:
         """제품 옵션 조회"""
-        try:
-            options = []
-            
-            for option in self.options.values():
-                if option.product_id == product_id:
-                    option_dict = asdict(option)
-                    options.append(option_dict)
-            
-            return options
-            
-        except Exception as e:
-            logger.error(f"제품 옵션 조회 실패: {e}")
-            return []
-    
+        options = []
+        for option in self.options.values():
+            if option.product_id == product_id:
+                option_dict = asdict(option)
+                options.append(option_dict)
+        return options
+
     def get_product_reviews(self, product_id: str, limit: int = 10) -> List[Dict]:
         """제품 리뷰 조회"""
-        try:
-            reviews = []
-            
-            for review in self.reviews.values():
-                if review.product_id == product_id:
-                    review_dict = asdict(review)
-                    reviews.append(review_dict)
-                    
-                    if len(reviews) >= limit:
-                        break
-            
-            return reviews
-            
-        except Exception as e:
-            logger.error(f"제품 리뷰 조회 실패: {e}")
-            return []
-    
+        reviews = []
+        for review in self.reviews.values():
+            if review.product_id == product_id:
+                review_dict = asdict(review)
+                reviews.append(review_dict)
+                if len(reviews) >= limit:
+                    break
+        return reviews
+
     def add_product_review(self, review_data: Dict) -> Tuple[bool, str]:
         """제품 리뷰 추가"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 리뷰 ID 생성
             review_id = str(uuid.uuid4())
@@ -588,24 +553,21 @@ class ProductCatalogService:
         except Exception as e:
             logger.error(f"제품 리뷰 추가 실패: {e}")
             return False, str(e)
-    
+        """
+        return False, "데이터베이스 연결이 구현되지 않았습니다."
+
     def get_categories(self) -> List[Dict]:
         """카테고리 목록 조회"""
-        try:
-            categories = []
-            
-            for category in self.categories.values():
-                if category['is_active']:
-                    categories.append(category)
-            
-            return categories
-            
-        except Exception as e:
-            logger.error(f"카테고리 목록 조회 실패: {e}")
-            return []
-    
+        categories = []
+        for category in self.categories.values():
+            if category['is_active']:
+                categories.append(category)
+        return categories
+
     def _save_product(self, product: Product):
         """제품 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -640,9 +602,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 저장 실패: {e}")
-    
+        """
+        pass
+
     def _save_product_review(self, review: ProductReview):
         """제품 리뷰 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -666,9 +632,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 리뷰 저장 실패: {e}")
-    
+        """
+        pass
+
     def _update_product_rating(self, product_id: str):
         """제품 평점 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if product_id not in self.products:
                 return
@@ -693,9 +663,13 @@ class ProductCatalogService:
             
         except Exception as e:
             logger.error(f"제품 평점 업데이트 실패: {e}")
-    
+        """
+        pass
+
     def _delete_product_options(self, product_id: str):
         """제품의 모든 옵션 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -711,9 +685,13 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 옵션 삭제 실패: {e}")
-    
+        """
+        pass
+
     def _delete_product_reviews(self, product_id: str):
         """제품의 모든 리뷰 삭제"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with connect(self.db_path) as conn:
                 cursor = conn.cursor()
@@ -729,6 +707,8 @@ class ProductCatalogService:
                 
         except Exception as e:
             logger.error(f"제품 리뷰 삭제 실패: {e}")
+        """
+        pass
 
 # 전역 서비스 인스턴스
 product_catalog_service = ProductCatalogService()

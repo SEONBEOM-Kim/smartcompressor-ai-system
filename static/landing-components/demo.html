@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 진단 체험</title>
+    <link rel="stylesheet" href="../css/landing.css">
+</head>
+<body>
+
+    <section id="demo" class="demo">
+        <div class="container">
+            <h2 class="section-title">AI 진단 체험</h2>
+            <p class="section-subtitle">실제 냉동고 소리를 녹음하여 AI가 실시간으로 진단해드립니다.</p>
+            
+            <div class="ai-diagnosis-interface">
+                <div id="diagnosisStatus" class="diagnosis-status" style="display: none;"></div>
+                <div id="diagnosisResult" class="diagnosis-result" style="display: none;"></div>
+
+                <div class="diagnosis-controls">
+                    <button id="recordBtn" class="btn btn-primary btn-lg" disabled>🎤 녹음 시작</button>
+                    <button id="analyzeBtn" class="btn btn-light btn-lg" disabled style="display: none;">🔍 진단하기</button>
+                    <button id="reportBtn" class="btn btn-light" disabled style="display: none;">📊 상세 리포트 보기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/landing/ai-diagnosis.js"></script>
+</body>
+</html>
