@@ -158,7 +158,8 @@ class LogManagementService:
             pattern=r"ERROR|CRITICAL|Exception|Traceback",
             description="에러 및 예외 로그 패턴",
             severity=LogLevel.ERROR,
-            category="error"
+            category="error",
+            created_at=datetime.now()
         )
         
         # 보안 패턴
