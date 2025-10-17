@@ -44,4 +44,4 @@ jobs:
           echo "🔄 Nginx Restart: 웹서버를 재시작합니다..."
           sudo systemctl restart nginx
           
-          echo "✅ 배포가 성공적으로 완료되었습니다!"
+          echo "✅ 배포가 성공적으로 완료되었습니다!"# Force update Fri Oct 17 14:34:48 UTC 2025
