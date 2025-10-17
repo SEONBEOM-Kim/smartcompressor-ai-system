@@ -1,0 +1,45 @@
+/* Styles for summary cards and asset cards */
+
+/* Summary Cards */
+.card.border-left-primary {
+    border-left: 0.25rem solid var(--primary-color) !important;
+}
+
+.card.border-left-success {
+    border-left: 0.25rem solid var(--success-color) !important;
+}
+
+.card.border-left-danger {
+    border-left: 0.25rem solid var(--danger-color) !important;
+}
+
+/* Asset Cards */
+.asset-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.asset-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.asset-card .status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.asset-card .status-dot.normal {
+    background-color: var(--success-color);
+}
+
+.asset-card .status-dot.warning {
+    background-color: var(--warning-color);
+}
+
+.asset-card .status-dot.anomaly {
+    background-color: var(--danger-color);
+}

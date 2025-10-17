@@ -125,6 +125,11 @@ app.get('/storage/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/storage/dashboard.html'));
 });
 
+// 고객용 대시보드 라우트 (로그인 필요)
+app.get('/dashboard', /* verifySession, */ (req, res) => {
+    res.sendFile(path.join(__dirname, '../templates/customer/dashboard.html'));
+});
+
 // API 라우트
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);

@@ -1,0 +1,13 @@
+/* Styles for the asset detail modal */
+
+.modal-xl {
+    max-width: 1140px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+}
