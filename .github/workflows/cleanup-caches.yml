@@ -32,4 +32,4 @@ jobs:
           done
           echo "Done"
         env:
-          GH_TOKEN: ${{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}}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
