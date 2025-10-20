@@ -1,0 +1,109 @@
+<section class="section-container">
+    <div class="section-header">
+        <h2><i class="fas fa-feed"></i> 이상 징후 목록</h2>
+        <div class="controls">
+            <div class="filter-controls">
+                <input type="text" class="form-control" placeholder="자산 검색...">
+                <select class="form-select">
+                    <option>모든 심각도</option>
+                    <option>위험</option>
+                    <option>경고</option>
+                </select>
+                <button id="groupByAsset" class="btn btn-outline-primary btn-sm">자산별로 묶어보기</button>
+                <button id="groupBySeverity" class="btn btn-outline-primary btn-sm">심각도별로 묶어보기</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table anomaly-table">
+            <thead>
+                <tr>
+                    <th>심각도</th>
+                    <th>발생 시간</th>
+                    <th>자산 ID</th>
+                    <th>징후 유형</th>
+                    <th>상세 내용</th>
+                    <th>상태</th>
+                    <th>조치</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="severity-badge danger">🔴 위험</span></td>
+                    <td>2025-10-17 14:30</td>
+                    <td>Freezer-A1</td>
+                    <td>온도 급상승</td>
+                    <td>-18°C → +5°C</td>
+                    <td>확인 필요</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge warning">🟡 경고</span></td>
+                    <td>2025-10-17 13:55</td>
+                    <td>Freezer-C3</td>
+                    <td>컴프레서 과부하</td>
+                    <td>전력 소비 150% 증가</td>
+                    <td>처리 중</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge danger">🔴 위험</span></td>
+                    <td>2025-10-17 12:45</td>
+                    <td>Compressor-3</td>
+                    <td>고온 경보</td>
+                    <td>고온 지속 3시간</td>
+                    <td>완료</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge warning">🟡 경고</span></td>
+                    <td>2025-10-17 11:20</td>
+                    <td>Freezer-B2</td>
+                    <td>도어 열림 경보</td>
+                    <td>도어 30분 이상 개방</td>
+                    <td>처리 중</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Expandable detail view for when user clicks "상세보기" -->
+    <div id="anomaly-detail-view" class="anomaly-detail-view" style="display: none;">
+        <div class="detail-header">
+            <h4>이상 징후 상세 정보</h4>
+            <button class="close-btn" id="closeDetailView"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="detail-content">
+            <div class="mini-chart-container">
+                <h5>미니 트렌드 차트</h5>
+                <canvas id="mini-chart-detail" class="mini-chart"></canvas>
+            </div>
+            
+            <div class="ai-analysis">
+                <h5>AI 분석 요약</h5>
+                <p id="ai-analysis-text">AI 분석 결과가 여기에 표시됩니다.</p>
+            </div>
+            
+            <div class="action-log">
+                <h5>조치 내역 타임라인</h5>
+                <ul id="action-log-list">
+                    <li><span class="timestamp">14:30</span> - 시스템에 의해 '위험' 감지</li>
+                    <li><span class="timestamp">14:32</span> - 김주영 매니저가 확인 (Acknowledged)</li>
+                    <li><span class="timestamp">14:35</span> - 현장팀 '김선범'에게 할당됨</li>
+                </ul>
+            </div>
+            
+            <div class="quick-actions">
+                <h5>빠른 조치</h5>
+                <div class="action-buttons">
+                    <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> 확인 완료</button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-user"></i> 담당자 할당</button>
+                    <button class="btn btn-info btn-sm"><i class="fas fa-comment"></i> 코멘트 추가</button>
+                    <button class="btn btn-warning btn-sm"><i class="fas fa-bug"></i> 오탐 신고</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

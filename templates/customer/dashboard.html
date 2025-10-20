@@ -10,6 +10,56 @@
     
     <!-- Custom CSS -->
     <link href="/static/css/dashboard_v2.css?v=2.0" rel="stylesheet">
+    
+    <style>
+        .grid-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .grid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        }
+        
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .grid-card:hover .card-overlay {
+            opacity: 1;
+        }
+        
+        .view-more-btn {
+            color: white;
+            font-weight: bold;
+            background: var(--accent-primary, #007bff);
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-more-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .grid-card:hover .view-more-btn i {
+            transform: translateX(3px);
+        }
+    </style>
 </head>
 <body>
 
@@ -22,7 +72,7 @@
         <nav class="nav-menu">
             <ul class="nav-list">
                 <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
+                <li class="nav-item"><a href="#" class="nav-link" onclick="loadAnomaliesDetailContent(); return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>설정</span></a></li>
@@ -162,6 +212,315 @@
         new Chart(document.getElementById('threat-summary-chart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar'], datasets: [{ data: [10, 20, 15] }] } });
         new Chart(document.getElementById('risk-score-chart'), { type: 'doughnut', data: { datasets: [{ data: [85, 15] }] } });
         new Chart(document.getElementById('threats-by-virus-chart'), { type: 'doughnut', data: { datasets: [{ data: [50, 30, 20] }] } });
+    </script>
+    
+    <script>
+        // Function to load HTML components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            } catch (error) {
+                console.error(`Error loading component ${url}:`, error);
+            }
+        }
+
+        // Function to load HTML components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            } catch (error) {
+                console.error(`Error loading component ${url}:`, error);
+            }
+        }
+
+        // Load sidebar component when the page loads
+        // Load sidebar component when the page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadComponent('/static/dashboard-components/sidebar.html', 'sidebar');
+            
+            // After loading the sidebar, set up navigation event listeners
+            setTimeout(setupNavigationAfterLoad, 300);  // Small delay to ensure sidebar is fully loaded
+        });
+        
+        // Function to handle navigation after sidebar is loaded
+        function setupNavigationAfterLoad() {
+            document.getElementById('dashboard-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Navigate to the refactored dashboard
+                window.location.href = '/dashboard';
+            });
+            
+            document.getElementById('anomalies-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadAnomaliesDetailContent();
+            });
+            
+            document.getElementById('assets-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('자산 목록 페이지로 이동합니다.');
+            });
+            
+            document.getElementById('reports-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('리포트 페이지로 이동합니다.');
+            });
+            
+            document.getElementById('settings-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('설정 페이지로 이동합니다.');
+            });
+            
+            document.getElementById('help-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('도움말 페이지로 이동합니다.');
+            });
+            
+            document.getElementById('logout-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('정말 로그아웃 하시겠습니까?')) {
+                    window.location.href = '/login';
+                }
+            });
+        }
+    </script>
+    
+    <script>
+        // Function to load anomalies detail content for the original dashboard
+        async function loadAnomaliesDetailContent() {
+            try {
+                // Create the anomalies detail content with containers for components
+                const anomaliesContent = `
+                    <header class="page-header">
+                        <div class="header-left">
+                            <h1>이상 징후</h1>
+                            <p>실시간 이상 징후 모니터링 및 조치</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="자산 또는 이벤트 검색...">
+                            </div>
+                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                            <button class="icon-button"><i class="fas fa-bell"></i></button>
+                        </div>
+                    </header>
+
+                    <!-- Anomalies Content will be loaded here -->
+                    <div id="anomalies-content">
+                        <div id="today-briefing-container"></div>
+                        <div id="anomaly-trend-container"></div>
+                        <div id="anomaly-feed-container"></div>
+                    </div>
+                `;
+                
+                // Update the main content area with the anomalies detail content
+                document.getElementById('main-content').innerHTML = anomaliesContent;
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the anomalies link in the sidebar
+                const anomalyLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('이상 징후')
+                );
+                if (anomalyLink) {
+                    anomalyLink.classList.add('active');
+                }
+                
+                // Load individual anomalies components
+                await loadComponent('/static/dashboard-components/anomalies/today-briefing.html', 'today-briefing-container');
+                await loadComponent('/static/dashboard-components/anomalies/anomaly-trend.html', 'anomaly-trend-container');
+                await loadComponent('/static/dashboard-components/anomalies/anomaly-feed.html', 'anomaly-feed-container');
+                
+                // Initialize charts and event handlers after content is loaded
+                setTimeout(initializeAnomaliesCharts, 500);
+                setTimeout(setupAnomalyDetailsToggle, 1000);
+                setTimeout(setupGroupByFunctionality, 1000);
+            } catch (error) {
+                console.error('Error loading anomalies detail content:', error);
+            }
+        }
+        
+        // Initialize anomalies-specific charts
+        function initializeAnomaliesCharts() {
+            // Anomaly Trend Chart
+            if (document.getElementById('anomaly-trend-chart')) {
+                new Chart(document.getElementById('anomaly-trend-chart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
+                        datasets: [{
+                            label: '이상 징후 수',
+                            data: [2, 1, 3, 2, 5, 4, 2, 1, 0],
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '발생 건수'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Anomaly Type Chart (Donut chart)
+            if (document.getElementById('anomaly-type-chart')) {
+                new Chart(document.getElementById('anomaly-type-chart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['위험', '경고'],
+                        datasets: [{
+                            data: [2, 5],
+                            backgroundColor: [
+                                'rgb(220, 53, 69)',    // danger color for '위험'
+                                'rgb(255, 193, 7)'     // warning color for '경고'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize mini charts for each anomaly
+            initializeMiniCharts();
+        }
+        
+        // Initialize mini charts in each anomaly item
+        function initializeMiniCharts() {
+            // Mini chart for first anomaly
+            if (document.getElementById('mini-chart-1')) {
+                new Chart(document.getElementById('mini-chart-1').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['2시간 전', '1시간 전', '지금'],
+                        datasets: [{
+                            label: '센서 데이터',
+                            data: [10, 15, 25],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 2
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Mini chart for second anomaly
+            if (document.getElementById('mini-chart-2')) {
+                new Chart(document.getElementById('mini-chart-2').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['2시간 전', '1시간 전', '지금'],
+                        datasets: [{
+                            label: '센서 데이터',
+                            data: [8, 10, 18],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 2
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Toggle anomaly details
+        function setupAnomalyDetailsToggle() {
+            document.querySelectorAll('.toggle-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const details = this.closest('.anomaly-item').querySelector('.anomaly-details');
+                    const icon = this.querySelector('i');
+                    
+                    if (details.style.display === 'none' || details.style.display === '') {
+                        details.style.display = 'block';
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        details.style.display = 'none';
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                });
+            });
+        }
+
+        // Setup group by functionality
+        function setupGroupByFunctionality() {
+            document.getElementById('groupByAsset')?.addEventListener('click', function() {
+                alert('자산별로 묶어보기 기능이 작동합니다.');
+                // Here you would implement the logic to group anomalies by asset
+            });
+            
+            document.getElementById('groupBySeverity')?.addEventListener('click', function() {
+                alert('심각도별로 묶어보기 기능이 작동합니다.');
+                // Here you would implement the logic to group anomalies by severity
+            });
+        }
     </script>
 </body>
 </html>

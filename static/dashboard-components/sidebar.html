@@ -1,0 +1,26 @@
+<aside id="sidebar">
+    <div class="sidebar-header">
+        <a href="#" class="logo">Signalcraft</a>
+    </div>
+
+    <nav class="nav-menu">
+        <ul class="nav-list">
+            <li class="nav-item"><a href="#" id="dashboard-link" class="nav-link active"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
+            <li class="nav-item"><a href="#" id="anomalies-link" class="nav-link" onclick="if(typeof loadAnomaliesDetailContent !== 'undefined') { loadAnomaliesDetailContent(); } else { window.location.href = '/anomalies-detail'; } return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
+            <li class="nav-item"><a href="#" id="assets-link" class="nav-link"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
+            <li class="nav-item"><a href="#" id="reports-link" class="nav-link"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
+            <li class="nav-item"><a href="#" id="settings-link" class="nav-link"><i class="fas fa-cog"></i> <span>설정</span></a></li>
+            <li class="nav-item"><a href="#" id="help-link" class="nav-link"><i class="fas fa-life-ring"></i> <span>도움말</span></a></li>
+            <li class="nav-item"><a href="#" id="logout-link" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="upgrade-card">
+            <i class="fas fa-rocket fa-2x" style="color: var(--accent-primary); margin-bottom: 1rem;"></i>
+            <h4>기능 강화</h4>
+            <p>보안 및 모니터링 기능을 강화하세요.</p>
+            <a href="#" class="btn-upgrade">업그레이드 →</a>
+        </div>
+    </div>
+</aside>

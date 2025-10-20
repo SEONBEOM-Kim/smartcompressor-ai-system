@@ -157,6 +157,18 @@ def create_app():
         from flask import render_template
         return render_template('notification_dashboard.html')
 
+    @app.route('/dashboard')
+    def dashboard():
+        """메인 대시보드 페이지"""
+        from flask import render_template
+        return render_template('customer/refactored-dashboard.html')
+
+    @app.route('/original-dashboard')
+    def original_dashboard():
+        """원래 대시보드 페이지"""
+        from flask import render_template
+        return render_template('customer/dashboard.html')
+
     @app.route('/admin')
     def admin_dashboard():
         """관리자 대시보드 페이지"""
