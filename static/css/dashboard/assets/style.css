@@ -1,0 +1,261 @@
+/* Styles for asset feed list and related components */
+
+.asset-feed-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.asset-feed-item:last-child {
+    border-bottom: none;
+}
+
+.asset-feed-item:hover {
+    background-color: #f1f3f5;
+}
+
+.asset-feed-item .icon {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.asset-feed-item .icon.normal {
+    color: var(--success-color);
+}
+
+.asset-feed-item .icon.warning {
+    color: var(--warning-color);
+}
+
+.asset-feed-item .icon.anomaly {
+    color: var(--danger-color);
+}
+
+.asset-feed-item .icon.offline {
+    color: var(--secondary-color);
+}
+
+.asset-feed-item .timestamp {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.asset-detail-view {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    position: relative;
+}
+
+.asset-detail-view .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.asset-detail-view .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.asset-detail-view .close-btn:hover {
+    color: var(--text-primary);
+}
+
+.asset-detail-view .detail-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.asset-detail-view .mini-chart-container {
+    grid-column: span 2;
+}
+
+.asset-detail-view .asset-details {
+    grid-column: span 2;
+}
+
+.asset-detail-view .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.asset-detail-view .detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-detail-view .detail-item label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.asset-detail-view .action-log {
+    grid-column: span 2;
+}
+
+.asset-detail-view .action-log ul {
+    list-style: none;
+    padding: 0;
+}
+
+.asset-detail-view .action-log li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+}
+
+.asset-detail-view .action-log .timestamp {
+    background-color: var(--secondary-bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-right: 1rem;
+    font-size: 0.8rem;
+    min-width: 70px;
+    text-align: center;
+}
+
+.asset-detail-view .quick-actions {
+    grid-column: span 2;
+}
+
+.asset-detail-view .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.asset-detail-view .action-buttons .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Asset status badges */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: rgba(72, 187, 120, 0.2);
+    color: #48bb78;
+}
+
+.status-badge.warning {
+    background-color: rgba(237, 137, 54, 0.2);
+    color: #ed8936;
+}
+
+.status-badge.danger {
+    background-color: rgba(229, 62, 62, 0.2);
+    color: #e53e3e;
+}
+
+.status-badge.offline {
+    background-color: rgba(160, 174, 192, 0.2);
+    color: #a0aec0;
+}
+
+/* Asset summary cards */
+.current-risk-cards {
+    grid-column: span 12;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.risk-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.risk-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.risk-card h5 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.risk-card h2 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+.risk-card .description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.risk-card.total-card {
+    border-top: 0.25rem solid var(--primary-color) !important;
+}
+
+.risk-card.normal-card {
+    border-top: 0.25rem solid var(--success-color) !important;
+}
+
+.risk-card.anomaly-card {
+    border-top: 0.25rem solid var(--danger-color) !important;
+}
+
+.risk-card.offline-card {
+    border-top: 0.25rem solid var(--secondary-color) !important;
+}
+
+/* Asset table styles */
+.asset-table th, .asset-table td {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+}
+
+.asset-table th {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Filter controls */
+.filter-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-controls .form-control,
+.filter-controls .form-select {
+    min-width: 150px;
+}
+
+.filter-controls .btn {
+    white-space: nowrap;
+}

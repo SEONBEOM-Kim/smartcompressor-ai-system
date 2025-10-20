@@ -272,6 +272,12 @@ body {
     height: 250px;
 }
 
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns side by side */
+    gap: 1.5rem;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

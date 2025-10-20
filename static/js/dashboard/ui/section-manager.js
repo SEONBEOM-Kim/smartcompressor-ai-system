@@ -43,6 +43,9 @@ class SectionManager {
                 case 'notifications':
                     this.loadNotificationsData();
                     break;
+                case 'assets':
+                    this.loadAssetsData();
+                    break;
             }
         }
 
@@ -122,6 +125,20 @@ class SectionManager {
         }
     }
 
+    async loadAssetsData() {
+        try {
+            if (this.dataLoader) {
+                const data = await this.dataLoader.loadAssetsData();
+                if (data.success) {
+                    this.tableRenderer.updateAssetsTable(data.assets);
+                    this.cardUpdater.updateAssetSummaryCards(data.summary);
+                }
+            }
+        } catch (error) {
+            console.error('자산 데이터 로드 실패:', error);
+        }
+    }
+
     updateAnalyticsCharts(analytics) {
         if (analytics.temperature && this.chartManager && this.chartManager.charts.temperature) {
             this.chartManager.charts.temperature.update(analytics.temperature);
@@ -138,6 +155,10 @@ class SectionManager {
         if (analytics.anomaly && this.chartManager && this.chartManager.charts.anomaly) {
             this.chartManager.charts.anomaly.update(analytics.anomaly);
         }
+        
+        if (analytics.asset && this.chartManager && this.chartManager.charts.asset) {
+            this.chartManager.charts.asset.update(analytics.asset);
+        }
     }
 
     setupNavigation() {
@@ -145,7 +166,7 @@ class SectionManager {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = this.getAttribute('href').substring(1);
+                const section = link.getAttribute('href').substring(1);
                 this.showSection(section);
             });
         });

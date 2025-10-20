@@ -1,0 +1,47 @@
+<div class="grid-card asset-details-card" onclick="window.location='/assets-detail'" style="cursor: pointer;">
+    <div class="card-header">
+        <h3 class="card-title">자산 상세 목록</h3>
+        <div class="card-menu">...</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>자산 ID</th>
+                <th>자산명</th>
+                <th>유형</th>
+                <th>상태</th>
+                <th>마지막 업데이트</th>
+                <th>조치</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>ASSET-001</td>
+                <td>냉동고-A1</td>
+                <td>냉동고</td>
+                <td><span class="status-badge active">🟢 정상</span></td>
+                <td>2025-10-17 14:30</td>
+                <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+            </tr>
+            <tr>
+                <td>ASSET-002</td>
+                <td>냉동고-C3</td>
+                <td>냉동고</td>
+                <td><span class="status-badge warning">🟡 경고</span></td>
+                <td>2025-10-17 13:55</td>
+                <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+            </tr>
+            <tr>
+                <td>ASSET-003</td>
+                <td>압축기-3</td>
+                <td>압축기</td>
+                <td><span class="status-badge danger">🔴 위험</span></td>
+                <td>2025-10-17 12:45</td>
+                <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="card-overlay">
+        <span class="view-more-btn">자세히 보기 <i class="fas fa-arrow-right"></i></span>
+    </div>
+</div>

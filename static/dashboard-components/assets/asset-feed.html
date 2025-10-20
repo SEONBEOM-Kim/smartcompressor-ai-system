@@ -1,0 +1,150 @@
+<section class="section-container">
+    <div class="section-header">
+        <h2><i class="fas fa-list"></i> 자산 목록</h2>
+        <div class="controls">
+            <div class="filter-controls">
+                <input type="text" class="form-control" placeholder="자산명 검색...">
+                <select class="form-select">
+                    <option>모든 자산 유형</option>
+                    <option>냉동고</option>
+                    <option>압축기</option>
+                    <option>에어컨</option>
+                </select>
+                <select class="form-select">
+                    <option>모든 상태</option>
+                    <option>정상</option>
+                    <option>경고</option>
+                    <option>위험</option>
+                </select>
+                <button id="groupByName" class="btn btn-outline-primary btn-sm">이름별로 정렬</button>
+                <button id="groupByType" class="btn btn-outline-primary btn-sm">유형별로 정렬</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table asset-table">
+            <thead>
+                <tr>
+                    <th>자산 ID</th>
+                    <th>자산명</th>
+                    <th>자산 유형</th>
+                    <th>상태</th>
+                    <th>위치</th>
+                    <th>모델</th>
+                    <th>상태</th>
+                    <th>조치</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ASSET-001</td>
+                    <td>냉동고-A1</td>
+                    <td>냉동고</td>
+                    <td><span class="status-badge active">🟢 정상</span></td>
+                    <td>서울 본사</td>
+                    <td>FRZ-2025-A</td>
+                    <td>정상 작동</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td>ASSET-002</td>
+                    <td>냉동고-C3</td>
+                    <td>냉동고</td>
+                    <td><span class="status-badge warning">🟡 경고</span></td>
+                    <td>서울 본사</td>
+                    <td>FRZ-2025-C</td>
+                    <td>전력 과다 소비</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td>ASSET-003</td>
+                    <td>압축기-3</td>
+                    <td>압축기</td>
+                    <td><span class="status-badge danger">🔴 위험</span></td>
+                    <td>서울 본사</td>
+                    <td>CP-2024-X</td>
+                    <td>고온 경보</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td>ASSET-004</td>
+                    <td>냉동고-B2</td>
+                    <td>냉동고</td>
+                    <td><span class="status-badge active">🟢 정상</span></td>
+                    <td>서울 본사</td>
+                    <td>FRZ-2025-B</td>
+                    <td>정상 작동</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Expandable detail view for when user clicks "상세보기" -->
+    <div id="asset-detail-view" class="asset-detail-view" style="display: none;">
+        <div class="detail-header">
+            <h4>자산 상세 정보</h4>
+            <button class="close-btn" id="closeDetailView"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="detail-content">
+            <div class="mini-chart-container">
+                <h5>상태 트렌드 차트</h5>
+                <canvas id="mini-chart-detail" class="mini-chart"></canvas>
+            </div>
+            
+            <div class="asset-details">
+                <h5>자산 상세 정보</h5>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>자산 ID:</label>
+                        <span>ASSET-001</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>자산명:</label>
+                        <span>냉동고-A1</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>자산 유형:</label>
+                        <span>냉동고</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>모델명:</label>
+                        <span>FRZ-2025-A</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>설치 위치:</label>
+                        <span>서울 본사</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>설치일:</label>
+                        <span>2025-01-15</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>상태:</label>
+                        <span>정상</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-log">
+                <h5>최근 활동 내역</h5>
+                <ul id="action-log-list">
+                    <li><span class="timestamp">14:30</span> - 시스템: 정상 상태로 전환됨</li>
+                    <li><span class="timestamp">14:25</span> - 시스템: 이상 감지 (고온)</li>
+                    <li><span class="timestamp">10:15</span> - 유지보수: 정기 점검 완료</li>
+                </ul>
+            </div>
+            
+            <div class="quick-actions">
+                <h5>빠른 조치</h5>
+                <div class="action-buttons">
+                    <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> 점검 완료</button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-user"></i> 담당자 지정</button>
+                    <button class="btn btn-info btn-sm"><i class="fas fa-comment"></i> 코멘트 추가</button>
+                    <button class="btn btn-warning btn-sm"><i class="fas fa-redo"></i> 재시작</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

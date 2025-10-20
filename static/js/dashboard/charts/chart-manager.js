@@ -11,5 +11,6 @@ class ChartManager {
         this.charts.vibration = new VibrationChart('vibrationChart');
         this.charts.power = new PowerChart('powerChart');
         this.charts.anomaly = new AnomalyChart('anomalyChart');
+        this.charts.asset = new AssetChart('assetChart');
     }
 }
