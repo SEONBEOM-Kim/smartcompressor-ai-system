@@ -10,6 +10,7 @@
     
     <!-- Custom CSS -->
     <link href="/static/css/dashboard_v2.css?v=2.0" rel="stylesheet">
+        <link href="/static/css/dashboard/settings/all-settings.css" rel="stylesheet">
     
     <style>
         .grid-card {
@@ -59,6 +60,18 @@
         .grid-card:hover .view-more-btn i {
             transform: translateX(3px);
         }
+
+        /* --- 가독성 향상을 위한 중앙 정렬 스타일 --- */
+        .page-header,
+        .risk-card {
+            text-align: center;
+        }
+
+        .card-header {
+            /* flex 컨테이너에서 제목을 중앙에 두기 위해 전체적으로 정렬 */
+            justify-content: center;
+        }
+        /* --- 끝 --- */
     </style>
 </head>
 <body>
@@ -75,9 +88,10 @@
                 <li class="nav-item"><a href="#" class="nav-link" onclick="loadAnomaliesDetailContent(); return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
                 <li class="nav-item"><a href="#" id="assets-link" class="nav-link" onclick="loadAssetsDetailContent(); return false;"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>설정</span></a></li>
+                <li class="nav-item"><a href="#settings" id="settings-link" class="nav-link"><i class="fas fa-cog"></i> <span>설정</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-life-ring"></i> <span>도움말</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+                <li class="nav-item"><a href="#" id="logout-link" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+                <li class="nav-item"><a href="#" id="logout-link" class="nav-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
             </ul>
         </nav>
 
@@ -266,12 +280,12 @@
             
             document.getElementById('reports-link')?.addEventListener('click', function(e) {
                 e.preventDefault();
-                alert('리포트 페이지로 이동합니다.');
+                loadReportsContent();
             });
             
             document.getElementById('settings-link')?.addEventListener('click', function(e) {
                 e.preventDefault();
-                alert('설정 페이지로 이동합니다.');
+                loadSettingsContent();
             });
             
             document.getElementById('help-link')?.addEventListener('click', function(e) {
@@ -285,6 +299,8 @@
                     window.location.href = '/login';
                 }
             });
+            
+
         }
     </script>
     
@@ -685,6 +701,126 @@
                 alert('유형별로 정렬 기능이 작동합니다.');
                 // Here you would implement the logic to sort assets by type
             });
+        }
+    </script>
+    
+    <script>
+        // Function to load reports content
+        async function loadReportsContent() {
+            try {
+                // Create the reports content with containers for components
+                const reportsContent = `
+                    <header class="page-header">
+                        <div class="header-left">
+                            <h1>리포트</h1>
+                            <p>데이터 기반 인사이트 및 분석 리포트</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="리포트 검색...">
+                            </div>
+                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                            <button class="icon-button"><i class="fas fa-bell"></i></button>
+                        </div>
+                    </header>
+
+                    <!-- Reports Content will be loaded here -->
+                    <div id="reports-content">
+                        <div id="reports-main-container"></div>
+                    </div>
+                `;
+                
+                // Update the main content area with the reports content
+                document.getElementById('main-content').innerHTML = reportsContent;
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the reports link in the sidebar
+                const reportsLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('리포트')
+                );
+                if (reportsLink) {
+                    reportsLink.classList.add('active');
+                }
+                
+                // Load the reports component
+                await loadComponent('/static/dashboard-components/reports/reports-main.html', 'reports-main-container');
+                
+                // Initialize charts after content is loaded
+                setTimeout(initializeReportsCharts, 500);
+            } catch (error) {
+                console.error('Error loading reports content:', error);
+            }
+        }
+        
+        // Initialize reports-specific charts
+        function initializeReportsCharts() {
+            // Initialize anomaly type chart if element exists
+            if (document.getElementById('anomalyTypeChart')) {
+                new Chart(document.getElementById('anomalyTypeChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['베어링 마모 의심', '과도한 진동', '온도 급상승', '기타'],
+                        datasets: [{
+                            label: '징후 유형',
+                            data: [12, 9, 6, 3],
+                            backgroundColor: [
+                                '#e74c3c',
+                                '#f39c12',
+                                '#8259de',
+                                '#3498db'
+                            ],
+                            borderColor: '#2c2c54',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#e0e0e0'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '징후 유형별 분포',
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+    
+    <script>
+        // Function to load settings content
+        async function loadSettingsContent() {
+            try {
+                // Load the settings component
+                await loadComponent('/static/dashboard-components/settings/settings-main.html', 'main-content');
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the settings link in the sidebar
+                const settingsLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('설정')
+                );
+                if (settingsLink) {
+                    settingsLink.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading settings content:', error);
+            }
         }
     </script>
 </body>

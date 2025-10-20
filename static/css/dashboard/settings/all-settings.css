@@ -1,0 +1,128 @@
+/* --- Settings Page General Styles --- */
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.settings-card {
+    background-color: var(--card-bg-color, #2c2c54);
+    border-radius: 8px;
+    overflow: hidden; /* Ensures border-radius is respected by children */
+}
+
+.settings-card .card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #40406c);
+    justify-content: flex-start; /* Override centered header */
+}
+
+.settings-card .card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary, #ffffff);
+}
+
+.settings-card .card-header h3 i {
+    margin-right: 0.75rem;
+    color: var(--accent-primary, #8259de);
+}
+
+.settings-card .card-body {
+    padding: 1.5rem;
+}
+
+.settings-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.setting-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color, #40406c);
+}
+
+.setting-info .setting-title {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary, #e0e0e0);
+    margin-bottom: 0.25rem;
+}
+
+.setting-info .setting-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary, #a0a0d0);
+}
+
+/* --- Toggle Switch Styles --- */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #4b4b7b; /* Off color */
+    transition: .4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #28a745; /* Green for On */
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* --- Danger Zone Styles --- */
+.danger-zone {
+    border: 1px solid var(--danger-color, #e74c3c);
+}
+
+.danger-zone .card-header h3 i {
+    color: var(--danger-color, #e74c3c);
+}
+
+.danger-zone .danger-text {
+    color: var(--text-secondary, #a0a0d0);
+    margin-bottom: 1.5rem;
+}
+
+.btn-danger {
+    background-color: var(--danger-color, #e74c3c);
+    color: white;
+    border: none;
+}

@@ -12,5 +12,6 @@ class ChartManager {
         this.charts.power = new PowerChart('powerChart');
         this.charts.anomaly = new AnomalyChart('anomalyChart');
         this.charts.asset = new AssetChart('assetChart');
+        this.charts.reports = new ReportsChart('reportsChart');
     }
 }
