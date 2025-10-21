@@ -212,7 +212,7 @@
                 position: fixed;
                 top: 15px;
                 right: 15px;
-                z-index: 1000;
+                z-index: 1050; /* Higher than sidebar z-index to stay on top */
                 background: var(--accent-primary, #007bff);
                 color: white;
                 border: none;
@@ -221,36 +221,16 @@
                 font-size: 1.5rem;
                 cursor: pointer;
                 display: block;
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
-            /* Hide sidebar by default on mobile */
+            /* Adjust z-index to work with the component's own sidebar styles */
             #sidebar-container #sidebar {
-                position: fixed;
-                top: 0;
-                left: -100%; /* Hidden by default */
-                width: 250px;
-                height: 100%;
-                background: white;
-                z-index: 999;
-                transition: left 0.3s ease;
-                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
-            }
-            
-            /* Show sidebar when active */
-            #sidebar-container #sidebar.active {
-                left: 0;
-            }
-            
-            /* Overlay when sidebar is open */
-            #sidebar-container #sidebar.active::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 100%;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0,0,0,0.5);
-                z-index: -1;
+                z-index: 1000; /* Match the component's z-index */
             }
             
             /* Adjust main content when sidebar is present */
@@ -629,47 +609,22 @@
             }
         }
 
-        // Mobile sidebar functionality
+        // Mobile sidebar functionality - works with the sidebar component's existing behavior
         function setupMobileSidebar() {
             const hamburgerMenu = document.getElementById('hamburger-menu');
             const sidebarContainer = document.getElementById('sidebar-container');
-            let sidebar = null;
             
             // Wait for the sidebar to be loaded before setting up functionality
             const setupSidebarWhenAvailable = setInterval(() => {
-                sidebar = sidebarContainer.querySelector('#sidebar');
+                const sidebar = sidebarContainer.querySelector('#sidebar');
                 
                 if (sidebar) {
                     clearInterval(setupSidebarWhenAvailable);
-                    
-                    const closeBtn = document.createElement('button');
-                    closeBtn.className = 'close-btn';
-                    closeBtn.id = 'sidebar-close-btn';
-                    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    
-                    const sidebarHeader = sidebar.querySelector('.sidebar-header');
-                    if (sidebarHeader) {
-                        sidebarHeader.appendChild(closeBtn);
-                    }
                     
                     // Open sidebar when hamburger menu is clicked
                     hamburgerMenu?.addEventListener('click', function(e) {
                         e.stopPropagation();
                         sidebar.classList.add('active');
-                    });
-                    
-                    // Close sidebar when close button is clicked
-                    closeBtn?.addEventListener('click', function() {
-                        sidebar.classList.remove('active');
-                    });
-                    
-                    // Close sidebar when clicking outside of it
-                    document.addEventListener('click', function(e) {
-                        if (sidebar && !sidebar.contains(e.target) && 
-                            e.target !== hamburgerMenu && 
-                            !hamburgerMenu.contains(e.target)) {
-                            sidebar.classList.remove('active');
-                        }
                     });
                     
                     // Close sidebar when window is resized to desktop size
@@ -678,6 +633,25 @@
                             sidebar?.classList.remove('active');
                         }
                     });
+                    
+                    // Check if component has a close button, if not, add one
+                    let closeBtn = sidebar.querySelector('.close-btn');
+                    if (!closeBtn) {
+                        const header = sidebar.querySelector('.sidebar-header');
+                        if (header) {
+                            closeBtn = document.createElement('button');
+                            closeBtn.className = 'close-btn';
+                            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            header.appendChild(closeBtn);
+                        }
+                    }
+                    
+                    // Ensure the close button works
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function() {
+                            sidebar.classList.remove('active');
+                        });
+                    }
                 }
             }, 100); // Check every 100ms for sidebar to load
         }

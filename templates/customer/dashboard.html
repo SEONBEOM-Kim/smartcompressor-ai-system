@@ -82,7 +82,7 @@
                 position: fixed;
                 top: 15px;
                 right: 15px;
-                z-index: 1000;
+                z-index: 1050; /* Higher than sidebar z-index to stay on top */
                 background: var(--accent-primary, #007bff);
                 color: white;
                 border: none;
@@ -91,36 +91,16 @@
                 font-size: 1.5rem;
                 cursor: pointer;
                 display: block;
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
-            /* Hide sidebar by default on mobile */
+            /* Adjust z-index to work with the component's own sidebar styles */
             #sidebar {
-                position: fixed;
-                top: 0;
-                left: -100%; /* Hidden by default */
-                width: 250px;
-                height: 100%;
-                background: white;
-                z-index: 999;
-                transition: left 0.3s ease;
-                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
-            }
-            
-            /* Show sidebar when active */
-            #sidebar.active {
-                left: 0;
-            }
-            
-            /* Overlay when sidebar is open */
-            #sidebar.active::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 100%;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0,0,0,0.5);
-                z-index: -1;
+                z-index: 1000; /* Match the component's z-index */
             }
             
             /* Adjust main content when sidebar is present */
@@ -260,36 +240,9 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Sidebar -->
+    <!-- Sidebar will be loaded as a component -->
     <aside id="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="logo">Signalcraft</a>
-            <button class="close-btn" id="sidebar-close-btn">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <nav class="nav-menu">
-            <ul class="nav-list">
-                <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link" onclick="loadAnomaliesDetailContent(); return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
-                <li class="nav-item"><a href="#" id="assets-link" class="nav-link" onclick="loadAssetsDetailContent(); return false;"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
-                <li class="nav-item"><a href="#settings" id="settings-link" class="nav-link"><i class="fas fa-cog"></i> <span>설정</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-life-ring"></i> <span>도움말</span></a></li>
-                <li class="nav-item"><a href="#" id="logout-link" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
-                <li class="nav-item"><a href="#" id="logout-link" class="nav-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="upgrade-card">
-                <i class="fas fa-rocket fa-2x" style="color: var(--accent-primary); margin-bottom: 1rem;"></i>
-                <h4>기능 강화</h4>
-                <p>보안 및 모니터링 기능을 강화하세요.</p>
-                <a href="#" class="btn-upgrade">업그레이드 →</a>
-            </div>
-        </div>
+        <!-- This will be populated by JavaScript -->
     </aside>
 
     <!-- Main Content -->
@@ -609,38 +562,48 @@
             }
         }
 
-        // Mobile sidebar functionality
-        function setupMobileSidebar() {
+        // Mobile sidebar functionality - works with the sidebar component's existing behavior
+        async function setupMobileSidebar() {
             const hamburgerMenu = document.getElementById('hamburger-menu');
-            const sidebar = document.getElementById('sidebar');
-            const closeBtn = document.getElementById('sidebar-close-btn');
             
-            // Open sidebar when hamburger menu is clicked
-            hamburgerMenu?.addEventListener('click', function(e) {
-                e.stopPropagation();
-                sidebar.classList.add('active');
-            });
-            
-            // Close sidebar when close button is clicked
-            closeBtn?.addEventListener('click', function() {
-                sidebar.classList.remove('active');
-            });
-            
-            // Close sidebar when clicking outside of it
-            document.addEventListener('click', function(e) {
-                if (!sidebar.contains(e.target) && 
-                    e.target !== hamburgerMenu && 
-                    !hamburgerMenu.contains(e.target)) {
-                    sidebar.classList.remove('active');
+            // Wait for the component to be loaded and then apply functionality
+            setTimeout(() => {
+                const sidebar = document.getElementById('sidebar');
+                
+                if (hamburgerMenu && sidebar) {
+                    // Open sidebar when hamburger menu is clicked
+                    hamburgerMenu.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        sidebar.classList.add('active');
+                    });
+                    
+                    // Close sidebar when window is resized to desktop size
+                    window.addEventListener('resize', function() {
+                        if (window.innerWidth > 768) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
+                    
+                    // Check if component has a close button, if not, add one
+                    let closeBtn = sidebar.querySelector('.close-btn');
+                    if (!closeBtn) {
+                        const header = sidebar.querySelector('.sidebar-header');
+                        if (header) {
+                            closeBtn = document.createElement('button');
+                            closeBtn.className = 'close-btn';
+                            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            header.appendChild(closeBtn);
+                        }
+                    }
+                    
+                    // Ensure the close button works
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function() {
+                            sidebar.classList.remove('active');
+                        });
+                    }
                 }
-            });
-            
-            // Close sidebar when window is resized to desktop size
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.remove('active');
-                }
-            });
+            }, 500); // Slight delay after component loads
         }
 
         // Load sidebar component when the page loads
@@ -654,8 +617,8 @@
             // Set up mobile navigation
             setupMobileNavigation();
             
-            // Set up mobile sidebar functionality
-            setupMobileSidebar();
+            // Set up mobile sidebar functionality (with a slight delay to ensure DOM is ready)
+            setTimeout(setupMobileSidebar, 400);
         });
         
         // Function to handle navigation after sidebar is loaded
