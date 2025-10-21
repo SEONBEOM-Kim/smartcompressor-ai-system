@@ -74,6 +74,183 @@
             justify-content: center;
         }
         /* --- 끝 --- */
+        
+        /* Mobile responsiveness improvements */
+        @media (max-width: 768px) {
+            /* Hamburger menu positioning */
+            .hamburger-menu {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                z-index: 1000;
+                background: var(--accent-primary, #007bff);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 10px;
+                font-size: 1.5rem;
+                cursor: pointer;
+                display: block;
+            }
+            
+            /* Hide sidebar by default on mobile */
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%; /* Hidden by default */
+                width: 250px;
+                height: 100%;
+                background: white;
+                z-index: 999;
+                transition: left 0.3s ease;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            }
+            
+            /* Show sidebar when active */
+            #sidebar.active {
+                left: 0;
+            }
+            
+            /* Overlay when sidebar is open */
+            #sidebar.active::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 100%;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.5);
+                z-index: -1;
+            }
+            
+            /* Adjust main content when sidebar is present */
+            #main-content {
+                margin-left: 0;
+                transition: margin-left 0.3s ease;
+                position: relative;
+                z-index: 10;
+            }
+            
+            /* Prevent horizontal scrolling */
+            body {
+                overflow-x: hidden;
+            }
+            
+            /* Ensure containers don't cause overflow */
+            .dashboard-grid,
+            .current-risk-cards,
+            .grid-card,
+            .card-container {
+                overflow: hidden;
+            }
+            
+            /* Responsive dashboard grid */
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            /* Responsive risk cards */
+            .current-risk-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            /* Make charts responsive */
+            .chart-container {
+                min-height: 200px;
+            }
+            
+            /* Header adjustments */
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            /* Table adjustments for mobile */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .anomaly-table {
+                min-width: 600px;
+                font-size: 0.8rem;
+            }
+            
+            /* Responsive adjustments for all content */
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .grid-card {
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+            
+            .card-header {
+                padding: 0.5rem;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+            }
+            
+            /* Adjust icon buttons */
+            .icon-button {
+                padding: 0.5rem;
+            }
+            
+            /* Responsive search bar */
+            .search-bar {
+                padding: 0.5rem;
+            }
+            
+            .search-bar input {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Tablet styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .current-risk-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+        
+        /* Extra small devices (phones, 600px and down) */
+        @media only screen and (max-width: 600px) {
+            .current-risk-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                min-height: 150px;
+            }
+            
+            .risk-card h2 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -87,6 +264,9 @@
     <aside id="sidebar">
         <div class="sidebar-header">
             <a href="#" class="logo">Signalcraft</a>
+            <button class="close-btn" id="sidebar-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <nav class="nav-menu">
@@ -227,10 +407,98 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Function to load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                // Fetch dashboard summary data
+                const response = await fetch('/api/dashboard/summary');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const summary = result.summary;
+                    
+                    // Update the counters
+                    document.getElementById('total-assets').textContent = summary.totalAssets || 0;
+                    document.getElementById('normal-assets').textContent = summary.normalAssets || 0;
+                    document.getElementById('anomaly-count').textContent = summary.anomalyCount || 0;
+                    document.getElementById('urgent-action').textContent = summary.urgentAction || 0;
+                    document.getElementById('scheduled-maintenance').textContent = summary.scheduledMaintenance || 0;
+                    
+                    // Update the anomalies table
+                    updateAnomaliesTable(result.anomalies || []);
+                    
+                    // Update the charts with the retrieved data
+                    if (result.energy_data) {
+                        updateThreatSummaryChart(result.energy_data.labels, result.energy_data.values);
+                    }
+                    
+                    if (result.device_status) {
+                        updateRiskScoreChart([
+                            result.device_status.online,
+                            result.device_status.offline,
+                            result.device_status.maintenance,
+                            result.device_status.error
+                        ]);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                
+                // Fallback to showing 0 values if API call fails
+                document.getElementById('total-assets').textContent = '0';
+                document.getElementById('normal-assets').textContent = '0';
+                document.getElementById('anomaly-count').textContent = '0';
+                document.getElementById('urgent-action').textContent = '0';
+                document.getElementById('scheduled-maintenance').textContent = '0';
+            }
+        }
+        
+        // Function to update the anomalies table
+        function updateAnomaliesTable(anomalies) {
+            const tbody = document.querySelector('#anomalies-table tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+            
+            if (anomalies.length === 0) {
+                // Show a message when there are no anomalies
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">이상 징후가 없습니다.</td></tr>';
+                return;
+            }
+            
+            anomalies.forEach(anomaly => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${anomaly.date || ''}</td>
+                    <td>${anomaly.assetId || ''}</td>
+                    <td>${anomaly.type || ''}</td>
+                    <td>${anomaly.details || ''}</td>
+                    <td><span class="severity-badge ${anomaly.severity === '위험' ? 'danger' : 'warning'}">${anomaly.severity || ''}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Function to update the threat summary chart
+        function updateThreatSummaryChart(labels, data) {
+            const chart = Chart.getChart(document.getElementById('threat-summary-chart'));
+            if (chart) {
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = data;
+                chart.update();
+            }
+        }
+        
+        // Function to update the risk score chart
+        function updateRiskScoreChart(data) {
+            const chart = Chart.getChart(document.getElementById('risk-score-chart'));
+            if (chart) {
+                chart.data.datasets[0].data = data;
+                chart.update();
+            }
+        }
+        
         // Chart Initializations
-        // Data will be loaded via API calls
         function initializeCharts() {
-            // Threat Summary Chart - Initial empty chart
+            // Threat Summary Chart
             if (document.getElementById('threat-summary-chart')) {
                 new Chart(document.getElementById('threat-summary-chart'), { 
                     type: 'line', 
@@ -254,16 +522,19 @@
                 });
             }
 
-            // Risk Score Chart - Initial empty chart
+            // Risk Score Chart
             if (document.getElementById('risk-score-chart')) {
                 new Chart(document.getElementById('risk-score-chart'), { 
                     type: 'doughnut', 
                     data: { 
+                        labels: ['정상', '오프라인', '점검중', '오류'],
                         datasets: [{
                             data: [],
                             backgroundColor: [
-                                'rgb(54, 162, 235)',
-                                'rgb(255, 205, 86)'
+                                'rgb(72, 187, 120)',    // normal color
+                                'rgb(160, 174, 192)',   // offline color
+                                'rgb(255, 193, 7)',     // maintenance/warning color
+                                'rgb(220, 53, 69)'      // error/danger color
                             ]
                         }] 
                     },
@@ -278,11 +549,12 @@
                 });
             }
 
-            // Threats by Virus Chart - Initial empty chart
+            // Threats by Virus Chart
             if (document.getElementById('threats-by-virus-chart')) {
                 new Chart(document.getElementById('threats-by-virus-chart'), { 
                     type: 'doughnut', 
                     data: { 
+                        labels: ['베어링 마모', '과도한 진동', '온도 급상승'],
                         datasets: [{
                             data: [],
                             backgroundColor: [
@@ -304,8 +576,14 @@
             }
         }
         
-        // Call initializeCharts when page loads
-        document.addEventListener('DOMContentLoaded', initializeCharts);
+        // Initialize charts and load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadDashboardData(); // Load the actual data from the API
+            
+            // Refresh data every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
     </script>
     
     <script>
@@ -331,6 +609,40 @@
             }
         }
 
+        // Mobile sidebar functionality
+        function setupMobileSidebar() {
+            const hamburgerMenu = document.getElementById('hamburger-menu');
+            const sidebar = document.getElementById('sidebar');
+            const closeBtn = document.getElementById('sidebar-close-btn');
+            
+            // Open sidebar when hamburger menu is clicked
+            hamburgerMenu?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.add('active');
+            });
+            
+            // Close sidebar when close button is clicked
+            closeBtn?.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+            });
+            
+            // Close sidebar when clicking outside of it
+            document.addEventListener('click', function(e) {
+                if (!sidebar.contains(e.target) && 
+                    e.target !== hamburgerMenu && 
+                    !hamburgerMenu.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            // Close sidebar when window is resized to desktop size
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
         // Load sidebar component when the page loads
         // Load sidebar component when the page loads
         document.addEventListener('DOMContentLoaded', async function() {
@@ -341,6 +653,9 @@
             
             // Set up mobile navigation
             setupMobileNavigation();
+            
+            // Set up mobile sidebar functionality
+            setupMobileSidebar();
         });
         
         // Function to handle navigation after sidebar is loaded
