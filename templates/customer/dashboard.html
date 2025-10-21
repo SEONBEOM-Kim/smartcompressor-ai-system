@@ -98,9 +98,81 @@
                 justify-content: center;
             }
             
+            /* Mobile Navigation Overlay */
+            .mobile-nav-overlay {
+                position: fixed;
+                top: 0;
+                right: -300px; /* Start hidden to the right */
+                width: 280px;
+                height: 100vh;
+                background: white;
+                z-index: 1049; /* Just below hamburger menu */
+                transition: right 0.3s ease;
+                box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+                overflow-y: auto;
+            }
+            
+            .mobile-nav-overlay.active {
+                right: 0; /* Slide in from right */
+            }
+            
+            .mobile-nav-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                background: var(--accent-primary, #007bff);
+                color: white;
+            }
+            
+            .mobile-nav-menu {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .mobile-nav-menu li {
+                border-bottom: 1px solid #eee;
+            }
+            
+            .mobile-nav-menu .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 15px 20px;
+                color: #333;
+                text-decoration: none;
+                transition: background-color 0.2s;
+            }
+            
+            .mobile-nav-menu .nav-link:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .mobile-nav-menu .nav-link.active {
+                background-color: #e6f0ff;
+                color: var(--accent-primary, #007bff);
+            }
+            
+            .mobile-nav-menu .nav-link i {
+                margin-right: 12px;
+                width: 20px;
+                text-align: center;
+            }
+            
+            .mobile-nav-menu .nav-link span {
+                flex: 1;
+            }
+            
             /* Adjust z-index to work with the component's own sidebar styles */
             #sidebar {
                 z-index: 1000; /* Match the component's z-index */
+            }
+            
+            /* Hide sidebar on mobile since we're using the overlay */
+            @media (max-width: 768px) {
+                #sidebar {
+                    display: none;
+                }
             }
             
             /* Adjust main content when sidebar is present */
@@ -240,7 +312,26 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Sidebar will be loaded as a component -->
+    <!-- Mobile Navigation Overlay (slides in from right) -->
+    <nav class="mobile-nav-overlay" id="mobile-nav-overlay">
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <button class="close-btn" id="mobile-nav-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-menu">
+            <li><a href="#" class="nav-link active" onclick="closeMobileNav(); return false;"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadAnomaliesDetailContent(); closeMobileNav(); return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
+            <li><a href="#" id="assets-link" class="nav-link" onclick="loadAssetsDetailContent(); closeMobileNav(); return false;"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadPageContent('reports'); closeMobileNav(); return false;"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
+            <li><a href="#settings" id="settings-link" class="nav-link" onclick="loadSettingsContent(); closeMobileNav(); return false;"><i class="fas fa-cog"></i> <span>설정</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadPageContent('help'); closeMobileNav(); return false;"><i class="fas fa-life-ring"></i> <span>도움말</span></a></li>
+            <li><a href="#" id="logout-link" class="nav-link" onclick="logoutUser(); closeMobileNav(); return false;"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Sidebar will be loaded as a component but hidden on mobile -->
     <aside id="sidebar">
         <!-- This will be populated by JavaScript -->
     </aside>
@@ -562,48 +653,51 @@
             }
         }
 
-        // Mobile sidebar functionality - works with the sidebar component's existing behavior
+        // Mobile navigation overlay functionality
         async function setupMobileSidebar() {
             const hamburgerMenu = document.getElementById('hamburger-menu');
+            const mobileNav = document.getElementById('mobile-nav-overlay');
+            const closeBtn = document.getElementById('mobile-nav-close');
             
-            // Wait for the component to be loaded and then apply functionality
-            setTimeout(() => {
-                const sidebar = document.getElementById('sidebar');
-                
-                if (hamburgerMenu && sidebar) {
-                    // Open sidebar when hamburger menu is clicked
-                    hamburgerMenu.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        sidebar.classList.add('active');
-                    });
-                    
-                    // Close sidebar when window is resized to desktop size
-                    window.addEventListener('resize', function() {
-                        if (window.innerWidth > 768) {
-                            sidebar.classList.remove('active');
-                        }
-                    });
-                    
-                    // Check if component has a close button, if not, add one
-                    let closeBtn = sidebar.querySelector('.close-btn');
-                    if (!closeBtn) {
-                        const header = sidebar.querySelector('.sidebar-header');
-                        if (header) {
-                            closeBtn = document.createElement('button');
-                            closeBtn.className = 'close-btn';
-                            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                            header.appendChild(closeBtn);
-                        }
-                    }
-                    
-                    // Ensure the close button works
-                    if (closeBtn) {
-                        closeBtn.addEventListener('click', function() {
-                            sidebar.classList.remove('active');
-                        });
-                    }
+            // Open mobile navigation when hamburger menu is clicked
+            hamburgerMenu?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileNav.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            });
+            
+            // Close mobile navigation when close button is clicked
+            closeBtn?.addEventListener('click', function() {
+                mobileNav.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            });
+            
+            // Close mobile navigation when clicking outside of it
+            document.addEventListener('click', function(e) {
+                if (mobileNav.classList.contains('active') && 
+                    !mobileNav.contains(e.target) && 
+                    e.target !== hamburgerMenu) {
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
                 }
-            }, 500); // Slight delay after component loads
+            });
+            
+            // Close mobile navigation when window is resized to desktop size
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+        }
+        
+        // Function to close the mobile navigation
+        function closeMobileNav() {
+            const mobileNav = document.getElementById('mobile-nav-overlay');
+            if (mobileNav) {
+                mobileNav.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }
         }
 
         // Load sidebar component when the page loads
