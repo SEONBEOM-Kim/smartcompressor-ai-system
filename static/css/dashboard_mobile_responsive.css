@@ -1,0 +1,146 @@
+/* Mobile Responsive Styles for Dashboard - Main Content Area */
+@media (max-width: 768px) {
+    /* Adjust main content to take full width on mobile */
+    #main-content {
+        margin-left: 0;
+        padding: 1rem;
+        width: 100%;
+    }
+
+    /* Add hamburger menu button */
+    .hamburger-menu {
+        display: block;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 999;
+        background: var(--accent-primary);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Adjust header layout for mobile */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        height: auto;
+        padding: 1rem 0;
+    }
+
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .search-bar input {
+        width: 100%;
+    }
+
+    /* Adjust dashboard grid for mobile */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Adjust card spans for mobile */
+    .current-risk-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .risk-card {
+        padding: 1rem;
+    }
+
+    .risk-score-card,
+    .threat-summary-card,
+    .threat-by-virus-card,
+    .threat-details-card,
+    .threat-by-device-card {
+        grid-column: span 1 !important;
+    }
+
+    /* Adjust table for mobile */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Adjust chart containers for smaller screens */
+    .chart-container {
+        height: 200px;
+    }
+
+    /* Adjust nav menu for mobile */
+    .nav-menu .nav-link span {
+        display: inline;
+    }
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media (max-width: 600px) {
+    .current-risk-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        padding: 0.5rem 0;
+    }
+
+    .header-left h1 {
+        font-size: 1.2rem;
+    }
+
+    .header-left p {
+        font-size: 0.8rem;
+    }
+
+    .search-bar {
+        margin-bottom: 0.5rem;
+    }
+
+    .search-bar input {
+        padding: 0.5rem;
+    }
+
+    .risk-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .risk-card h5 {
+        font-size: 0.9rem;
+    }
+}
+
+/* Tablet devices (768px to 992px) */
+@media (min-width: 769px) and (max-width: 992px) {
+    #main-content {
+        margin-left: calc(220px + 1rem);
+        width: calc(100% - (220px + 1rem));
+    }
+
+    .current-risk-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .risk-score-card,
+    .threat-by-virus-card {
+        grid-column: span 6 !important;
+    }
+
+    .threat-summary-card,
+    .threat-details-card {
+        grid-column: span 6 !important;
+    }
+
+    .threat-by-device-card {
+        grid-column: span 6 !important;
+    }
+}

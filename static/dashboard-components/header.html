@@ -1,3 +1,44 @@
+<style>
+    /* Mobile responsive styles for header */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            height: auto;
+            padding: 1rem 0;
+        }
+
+        .header-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .search-bar input {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .header-left h1 {
+            font-size: 1.2rem;
+        }
+
+        .header-left p {
+            font-size: 0.9rem;
+        }
+
+        .search-bar input {
+            padding: 0.5rem;
+        }
+
+        .icon-button {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
+    }
+</style>
 <header class="page-header">
     <div class="header-left">
         <h1>안녕하세요, 고객님</h1>

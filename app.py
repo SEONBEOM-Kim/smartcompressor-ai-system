@@ -139,12 +139,6 @@ def create_app():
         from routes.ai_routes import lightweight_analyze
         return lightweight_analyze()
 
-    @app.route('/dashboard')
-    def dashboard():
-        """대시보드 페이지"""
-        from flask import render_template
-        return render_template('dashboard.html')
-
     @app.route('/mobile_app')
     def mobile_app():
         """모바일 앱 페이지"""
@@ -168,6 +162,12 @@ def create_app():
         """원래 대시보드 페이지"""
         from flask import render_template
         return render_template('customer/dashboard.html')
+
+    @app.route('/mobile_friendly_dashboard')
+    def mobile_friendly_dashboard():
+        """모바일 친화적 대시보드 페이지"""
+        from flask import render_template
+        return render_template('customer/mobile_friendly_dashboard.html')
 
     @app.route('/admin')
     def admin_dashboard():

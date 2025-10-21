@@ -1,0 +1,108 @@
+<style>
+    :root {
+        --primary-bg: #1A1C23;
+        --secondary-bg: #22252A;
+        --sidebar-bg: #1A1C23;
+        --card-bg: #2d3748; /* Lighter gray for better readability */
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #8A5CFE;
+        --accent-secondary: #38B2AC;
+        --border-color: #32363C;
+        --danger: #E53E3E;
+        --success: #48BB78;
+        --warning: #ED8936;
+        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .dashboard-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem; /* Slightly more rounded */
+        color: var(--text-primary);
+        box-shadow: var(--card-shadow); /* Add shadow for depth */
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    }
+
+    .dashboard-card h5 {
+        font-weight: 600; /* Bold title */
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem; /* Slightly larger font */
+    }
+
+    .dashboard-card h2 {
+        font-weight: 700; /* Bold number */
+        font-size: 1.8rem; /* Larger number */
+        margin: 0;
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .dashboard-card {
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-card h5 {
+            font-size: 0.9rem;
+        }
+
+        .dashboard-card h2 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-card h5 {
+            font-size: 0.85rem;
+        }
+
+        .dashboard-card h2 {
+            font-size: 1.3rem;
+        }
+
+        .dashboard-card .p-3 {
+            padding: 0.8rem !important;
+        }
+    }
+</style>
+
+<!-- Summary Cards -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-3 mb-4">
+    <div class="col">
+        <div class="dashboard-card p-3 text-center h-100">
+            <h5>총 자산</h5>
+            <h2 class="mb-0">12</h2>
+        </div>
+    </div>
+    <div class="col">
+        <div class="dashboard-card p-3 text-center h-100">
+            <h5>정상 자산</h5>
+            <h2 class="mb-0">10</h2>
+        </div>
+    </div>
+    <div class="col">
+        <div class="dashboard-card p-3 text-center h-100">
+            <h5>이상 징후</h5>
+            <h2 class="mb-0">2</h2>
+        </div>
+    </div>
+    <div class="col">
+        <div class="dashboard-card p-3 text-center h-100">
+            <h5>긴급 조치 필요</h5>
+            <h2 class="mb-0">1</h2>
+        </div>
+    </div>
+    <div class="col">
+        <div class="dashboard-card p-3 text-center h-100">
+            <h5>오늘 점검 예정</h5>
+            <h2 class="mb-0">3</h2>
+        </div>
+    </div>
+</div>

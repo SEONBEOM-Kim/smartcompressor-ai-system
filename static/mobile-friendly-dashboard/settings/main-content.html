@@ -1,0 +1,227 @@
+<style>
+    :root {
+        --primary-bg: #1A1C23;
+        --secondary-bg: #22252A;
+        --sidebar-bg: #1A1C23;
+        --card-bg: #22252A;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #8A5CFE;
+        --accent-secondary: #38B2AC;
+        --border-color: #32363C;
+        --danger: #E53E3E;
+        --success: #48BB78;
+        --warning: #ED8936;
+    }
+
+    body {
+        background-color: var(--primary-bg);
+        color: var(--text-primary);
+        padding-top: 56px; /* Space for fixed navbar on mobile */
+    }
+
+    .main-content {
+        margin-left: 0;
+        transition: margin-left 0.3s;
+    }
+
+    @media (min-width: 992px) {
+        .main-content {
+            margin-left: 260px;
+        }
+    }
+
+    /* Mobile responsive styles */
+    @media (max-width: 992px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content .pt-3 {
+            padding-top: 1rem !important;
+        }
+
+        .main-content .pb-2 {
+            padding-bottom: 0.5rem !important;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content h1 {
+            font-size: 1.2rem;
+        }
+
+        .main-content p {
+            font-size: 0.8rem;
+        }
+
+        .input-group-text {
+            padding: 0.3rem 0.5rem;
+        }
+
+        .form-control {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+        }
+    }
+    
+    .setting-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--accent-primary);
+        border-color: var(--accent-primary);
+    }
+    
+    .form-control, .form-select {
+        background-color: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: var(--secondary-bg);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 0.2rem rgba(138, 92, 254, 0.25);
+        color: var(--text-primary);
+    }
+</style>
+
+<!-- Main Content Area for Settings -->
+<main class="col-lg-10 ms-sm-auto main-content px-md-4">
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div>
+            <h1 class="h3 mb-0">설정</h1>
+            <p class="text-muted mb-0">대시보드 설정을 관리하세요.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary"><i class="fas fa-save me-1"></i> 변경 사항 저장</button>
+        </div>
+    </div>
+
+    <!-- Settings Cards -->
+    <div class="row g-3">
+        <div class="col-12 col-lg-6">
+            <!-- 알림 설정 -->
+            <div class="setting-card">
+                <h3 class="h5 mb-3">알림 설정</h3>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="emailNotification" checked>
+                    <label class="form-check-label" for="emailNotification">이메일 알림</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="smsNotification" checked>
+                    <label class="form-check-label" for="smsNotification">SMS 알림</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="pushNotification" checked>
+                    <label class="form-check-label" for="pushNotification">푸시 알림</label>
+                </div>
+                
+                <h4 class="h6 mb-2">알림 수신 시간</h4>
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label">시작 시간</label>
+                        <input type="time" class="form-control" value="08:00">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">종료 시간</label>
+                        <input type="time" class="form-control" value="20:00">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 사용자 정보 설정 -->
+            <div class="setting-card">
+                <h3 class="h5 mb-3">사용자 정보</h3>
+                <div class="mb-3">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-control" value="고객 님">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">이메일</label>
+                    <input type="email" class="form-control" value="customer@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">전화번호</label>
+                    <input type="tel" class="form-control" value="010-1234-5678">
+                </div>
+                <button class="btn btn-sm btn-outline-primary">비밀번호 변경</button>
+            </div>
+        </div>
+        
+        <div class="col-12 col-lg-6">
+            <!-- 시스템 설정 -->
+            <div class="setting-card">
+                <h3 class="h5 mb-3">시스템 설정</h3>
+                <div class="mb-3">
+                    <label class="form-label">테마</label>
+                    <select class="form-select">
+                        <option>다크 모드</option>
+                        <option>라이트 모드</option>
+                        <option>자동 (시스템 설정)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">언어</label>
+                    <select class="form-select">
+                        <option>한국어</option>
+                        <option>English</option>
+                        <option>日本語</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">기본 대시보드 뷰</label>
+                    <select class="form-select">
+                        <option>요약 보기</option>
+                        <option>자세한 보기</option>
+                        <option>차트 중심 보기</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 보안 설정 -->
+            <div class="setting-card">
+                <h3 class="h5 mb-3">보안 설정</h3>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+                    <label class="form-check-label" for="twoFactorAuth">2단계 인증</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="loginAlerts" checked>
+                    <label class="form-check-label" for="loginAlerts">로그인 알림</label>
+                </div>
+                
+                <h4 class="h6 mb-2">세션 설정</h4>
+                <div class="mb-3">
+                    <label class="form-label">자동 로그아웃 시간</label>
+                    <select class="form-select">
+                        <option>15분</option>
+                        <option>30분</option>
+                        <option>1시간</option>
+                        <option>2시간</option>
+                        <option>하지 않음</option>
+                    </select>
+                </div>
+                <button class="btn btn-sm btn-outline-danger">보안 로그 보기</button>
+            </div>
+        </div>
+    </div>
+</main>

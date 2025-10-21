@@ -14,6 +14,50 @@
         height: 90px; /* 로고 높이를 60px로 설정 */
         width: auto;
     }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: -260px; /* Hide sidebar initially */
+            width: 260px;
+            height: 100vh;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        #sidebar.active {
+            left: 0; /* Show sidebar when active class is added */
+        }
+        
+        .logo {
+            padding-left: 20px;
+        }
+        
+        .nav-menu .nav-link span {
+            display: inline-block;
+        }
+        
+        .nav-menu .nav-link i {
+            margin-right: 12px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .logo-img {
+            height: 60px;
+        }
+        
+        .upgrade-card h4 {
+            font-size: 1rem;
+        }
+        
+        .upgrade-card p {
+            font-size: 0.8rem;
+        }
+    }
 </style>
 <aside id="sidebar">
     <div class="sidebar-header">

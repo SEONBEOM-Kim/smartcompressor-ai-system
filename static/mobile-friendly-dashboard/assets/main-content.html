@@ -1,0 +1,191 @@
+<style>
+    :root {
+        --primary-bg: #1A1C23;
+        --secondary-bg: #22252A;
+        --sidebar-bg: #1A1C23;
+        --card-bg: #22252A;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #8A5CFE;
+        --accent-secondary: #38B2AC;
+        --border-color: #32363C;
+        --danger: #E53E3E;
+        --success: #48BB78;
+        --warning: #ED8936;
+    }
+
+    body {
+        background-color: var(--primary-bg);
+        color: var(--text-primary);
+        padding-top: 56px; /* Space for fixed navbar on mobile */
+    }
+
+    .main-content {
+        margin-left: 0;
+        transition: margin-left 0.3s;
+    }
+
+    @media (min-width: 992px) {
+        .main-content {
+            margin-left: 260px;
+        }
+    }
+
+    /* Mobile responsive styles */
+    @media (max-width: 992px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content .pt-3 {
+            padding-top: 1rem !important;
+        }
+
+        .main-content .pb-2 {
+            padding-bottom: 0.5rem !important;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content h1 {
+            font-size: 1.2rem;
+        }
+
+        .main-content p {
+            font-size: 0.8rem;
+        }
+
+        .input-group-text {
+            padding: 0.3rem 0.5rem;
+        }
+
+        .form-control {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+        }
+    }
+</style>
+
+<!-- Main Content Area for Assets -->
+<main class="col-lg-10 ms-sm-auto main-content px-md-4">
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div>
+            <h1 class="h3 mb-0">자산 목록</h1>
+            <p class="text-muted mb-0">모든 자산을 관리하고 모니터링하세요.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" placeholder="자산 검색...">
+            </div>
+            <button class="btn btn-primary"><i class="fas fa-plus me-1"></i> 자산 추가</button>
+        </div>
+    </div>
+
+    <!-- Assets Summary Cards -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">총 자산</h5>
+                <h2 class="mb-0">24</h2>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">정상 작동</h5>
+                <h2 class="mb-0">21</h2>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">이상 감지</h5>
+                <h2 class="mb-0">2</h2>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">점검 예정</h5>
+                <h2 class="mb-0">1</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assets Table -->
+    <div class="dashboard-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">자산 목록</h3>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary">엑셀 내보내기</button>
+                <button class="btn btn-sm btn-outline-primary">필터</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-borderless">
+                <thead>
+                    <tr>
+                        <th>자산 ID</th>
+                        <th>자산명</th>
+                        <th>유형</th>
+                        <th>위치</th>
+                        <th>상태</th>
+                        <th>마지막 점검</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Freezer-A1</td>
+                        <td>냉동고 A1호</td>
+                        <td>냉동설비</td>
+                        <td>창고 A-1구역</td>
+                        <td><span class="status-badge status-danger">이상</span></td>
+                        <td>2025-10-17</td>
+                    </tr>
+                    <tr>
+                        <td>Freezer-C3</td>
+                        <td>냉동고 C3호</td>
+                        <td>냉동설비</td>
+                        <td>창고 C-3구역</td>
+                        <td><span class="status-badge status-warning">경고</span></td>
+                        <td>2025-10-16</td>
+                    </tr>
+                    <tr>
+                        <td>Cooler-B2</td>
+                        <td>냉장고 B2호</td>
+                        <td>냉장설비</td>
+                        <td>식품 보관실</td>
+                        <td><span class="status-badge status-normal">정상</span></td>
+                        <td>2025-10-15</td>
+                    </tr>
+                    <tr>
+                        <td>Freezer-D5</td>
+                        <td>냉동고 D5호</td>
+                        <td>냉동설비</td>
+                        <td>시험실 3</td>
+                        <td><span class="status-badge status-normal">정상</span></td>
+                        <td>2025-10-14</td>
+                    </tr>
+                    <tr>
+                        <td>Cooler-E1</td>
+                        <td>냉장고 E1호</td>
+                        <td>냉장설비</td>
+                        <td>시험실 1</td>
+                        <td><span class="status-badge status-normal">정상</span></td>
+                        <td>2025-10-10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>

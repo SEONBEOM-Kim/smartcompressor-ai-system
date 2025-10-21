@@ -1,0 +1,235 @@
+<style>
+    :root {
+        --primary-bg: #1A1C23;
+        --secondary-bg: #22252A;
+        --sidebar-bg: #1A1C23;
+        --card-bg: #2d3748; /* Lighter gray for better readability */
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #8A5CFE;
+        --accent-secondary: #38B2AC;
+        --border-color: #32363C;
+        --danger: #E53E3E;
+        --success: #48BB78;
+        --warning: #ED8936;
+        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .dashboard-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem; /* Slightly more rounded */
+        color: var(--text-primary);
+        box-shadow: var(--card-shadow); /* Add shadow for depth */
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    }
+
+    .chart-container {
+        height: 250px;
+        position: relative;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.6rem; /* Slightly larger padding */
+        border-radius: 0.5rem; /* More rounded */
+        font-size: 0.75rem;
+        font-weight: 600; /* Bold text */
+        display: inline-block;
+        text-align: center;
+        min-width: 60px;
+    }
+
+    .status-normal {
+        background-color: rgba(72, 187, 120, 0.2); /* More opaque */
+        color: var(--success);
+        border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+
+    .status-warning {
+        background-color: rgba(237, 137, 54, 0.2); /* More opaque */
+        color: var(--warning);
+        border: 1px solid rgba(237, 137, 54, 0.3);
+    }
+
+    .status-danger {
+        background-color: rgba(229, 62, 62, 0.2); /* More opaque */
+        color: var(--danger);
+        border: 1px solid rgba(229, 62, 62, 0.3);
+    }
+
+    .table-dark {
+        --bs-table-bg: var(--card-bg);
+    }
+    
+    h3, h4, h5, h6 {
+        font-weight: 600; /* Bold headers */
+    }
+
+    /* Mobile responsive styles */
+    @media (max-width: 992px) {
+        .chart-container {
+            height: 200px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 180px;
+        }
+
+        .dashboard-card h3 {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .chart-container {
+            height: 150px;
+        }
+
+        .dashboard-card .p-3 {
+            padding: 0.8rem !important;
+        }
+
+        .dashboard-card h3 {
+            font-size: 0.9rem;
+        }
+
+        .table {
+            font-size: 0.75rem;
+        }
+        
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            min-width: 50px;
+        }
+    }
+</style>
+
+<!-- Charts Section -->
+<section class="charts-section">
+    <!-- Charts Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="dashboard-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">자산 종합 상태</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">차트 리프레시</a></li>
+                            <li><a class="dropdown-item" href="#">데이터 내보내기</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="assetStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="dashboard-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">이상 징후 요약</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">차트 리프레시</a></li>
+                            <li><a class="dropdown-item" href="#">데이터 내보내기</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="threatSummaryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Tables and Additional Info -->
+    <div class="row g-3">
+        <div class="col-12 col-lg-8">
+            <div class="dashboard-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">최근 이상 징후 상세</h3>
+                    <button class="btn btn-sm btn-outline-primary">전체 보기</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dark table-borderless">
+                        <thead>
+                            <tr>
+                                <th class="bold-text">날짜</th>
+                                <th class="bold-text">자산 ID</th>
+                                <th class="bold-text">징후 유형</th>
+                                <th class="bold-text">상세 내용</th>
+                                <th class="bold-text">심각도</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-10-17</td>
+                                <td class="bold-text">Freezer-A1</td>
+                                <td>온도 급상승</td>
+                                <td>-18°C → -5°C</td>
+                                <td><span class="status-badge status-danger">위험</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-10-17</td>
+                                <td class="bold-text">Freezer-C3</td>
+                                <td>컴프레서 과부하</td>
+                                <td>전력 소비 150% 증가</td>
+                                <td><span class="status-badge status-warning">경고</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="dashboard-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">징후 유형별 통계</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">차트 리프레시</a></li>
+                            <li><a class="dropdown-item" href="#">데이터 내보내기</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="threatTypeChart"></canvas>
+                </div>
+            </div>
+            <div class="dashboard-card p-3 mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">자산별 이상 징후</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">차트 리프레시</a></li>
+                            <li><a class="dropdown-item" href="#">데이터 내보내기</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="assetThreatChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

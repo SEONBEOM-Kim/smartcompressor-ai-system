@@ -10,6 +10,8 @@
     
     <!-- Custom CSS -->
     <link href="/static/css/dashboard_v2.css?v=2.0" rel="stylesheet">
+    <!-- Mobile Responsive CSS -->
+    <link href="/static/css/dashboard_mobile_responsive.css" rel="stylesheet">
     
     <style>
         .grid-card {
@@ -62,6 +64,11 @@
     </style>
 </head>
 <body>
+
+    <!-- Hamburger Menu Button (Visible on Mobile) -->
+    <button class="hamburger-menu" id="hamburger-menu">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <!-- Include Sidebar -->
     <div id="sidebar-container">
@@ -175,6 +182,41 @@
             }
         }
 
+        // Set up mobile navigation functionality
+        function setupMobileNavigation() {
+            const hamburgerMenu = document.getElementById('hamburger-menu');
+            const sidebarContainer = document.getElementById('sidebar-container');
+            
+            if (hamburgerMenu && sidebarContainer) {
+                hamburgerMenu.addEventListener('click', function() {
+                    sidebarContainer.querySelector('#sidebar').classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const isClickInsideSidebar = sidebarContainer.contains(event.target);
+                    const isClickOnHamburger = hamburgerMenu.contains(event.target);
+                    
+                    if (!isClickInsideSidebar && !isClickOnHamburger && window.innerWidth <= 768) {
+                        const sidebar = sidebarContainer.querySelector('#sidebar');
+                        if (sidebar) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+                
+                // Close sidebar when window is resized to desktop size
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        const sidebar = sidebarContainer.querySelector('#sidebar');
+                        if (sidebar) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        }
+
         // Load all dashboard components when the page loads
         document.addEventListener('DOMContentLoaded', function() {
             // Load sidebar component
@@ -187,6 +229,9 @@
             
             // Initialize navigation after components are loaded
             setTimeout(setupNavigation, 500);
+            
+            // Initialize mobile navigation after components are loaded
+            setTimeout(setupMobileNavigation, 500);
         });
     </script>
 </body>

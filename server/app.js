@@ -130,6 +130,16 @@ app.get('/dashboard', /* verifySession, */ (req, res) => {
     res.sendFile(path.join(__dirname, '../templates/customer/dashboard.html'));
 });
 
+// 모바일 친화적 대시보드 라우트
+app.get('/mobile_friendly_dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../templates/customer/mobile_friendly_dashboard.html'));
+});
+
+// 모바일 친화적 대시보드 서브페이지 라우트 (SPA 방식) - 이 라우트는 404 핸들러보다 위에 위치해야 함
+app.get('/mobile_friendly_dashboard/*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../templates/customer/mobile_friendly_dashboard.html'));
+});
+
 // API 라우트
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);

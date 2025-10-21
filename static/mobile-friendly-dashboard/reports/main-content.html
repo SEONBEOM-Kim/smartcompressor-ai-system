@@ -1,0 +1,200 @@
+<style>
+    :root {
+        --primary-bg: #1A1C23;
+        --secondary-bg: #22252A;
+        --sidebar-bg: #1A1C23;
+        --card-bg: #22252A;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #8A5CFE;
+        --accent-secondary: #38B2AC;
+        --border-color: #32363C;
+        --danger: #E53E3E;
+        --success: #48BB78;
+        --warning: #ED8936;
+    }
+
+    body {
+        background-color: var(--primary-bg);
+        color: var(--text-primary);
+        padding-top: 56px; /* Space for fixed navbar on mobile */
+    }
+
+    .main-content {
+        margin-left: 0;
+        transition: margin-left 0.3s;
+    }
+
+    @media (min-width: 992px) {
+        .main-content {
+            margin-left: 260px;
+        }
+    }
+
+    /* Mobile responsive styles */
+    @media (max-width: 992px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content .pt-3 {
+            padding-top: 1rem !important;
+        }
+
+        .main-content .pb-2 {
+            padding-bottom: 0.5rem !important;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content h1 {
+            font-size: 1.2rem;
+        }
+
+        .main-content p {
+            font-size: 0.8rem;
+        }
+
+        .input-group-text {
+            padding: 0.3rem 0.5rem;
+        }
+
+        .form-control {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+        }
+    }
+</style>
+
+<!-- Main Content Area for Reports -->
+<main class="col-lg-10 ms-sm-auto main-content px-md-4">
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div>
+            <h1 class="h3 mb-0">리포트</h1>
+            <p class="text-muted mb-0">자산 상태 및 이상 징후 리포트를 확인하세요.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary"><i class="fas fa-download me-1"></i> 리포트 생성</button>
+        </div>
+    </div>
+
+    <!-- Reports Summary Cards -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">총 리포트 수</h5>
+                <h2 class="mb-0">42</h2>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">이번 달 리포트</h5>
+                <h2 class="mb-0">8</h2>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card p-3 text-center h-100">
+                <h5 class="text-secondary">가장 최근 리포트</h5>
+                <h2 class="mb-0">10/17</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="dashboard-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">이상 징후 추이</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">차트 리프레시</a></li>
+                            <li><a class="dropdown-item" href="#">데이터 내보내기</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="anomalyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="dashboard-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">자산 상태 분포</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">차트 리프레시</a></li>
+                            <li><a class="dropdown-item" href="#">데이터 내보내기</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="assetStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports List -->
+    <div class="dashboard-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">최근 리포트 목록</h3>
+            <button class="btn btn-sm btn-outline-primary">전체 보기</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-borderless">
+                <thead>
+                    <tr>
+                        <th>리포트 제목</th>
+                        <th>생성일</th>
+                        <th>범위</th>
+                        <th>작성자</th>
+                        <th>다운로드</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10월 2주차 이상 징후 리포트</td>
+                        <td>2025-10-17</td>
+                        <td>전체 자산</td>
+                        <td>시스템</td>
+                        <td><a href="#"><i class="fas fa-download"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>자산별 이상 징후 요약</td>
+                        <td>2025-10-10</td>
+                        <td>선택 자산</td>
+                        <td>관리자</td>
+                        <td><a href="#"><i class="fas fa-download"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>냉동고 이상 징후 분석</td>
+                        <td>2025-10-05</td>
+                        <td>냉동설비</td>
+                        <td>운영팀</td>
+                        <td><a href="#"><i class="fas fa-download"></i></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
