@@ -11,18 +11,21 @@
     .hamburger-menu {
         display: block;
         position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 999;
+        top: 15px;
+        right: 15px;
+        z-index: 1050; /* Higher than sidebar z-index */
         background: var(--accent-primary);
         border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        border-radius: 4px;
         color: white;
-        font-size: 1.2rem;
+        font-size: 1.5rem;
         cursor: pointer;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* Adjust header layout for mobile */
