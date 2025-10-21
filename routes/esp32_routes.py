@@ -10,7 +10,7 @@ import time
 import logging
 import json
 from services.esp32_optimizer import esp32_optimizer
-from services.notification_service import notification_service
+from services.notification_service import unified_notification_service
 from services.ai_service import ensemble_ai_service
 
 # 로깅 설정

@@ -1,26 +1,21 @@
 /**
- * 라벨링 데이터베이스 (SQLite)
+ * 라벨링 데이터베이스 (PostgreSQL)
  * 실제 라벨링 데이터를 영구 저장
  */
 
-const sqlite3 = require('sqlite3').verbose();
+// const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
 class LabelingDatabase {
     constructor() {
-        // 데이터 디렉토리 생성
-        const dataDir = path.join(__dirname, '..', 'data');
-        if (!fs.existsSync(dataDir)) {
-            fs.mkdirSync(dataDir, { recursive: true });
-        }
-        
-        this.dbPath = path.join(dataDir, 'labeling.db');
-        this.db = new sqlite3.Database(this.dbPath);
-        this.init();
+        this.db = null; // 데이터베이스 연결 객체 (PostgreSQL)
+        console.log('라벨링 데이터베이스 서비스 초기화 완료');
     }
 
     init() {
+        console.warn("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.");
+        /**
         // 라벨링 테이블 생성
         this.db.run(`
             CREATE TABLE IF NOT EXISTS labels (
@@ -65,11 +60,14 @@ class LabelingDatabase {
         `);
 
         console.log('📊 라벨링 데이터베이스 초기화 완료');
+        */
     }
 
     // 라벨 저장
     saveLabel(labelData) {
+        console.warn("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.");
         return new Promise((resolve, reject) => {
+            /**
             const sql = `
                 INSERT INTO labels (file_name, file_size, file_type, label, confidence, notes, labeler_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -94,12 +92,16 @@ class LabelingDatabase {
                     });
                 }
             });
+            */
+            reject(new Error("데이터베이스 연결이 구현되지 않았습니다."));
         });
     }
 
     // 라벨링 통계 조회
     getStats() {
+        console.warn("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.");
         return new Promise((resolve, reject) => {
+            /**
             const stats = {};
             
             // 총 라벨링 수
@@ -180,12 +182,16 @@ class LabelingDatabase {
                     });
                 });
             });
+            */
+           reject(new Error("데이터베이스 연결이 구현되지 않았습니다."));
         });
     }
 
     // 라벨링 이력 조회
     getHistory(options = {}) {
+        console.warn("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.");
         return new Promise((resolve, reject) => {
+            /**
             const { page = 1, limit = 20, label } = options;
             const offset = (page - 1) * limit;
             
@@ -232,12 +238,16 @@ class LabelingDatabase {
                     });
                 });
             });
+            */
+           reject(new Error("데이터베이스 연결이 구현되지 않았습니다."));
         });
     }
 
     // 전문가 등록
     registerExpert(expertData) {
+        console.warn("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.");
         return new Promise((resolve, reject) => {
+            /**
             const sql = `
                 INSERT OR REPLACE INTO experts (id, name, email, last_active)
                 VALUES (?, ?, ?, CURRENT_TIMESTAMP)
@@ -254,12 +264,16 @@ class LabelingDatabase {
                     resolve(expertData);
                 }
             });
+            */
+           reject(new Error("데이터베이스 연결이 구현되지 않았습니다."));
         });
     }
 
     // 전문가 목록 조회
     getExperts() {
+        console.warn("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.");
         return new Promise((resolve, reject) => {
+            /**
             this.db.all(`
                 SELECT e.*, 
                        COUNT(l.id) as total_labeled,
@@ -282,12 +296,17 @@ class LabelingDatabase {
                     })));
                 }
             });
+            */
+           reject(new Error("데이터베이스 연결이 구현되지 않았습니다."));
         });
     }
 
     // 데이터베이스 닫기
     close() {
+        console.warn("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.");
+        /**
         this.db.close();
+        */
     }
 }
 

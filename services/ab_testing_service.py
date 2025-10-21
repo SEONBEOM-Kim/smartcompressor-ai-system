@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
-import sqlite3
+# import sqlite3
 from scipy import stats
 import random
 import hashlib
@@ -76,18 +76,16 @@ class TestResult:
 class ABTestingService:
     """A/B 테스트 서비스"""
     
-    def __init__(self, db_path: str = "data/analytics.db"):
-        self.db_path = db_path
-        self.conn = None
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.active_tests = {}
-        
-        # 초기화
-        self._init_database()
         
         logger.info("A/B 테스트 서비스 초기화 완료")
     
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             self.conn = sqlite3.connect(self.db_path)
             cursor = self.conn.cursor()
@@ -165,9 +163,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"데이터베이스 초기화 오류: {e}")
             raise
-    
+        """
+        pass
+
     def create_test(self, test: ABTest) -> bool:
         """A/B 테스트 생성"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -200,9 +202,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"A/B 테스트 생성 오류: {e}")
             return False
+        """
+        return False
     
     def start_test(self, test_id: str) -> bool:
         """테스트 시작"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -223,9 +229,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"A/B 테스트 시작 오류: {e}")
             return False
-    
+        """
+        return False
+
     def stop_test(self, test_id: str) -> bool:
         """테스트 중지"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -247,9 +257,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"A/B 테스트 중지 오류: {e}")
             return False
-    
+        """
+        return False
+
     def assign_user_to_variant(self, test_id: str, user_id: str) -> str:
         """사용자를 변형에 할당"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 이미 할당된 경우 기존 할당 반환
             cursor = self.conn.cursor()
@@ -297,9 +311,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"사용자 할당 오류: {e}")
             return "control"
-    
+        """
+        return "control"
+
     def track_event(self, test_id: str, user_id: str, event_name: str, event_value: float = 1.0) -> bool:
         """테스트 이벤트 추적"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -315,9 +333,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"테스트 이벤트 추적 오류: {e}")
             return False
-    
+        """
+        return False
+
     def get_test(self, test_id: str) -> Optional[ABTest]:
         """테스트 정보 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -348,9 +370,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"테스트 정보 조회 오류: {e}")
             return None
-    
+        """
+        return None
+
     def get_test_results(self, test_id: str) -> List[TestResult]:
         """테스트 결과 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -380,9 +406,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"테스트 결과 조회 오류: {e}")
             return []
-    
+        """
+        return []
+
     def calculate_test_results(self, test_id: str) -> List[TestResult]:
         """테스트 결과 계산"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             test = self.get_test(test_id)
             if not test:
@@ -462,9 +492,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"테스트 결과 계산 오류: {e}")
             return []
-    
+        """
+        return []
+
     def _calculate_statistical_significance(self, test_id: str, variant: str, confidence_level: float) -> Tuple[float, bool, float, float]:
         """통계적 유의성 계산"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             # 변형별 데이터 조회
             query = '''
@@ -512,7 +546,9 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"통계적 유의성 계산 오류: {e}")
             return 1.0, False, 0.0, 0.0
-    
+        """
+        return 1.0, False, 0.0, 0.0
+
     def _calculate_confidence_interval(self, proportion: float, sample_size: int, confidence_level: float) -> Tuple[float, float]:
         """신뢰구간 계산"""
         try:
@@ -546,6 +582,8 @@ class ABTestingService:
     
     def _save_test_result(self, result: TestResult) -> bool:
         """테스트 결과 저장"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -576,9 +614,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"테스트 결과 저장 오류: {e}")
             return False
-    
+        """
+        return False
+
     def get_active_tests(self) -> List[ABTest]:
         """활성 테스트 목록 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cursor = self.conn.cursor()
             
@@ -599,9 +641,13 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"활성 테스트 조회 오류: {e}")
             return []
-    
+        """
+        return []
+
     def get_test_summary(self, test_id: str) -> Dict:
         """테스트 요약 정보 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             test = self.get_test(test_id)
             if not test:
@@ -644,6 +690,8 @@ class ABTestingService:
         except Exception as e:
             logger.error(f"테스트 요약 조회 오류: {e}")
             return {'error': str(e)}
+        """
+        return {'error': '데이터베이스 연결이 구현되지 않았습니다.'}
 
 # 전역 인스턴스
 ab_testing_service = ABTestingService()

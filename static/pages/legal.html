@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalcraft</title> <!-- Title will be updated by content -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/landing.css">
+    <link rel="stylesheet" href="/static/css/animations.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        <div id="legal-content-placeholder" class="container" style="padding-top: 80px; padding-bottom: 80px;"></div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Main Application Script -->
+    <script src="/static/app.js"></script>
+    
+    <!-- Landing Page Specific Scripts -->
+    <script src="/static/js/landing/utils.js"></script>
+
+    <!-- Module Loader for legal pages -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname;
+            let contentUrl = '';
+            if (path === '/terms') {
+                contentUrl = '/static/landing-components/terms.html';
+                document.title = '서비스 이용약관 - Signalcraft';
+            } else if (path === '/privacy') {
+                contentUrl = '/static/landing-components/privacy.html';
+                document.title = '개인정보처리방침 - Signalcraft';
+            }
+
+            const loadComponent = (id, url, callback) => {
+                fetch(url)
+                    .then(response => response.text())
+                    .then(data => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.innerHTML = data;
+                        }
+                        if (callback) {
+                            callback();
+                        }
+                    })
+                    .catch(error => console.error(`Error loading ${url}:`, error));
+            };
+
+            // Callback function to fix footer links
+            const fixFooterLinks = () => {
+                const footer = document.getElementById('footer-placeholder');
+                if (footer) {
+                    const links = footer.querySelectorAll('a[href^="#"]');
+                    links.forEach(link => {
+                        const href = link.getAttribute('href');
+                        // Make sure it's not just "#"
+                        if (href.length > 1) {
+                            link.setAttribute('href', '/' + href);
+                        }
+                    });
+                }
+            };
+
+            // Load header, footer, and the legal content
+            loadComponent('header-placeholder', '/static/landing-components/header.html');
+            loadComponent('footer-placeholder', '/static/landing-components/footer.html', fixFooterLinks); // Add callback
+            if (contentUrl) {
+                loadComponent('legal-content-placeholder', contentUrl);
+            }
+        });
+    </script>
+
+</body>
+</html>

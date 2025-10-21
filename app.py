@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-Flask 애플리케이션 메인 파일
-모듈화된 구조로 재구성
-"""
+
 
 import os
 from flask import Flask, jsonify, request
@@ -52,6 +49,23 @@ def create_app():
     # 데이터베이스 초기화
     init_db()
 
+    # Sentry 초기화
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN'),
+        integrations=[
+            FlaskIntegration(),
+            RedisIntegration(),  # Celery 사용 시 필요
+        ],
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        environment=os.getenv('FLASK_ENV', 'production'),
+        release=os.getenv('APP_VERSION', 'unknown')
+    )
+
     # CORS 설정
     # origins를 명확히 지정하여 보안 강화
     CORS(app,
@@ -89,85 +103,86 @@ def create_app():
     app.register_blueprint(enhanced_auth_bp)
     # IoT 센서 시스템 라우트 등록
     app.register_blueprint(iot_sensor_bp)
-# 대시보드 라우트 등록 # NEW
-app.register_blueprint(dashboard_bp)
-# 모바일 앱 라우트 등록 # NEW
-app.register_blueprint(mobile_app_bp)
-# 알림 관리 라우트 등록 # NEW
-app.register_blueprint(notification_bp)
-# 분석 시스템 라우트 등록 # NEW
-app.register_blueprint(analytics_bp)
-# 관리자 시스템 라우트 등록 # NEW
-app.register_blueprint(admin_bp)
+    # 대시보드 라우트 등록 # NEW
+    app.register_blueprint(dashboard_bp)
+    # 모바일 앱 라우트 등록 # NEW
+    app.register_blueprint(mobile_app_bp)
+    # 분석 시스템 라우트 등록 # NEW
+    app.register_blueprint(analytics_bp)
     
     # IoT 센서 서비스 초기화
-    sensor_monitoring_service.start_monitoring()
+sensor_monitoring_service.start_monitoring()
     
     # API 라우트 추가 (프론트엔드 호환성)
-    @app.route('/api/auth/login', methods=['POST'])
-    def api_login():
-        from routes.auth_routes import login
-        return login()
+@app.route('/api/auth/login', methods=['POST'])
+def api_login():
+    from routes.auth_routes import login
+    return login()
     
-    @app.route('/api/auth/register', methods=['POST'])
-    def api_register():
-        from routes.auth_routes import register
-        return register()
+@app.route('/api/auth/register', methods=['POST'])
+def api_register():
+    from routes.auth_routes import register
+    return register()
     
-    @app.route('/api/auth/logout', methods=['POST'])
-    def api_logout():
-        from routes.auth_routes import logout
-        return logout()
+@app.route('/api/auth/logout', methods=['POST'])
+def api_logout():
+    from routes.auth_routes import logout
+    return logout()
     
-    @app.route('/api/auth/verify', methods=['GET'])
-    def api_verify():
-        from routes.auth_routes import auth_status
-        return auth_status()
+@app.route('/api/auth/verify', methods=['GET'])
+def api_verify():
+    from routes.auth_routes import auth_status
+    return auth_status()
     
-    @app.route('/api/lightweight-analyze', methods=['POST'])
-    def api_lightweight_analyze():
-        from routes.ai_routes import lightweight_analyze
-        return lightweight_analyze()
+@app.route('/api/lightweight-analyze', methods=['POST'])
+def api_lightweight_analyze():
+    from routes.ai_routes import lightweight_analyze
+    return lightweight_analyze()
 
-    @app.route('/dashboard')
-    def dashboard():
-        """대시보드 페이지"""
+@app.route('/dashboard')
+def dashboard():
+    """대시보드 페이지"""
+    from flask import render_template
+    return render_template('dashboard.html')
+
+    @app.route('/mobile_app')
+    def mobile_app():
+        """모바일 앱 페이지"""
         from flask import render_template
-        return render_template('dashboard.html')
+        return render_template('mobile_app.html')
 
-@app.route('/mobile_app')
-def mobile_app():
-    """모바일 앱 페이지"""
-    from flask import render_template
-    return render_template('mobile_app.html')
-
-@app.route('/notifications')
-def notification_dashboard():
-    """알림 관리 대시보드 페이지"""
-    from flask import render_template
-    return render_template('notification_dashboard.html')
-
-    return app
-
-if __name__ == '__main__':
-    import os
-
-    app = create_app()
-    @app.after_request
-    def after_request(response):
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return response
-
-    port = int(os.environ.get('PORT', 8000))
-    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    @app.route('/notifications')
+    def notification_dashboard():
+        """알림 관리 대시보드 페이지"""
+        from flask import render_template
+        return render_template('notification_dashboard.html')
 
     @app.route('/admin')
     def admin_dashboard():
         """관리자 대시보드 페이지"""
         from flask import render_template
         return render_template('admin_dashboard.html')
+
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+@app.route('/admin')
+def admin_dashboard():
+    """관리자 대시보드 페이지"""
+    from flask import render_template
+    return render_template('admin_dashboard.html')
+
+if __name__ == '__main__':
+    import os
+    
+    app = create_app()
+    
+    port = int(os.environ.get('PORT', 8000))
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
     print("=== 🚀 모듈화된 Flask 서버 시작 ===")
     print(f"포트: {port}, 디버그: {debug}")

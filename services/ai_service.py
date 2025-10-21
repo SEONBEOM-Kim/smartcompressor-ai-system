@@ -673,7 +673,7 @@ class UnifiedAIService:
                 # 모델 로드
                 if model_name.endswith('_scaler'):
                     self.scalers[model_name] = joblib.load(model_path)
-                    else:
+                else:
                     self.models[model_name] = joblib.load(model_path)
                 
                 # 버전 업데이트
@@ -691,7 +691,7 @@ class UnifiedAIService:
                 logger.info(f"모델 {model_name} v{version} 업데이트 완료")
                 return True
 
-                except Exception as e:
+        except Exception as e:
             logger.error(f"모델 업데이트 실패: {e}")
             return False
 

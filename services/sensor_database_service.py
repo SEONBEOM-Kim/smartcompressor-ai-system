@@ -8,7 +8,7 @@ import os
 import json
 import time
 import logging
-import sqlite3
+# import sqlite3
 import threading
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
@@ -23,15 +23,12 @@ logger = logging.getLogger(__name__)
 class SensorDatabaseService:
     """센서 데이터베이스 서비스 (Nest 스타일)"""
     
-    def __init__(self, db_path: str = 'data/sensor_data.db'):
-        self.db_path = db_path
+    def __init__(self):
+        self.conn = None # 데이터베이스 연결 객체 (PostgreSQL)
         self.db_lock = threading.Lock()
         self.batch_queue = queue.Queue()
         self.batch_size = 100
         self.batch_timeout = 5.0  # 5초
-        
-        # 데이터베이스 초기화
-        self._init_database()
         
         # 배치 처리 스레드 시작
         self.batch_thread = threading.Thread(target=self._batch_processor, daemon=True)
@@ -40,7 +37,9 @@ class SensorDatabaseService:
         logger.info("센서 데이터베이스 서비스 초기화 완료")
     
     def _init_database(self):
-        """데이터베이스 초기화"""
+        """데이터베이스 초기화 (SQLite) - PostgreSQL로 마이그레이션 필요"""
+        logger.warning("이 함수는 더 이상 사용되지 않습니다. PostgreSQL 연결을 사용해야 합니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -128,7 +127,9 @@ class SensorDatabaseService:
                 
         except Exception as e:
             logger.error(f"데이터베이스 초기화 실패: {e}")
-    
+        """
+        pass
+
     def add_sensor_reading(self, reading_data: Dict):
         """센서 데이터 추가 (배치 처리)"""
         try:
@@ -138,6 +139,8 @@ class SensorDatabaseService:
     
     def add_anomaly(self, anomaly_data: Dict):
         """이상 감지 결과 추가 (즉시 처리)"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -164,9 +167,13 @@ class SensorDatabaseService:
                 
         except Exception as e:
             logger.error(f"이상 감지 결과 저장 실패: {e}")
-    
+        """
+        pass
+
     def update_device_info(self, device_info: Dict):
         """디바이스 정보 업데이트"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -191,7 +198,9 @@ class SensorDatabaseService:
                 
         except Exception as e:
             logger.error(f"디바이스 정보 업데이트 실패: {e}")
-    
+        """
+        pass
+
     def _batch_processor(self):
         """배치 처리 스레드"""
         batch_data = []
@@ -223,6 +232,8 @@ class SensorDatabaseService:
     
     def _process_batch(self, batch_data: List[Tuple]):
         """배치 데이터 처리"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -254,10 +265,14 @@ class SensorDatabaseService:
                 
         except Exception as e:
             logger.error(f"배치 처리 실패: {e}")
-    
+        """
+        pass
+
     def get_sensor_data(self, device_id: str, start_time: float = None, 
                        end_time: float = None, limit: int = 1000) -> List[Dict]:
         """센서 데이터 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -298,10 +313,14 @@ class SensorDatabaseService:
         except Exception as e:
             logger.error(f"센서 데이터 조회 실패: {e}")
             return []
-    
+        """
+        return []
+
     def get_anomalies(self, device_id: str = None, start_time: float = None, 
                      end_time: float = None, limit: int = 100) -> List[Dict]:
         """이상 감지 결과 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -348,9 +367,13 @@ class SensorDatabaseService:
         except Exception as e:
             logger.error(f"이상 감지 결과 조회 실패: {e}")
             return []
-    
+        """
+        return []
+
     def get_device_status(self) -> List[Dict]:
         """디바이스 상태 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -381,9 +404,13 @@ class SensorDatabaseService:
         except Exception as e:
             logger.error(f"디바이스 상태 조회 실패: {e}")
             return []
-    
+        """
+        return []
+
     def get_statistics(self, device_id: str, date: str = None) -> Dict:
         """센서 통계 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if date is None:
                 date = datetime.now().strftime('%Y-%m-%d')
@@ -437,9 +464,13 @@ class SensorDatabaseService:
         except Exception as e:
             logger.error(f"통계 조회 실패: {e}")
             return {}
-    
+        """
+        return {}
+
     def generate_hourly_statistics(self, device_id: str, date: str = None):
         """시간별 통계 생성"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             if date is None:
                 date = datetime.now().strftime('%Y-%m-%d')
@@ -503,9 +534,13 @@ class SensorDatabaseService:
                 
         except Exception as e:
             logger.error(f"시간별 통계 생성 실패: {e}")
-    
+        """
+        pass
+
     def cleanup_old_data(self, days: int = 30):
         """오래된 데이터 정리"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             cutoff_time = time.time() - (days * 24 * 3600)
             
@@ -528,9 +563,13 @@ class SensorDatabaseService:
                 
         except Exception as e:
             logger.error(f"데이터 정리 실패: {e}")
-    
+        """
+        pass
+
     def get_database_status(self) -> Dict:
         """데이터베이스 상태 조회"""
+        logger.warning("데이터베이스 연결이 구현되지 않았습니다. 아래는 이전 SQLite 로직입니다.")
+        """
         try:
             with self.db_lock:
                 conn = sqlite3.connect(self.db_path)
@@ -568,6 +607,8 @@ class SensorDatabaseService:
         except Exception as e:
             logger.error(f"데이터베이스 상태 조회 실패: {e}")
             return {}
+        """
+        return {}
 
 # 전역 서비스 인스턴스
 sensor_database_service = SensorDatabaseService()

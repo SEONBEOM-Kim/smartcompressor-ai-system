@@ -36,6 +36,12 @@ supabase>=2.0.0
 
 # 시스템 및 프로세스 관리
 psutil>=5.9.0
+gunicorn>=21.2.0
+celery>=5.3.6
+redis>=5.0.1
+
+# Sentry
+sentry-sdk[flask]>=1.40.0
 
 # 현장 진단 MVP 기능
 audio-recorder-streamlit>=0.0.8
