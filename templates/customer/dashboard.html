@@ -137,23 +137,23 @@
             <div class="current-risk-cards">
                 <div class="risk-card">
                     <h5>총 자산</h5>
-                    <h2>12</h2>
+                    <h2 id="total-assets">0</h2>
                 </div>
                 <div class="risk-card">
                     <h5>정상 자산</h5>
-                    <h2>10</h2>
+                    <h2 id="normal-assets">0</h2>
                 </div>
                 <div class="risk-card">
                     <h5>이상 징후</h5>
-                    <h2>2</h2>
+                    <h2 id="anomaly-count">0</h2>
                 </div>
                 <div class="risk-card">
                     <h5>긴급 조치 필요</h5>
-                    <h2>1</h2>
+                    <h2 id="urgent-action">0</h2>
                 </div>
                 <div class="risk-card">
                     <h5>오늘 점검 예정</h5>
-                    <h2>3</h2>
+                    <h2 id="scheduled-maintenance">0</h2>
                 </div>
             </div>
 
@@ -185,7 +185,7 @@
                     <h3 class="card-title">최근 이상 징후 상세</h3>
                     <div class="card-menu">...</div>
                 </div>
-                <table>
+                <table id="anomalies-table">
                     <thead>
                         <tr>
                             <th>날짜</th>
@@ -196,8 +196,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>2025-10-17</td><td>Freezer-A1</td><td>온도 급상승</td><td>-18°C -> -5°C</td><td>위험</td></tr>
-                        <tr><td>2025-10-17</td><td>Freezer-C3</td><td>컴프레서 과부하</td><td>전력 소비 150% 증가</td><td>경고</td></tr>
+                        <!-- Data will be loaded via API -->
                     </tbody>
                 </table>
             </div>
@@ -228,11 +227,85 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Dummy Chart Initializations
-        // You can replace this with your actual data and chart configurations
-        new Chart(document.getElementById('threat-summary-chart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar'], datasets: [{ data: [10, 20, 15] }] } });
-        new Chart(document.getElementById('risk-score-chart'), { type: 'doughnut', data: { datasets: [{ data: [85, 15] }] } });
-        new Chart(document.getElementById('threats-by-virus-chart'), { type: 'doughnut', data: { datasets: [{ data: [50, 30, 20] }] } });
+        // Chart Initializations
+        // Data will be loaded via API calls
+        function initializeCharts() {
+            // Threat Summary Chart - Initial empty chart
+            if (document.getElementById('threat-summary-chart')) {
+                new Chart(document.getElementById('threat-summary-chart'), { 
+                    type: 'line', 
+                    data: { 
+                        labels: [], 
+                        datasets: [{
+                            label: '이상 징후',
+                            data: [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Risk Score Chart - Initial empty chart
+            if (document.getElementById('risk-score-chart')) {
+                new Chart(document.getElementById('risk-score-chart'), { 
+                    type: 'doughnut', 
+                    data: { 
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                'rgb(54, 162, 235)',
+                                'rgb(255, 205, 86)'
+                            ]
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Threats by Virus Chart - Initial empty chart
+            if (document.getElementById('threats-by-virus-chart')) {
+                new Chart(document.getElementById('threats-by-virus-chart'), { 
+                    type: 'doughnut', 
+                    data: { 
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                'rgb(255, 99, 132)',
+                                'rgb(54, 162, 235)',
+                                'rgb(255, 205, 86)'
+                            ]
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Call initializeCharts when page loads
+        document.addEventListener('DOMContentLoaded', initializeCharts);
     </script>
     
     <script>
