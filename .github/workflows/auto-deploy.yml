@@ -3,7 +3,7 @@ name: Auto Deploy to Signalcraft EC2
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # 수동 실행 가능
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -22,26 +22,12 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         timeout: 60s
+        command_timeout: 30m
         script: |
-          # 1. 프로젝트 디렉토리로 이동
+          echo "🚀 Signalcraft 자동 배포 시작..."
           cd /var/www/smartcompressor
-          
-          # 2. 최신 코드 가져오기
-          echo "📥 Git Pull: 최신 코드를 가져옵니다..."
           git pull origin main
-          
-          # 3. Node.js 의존성 설치
-          echo "📦 NPM Install: Node.js 패키지를 설치합니다..."
-          npm install --production # --production 플래그는 개발용 패키지를 제외하여 더 가볍게 설치합니다.
-          
-          # 4. PM2로 애플리케이션 재시작 (무중단)
-          # ecosystem.config.js 파일이 있다면 reload, 없다면 restart를 사용합니다.
-          echo "🚀 PM2 Reload: 애플리케이션을 무중단으로 재시작합니다..."
-          pm2 reload ecosystem.config.js --env production || pm2 restart all
-          
-          # 5. Nginx 웹서버 재시작 (필요시)
-          # Nginx 설정 변경이 없다면 이 부분은 생략해도 괜찮습니다.
-          echo "🔄 Nginx Restart: 웹서버를 재시작합니다..."
-          sudo systemctl restart nginx
-          
-          echo "✅ 배포가 성공적으로 완료되었습니다!"
+          npm install
+          pm2 delete all 2>/dev/null || true
+          pm2 start server.js --name signalcraft-app
+          echo "✅ 배포 완료!"

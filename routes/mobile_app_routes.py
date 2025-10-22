@@ -162,7 +162,7 @@ def test_push_notification():
             )
         
         # 알림 전송
-        success = await mobile_push_service.send_notification(user_id, notification)
+        success = mobile_push_service.send_notification(user_id, notification)
         
         return jsonify({
             'success': success,
@@ -332,7 +332,7 @@ def execute_control_command():
             executed_by=data.get('executed_by', 'mobile_app')
         )
         
-        success = await remote_control_service.execute_command(command)
+        success = remote_control_service.execute_command(command)
         
         return jsonify({
             'success': success,
@@ -459,7 +459,7 @@ def create_payment():
             metadata=data.get('metadata', {})
         )
         
-        success = await mobile_payment_service.process_payment(transaction)
+        success = mobile_payment_service.process_payment(transaction)
         
         return jsonify({
             'success': success,
@@ -481,7 +481,7 @@ def refund_payment(transaction_id):
         data = request.get_json()
         amount = data.get('amount')
         
-        success = await mobile_payment_service.refund_payment(transaction_id, amount)
+        success = mobile_payment_service.refund_payment(transaction_id, amount)
         
         return jsonify({
             'success': success,

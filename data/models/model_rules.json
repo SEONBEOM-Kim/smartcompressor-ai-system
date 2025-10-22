@@ -1,0 +1,471 @@
+[
+  {
+    "class_id": 0,
+    "class_label": "normal_compressor",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.42734653441991693,
+        "max_value": 0.4577901411731317,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.0000345365554187034,
+        "max_value": 0.00021637106857017933,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.0008348911492253265,
+        "max_value": 0.006414951079166077,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.9952301084936404,
+        "max_value": 1,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.000013451272725112835,
+        "max_value": 0.00008431043834012557,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.0000657005618112367,
+        "max_value": 0.00028222233127721746,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0,
+        "max_value": 0.004626499459673788,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.00006570056181122035,
+        "max_value": 0.0002822223312772124,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.000013453437016902973,
+        "max_value": 0.00008431302475036642,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.000053796001830732734,
+        "max_value": 0.00024118085244565645,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  },
+  {
+    "class_id": 1,
+    "class_label": "normal_fan",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.4352901028521106,
+        "max_value": 0.45793334715781314,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.14794801403678617,
+        "max_value": 0.1481201302468896,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.046092840113349125,
+        "max_value": 0.05029760877516009,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.9505703271331672,
+        "max_value": 0.9555880239434568,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.0709935171046325,
+        "max_value": 0.07109166957585533,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.1677814983787246,
+        "max_value": 0.16797287294173172,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0.043590650607313125,
+        "max_value": 0.0486061522818768,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.16778149837872458,
+        "max_value": 0.1679728729417317,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.07099351069913742,
+        "max_value": 0.07109166545080903,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.027586037377465913,
+        "max_value": 0.02767549063624409,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  },
+  {
+    "class_id": 2,
+    "class_label": "normal_motor",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.4334615622338156,
+        "max_value": 0.45822889815755463,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.07450220671237669,
+        "max_value": 0.07467175934077307,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.025256495564639485,
+        "max_value": 0.03143745877643669,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.9711088723144835,
+        "max_value": 0.975040389549605,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.032409844808909676,
+        "max_value": 0.032491329658529404,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.08393706046199587,
+        "max_value": 0.0841266647234635,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0.023504945551715995,
+        "max_value": 0.029078303566312424,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.08393706046199587,
+        "max_value": 0.0841266647234635,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.032409842885587264,
+        "max_value": 0.032491328497311026,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.003987132908113889,
+        "max_value": 0.004173094210304998,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  },
+  {
+    "class_id": 3,
+    "class_label": "abnormal_bearing",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.12428875526348371,
+        "max_value": 0.7959013532238568,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.9917959515981931,
+        "max_value": 0.9979840845312862,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.8427763056068939,
+        "max_value": 0.9652308688751284,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.05561802122076071,
+        "max_value": 0.17799453003483737,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.986826235128878,
+        "max_value": 0.9967519750554455,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.991563063601636,
+        "max_value": 0.9979849375782607,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0.8562419064641996,
+        "max_value": 0.9642207041736292,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.9915630636016357,
+        "max_value": 0.9979849375782606,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.9868275017573436,
+        "max_value": 0.996753183045969,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.9932651223927712,
+        "max_value": 0.9983613243415838,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  },
+  {
+    "class_id": 4,
+    "class_label": "abnormal_unbalance",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.38278754577887264,
+        "max_value": 0.5191757548884756,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.536708067533968,
+        "max_value": 0.5376284290478316,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.34549352597513094,
+        "max_value": 0.37060492021835656,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.6380373160888307,
+        "max_value": 0.6618430219797543,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.3849150994930672,
+        "max_value": 0.38587710516837176,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.5320338849487067,
+        "max_value": 0.5331755384869259,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0.34209730759946866,
+        "max_value": 0.36656005487895205,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.5320338849487067,
+        "max_value": 0.5331755384869259,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.38491510729305695,
+        "max_value": 0.3858771378202515,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.1061065220169111,
+        "max_value": 0.10710942983506298,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  },
+  {
+    "class_id": 5,
+    "class_label": "abnormal_friction",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.1963388697495589,
+        "max_value": 0.6503725046722308,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.4291180285631632,
+        "max_value": 0.4319323116634958,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.4591356681849358,
+        "max_value": 0.5599892027306798,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.4717013044353908,
+        "max_value": 0.551986883370279,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.27956890093569453,
+        "max_value": 0.28214452497500453,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.40592170120104787,
+        "max_value": 0.40899063103353395,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0.4643304878474812,
+        "max_value": 0.5569441045028705,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.40592170120104787,
+        "max_value": 0.40899063103353395,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.2795691669681326,
+        "max_value": 0.2821454386170381,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.4085684133624571,
+        "max_value": 0.4106203597869851,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  },
+  {
+    "class_id": 6,
+    "class_label": "abnormal_overload",
+    "conditions": [
+      {
+        "feature_index": 0,
+        "min_value": 0.08845763473067397,
+        "max_value": 0.724446455147546,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 1,
+        "min_value": 0.5804042988144065,
+        "max_value": 0.5843894652212289,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 2,
+        "min_value": 0.6537266997478911,
+        "max_value": 0.7342483270676111,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 3,
+        "min_value": 0.2628708281033216,
+        "max_value": 0.36285709016132944,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 4,
+        "min_value": 0.4317340313216047,
+        "max_value": 0.4361199553541293,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 5,
+        "min_value": 0.533132887252617,
+        "max_value": 0.5369511183180898,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 6,
+        "min_value": 0.6515779250456835,
+        "max_value": 0.744260331786393,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 7,
+        "min_value": 0.533132887252617,
+        "max_value": 0.5369511183180898,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 8,
+        "min_value": 0.431735229155725,
+        "max_value": 0.43612112427666044,
+        "weight": 0.1
+      },
+      {
+        "feature_index": 9,
+        "min_value": 0.713776221951868,
+        "max_value": 0.7174488819741973,
+        "weight": 0.1
+      }
+    ],
+    "confidence": 0.8
+  }
+]

@@ -15,6 +15,8 @@ from enum import Enum
 from sqlite3 import connect
 import json
 import re
+from typing import Dict, List, Optional, Union, Tuple
+
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)

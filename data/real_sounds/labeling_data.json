@@ -1,0 +1,335 @@
+{
+  "real_sounds": [
+    {
+      "filename": "normal_compressor_real_2.wav",
+      "category": "normal_compressor",
+      "category_name": "정상 압축기",
+      "type": "real",
+      "path": "data\\real_sounds\\normal_compressor\\normal_compressor_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "normal_compressor_real_1.wav",
+      "category": "normal_compressor",
+      "category_name": "정상 압축기",
+      "type": "real",
+      "path": "data\\real_sounds\\normal_compressor\\normal_compressor_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "normal_fan_real_2.wav",
+      "category": "normal_fan",
+      "category_name": "정상 팬",
+      "type": "real",
+      "path": "data\\real_sounds\\normal_fan\\normal_fan_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "normal_fan_real_1.wav",
+      "category": "normal_fan",
+      "category_name": "정상 팬",
+      "type": "real",
+      "path": "data\\real_sounds\\normal_fan\\normal_fan_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "normal_motor_real_2.wav",
+      "category": "normal_motor",
+      "category_name": "정상 모터",
+      "type": "real",
+      "path": "data\\real_sounds\\normal_motor\\normal_motor_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "normal_motor_real_1.wav",
+      "category": "normal_motor",
+      "category_name": "정상 모터",
+      "type": "real",
+      "path": "data\\real_sounds\\normal_motor\\normal_motor_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_bearing_real_2.wav",
+      "category": "abnormal_bearing",
+      "category_name": "베어링 마모",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_bearing\\abnormal_bearing_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_bearing_real_1.wav",
+      "category": "abnormal_bearing",
+      "category_name": "베어링 마모",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_bearing\\abnormal_bearing_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_unbalance_real_2.wav",
+      "category": "abnormal_unbalance",
+      "category_name": "언밸런스",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_unbalance\\abnormal_unbalance_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_unbalance_real_1.wav",
+      "category": "abnormal_unbalance",
+      "category_name": "언밸런스",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_unbalance\\abnormal_unbalance_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_friction_real_2.wav",
+      "category": "abnormal_friction",
+      "category_name": "마찰",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_friction\\abnormal_friction_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_friction_real_1.wav",
+      "category": "abnormal_friction",
+      "category_name": "마찰",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_friction\\abnormal_friction_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_overload_real_1.wav",
+      "category": "abnormal_overload",
+      "category_name": "과부하",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_overload\\abnormal_overload_real_1.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    },
+    {
+      "filename": "abnormal_overload_real_2.wav",
+      "category": "abnormal_overload",
+      "category_name": "과부하",
+      "type": "real",
+      "path": "data\\real_sounds\\abnormal_overload\\abnormal_overload_real_2.wav",
+      "size": 220544,
+      "duration": 5,
+      "sample_rate": 22050,
+      "channels": 1,
+      "bit_depth": 16,
+      "status": "pending",
+      "engineer_label": null,
+      "engineer_confidence": null,
+      "engineer_notes": null,
+      "labeled_at": null
+    }
+  ],
+  "total_files": 14,
+  "categories": [
+    "normal_compressor",
+    "normal_fan",
+    "normal_motor",
+    "abnormal_bearing",
+    "abnormal_unbalance",
+    "abnormal_friction",
+    "abnormal_overload"
+  ],
+  "created_at": "2025-09-27T13:29:31.431Z",
+  "instructions": {
+    "title": "엔지니어 라벨링 가이드",
+    "description": "5년 경력을 바탕으로 소리를 듣고 정확하게 분류해주세요.",
+    "steps": [
+      "1. 소리를 재생하여 들어보세요",
+      "2. 5년 경험을 바탕으로 분류하세요",
+      "3. 신뢰도 점수를 설정하세요 (0-100%)",
+      "4. 특징이나 메모를 기록하세요"
+    ],
+    "categories": {
+      "normal_compressor": {
+        "name": "정상 압축기",
+        "keywords": [
+          "compressor",
+          "refrigerator",
+          "air conditioning",
+          "normal"
+        ],
+        "description": "정상적인 압축기 작동 소리"
+      },
+      "normal_fan": {
+        "name": "정상 팬",
+        "keywords": [
+          "fan",
+          "blower",
+          "ventilation",
+          "normal"
+        ],
+        "description": "정상적인 팬 회전 소리"
+      },
+      "normal_motor": {
+        "name": "정상 모터",
+        "keywords": [
+          "motor",
+          "engine",
+          "electric motor",
+          "normal"
+        ],
+        "description": "정상적인 모터 구동 소리"
+      },
+      "abnormal_bearing": {
+        "name": "베어링 마모",
+        "keywords": [
+          "bearing",
+          "grinding",
+          "friction",
+          "abnormal"
+        ],
+        "description": "베어링 마모로 인한 이상 소리"
+      },
+      "abnormal_unbalance": {
+        "name": "언밸런스",
+        "keywords": [
+          "unbalance",
+          "vibration",
+          "wobble",
+          "abnormal"
+        ],
+        "description": "언밸런스로 인한 진동 소리"
+      },
+      "abnormal_friction": {
+        "name": "마찰",
+        "keywords": [
+          "friction",
+          "squeak",
+          "screech",
+          "abnormal"
+        ],
+        "description": "마찰로 인한 이상 소리"
+      },
+      "abnormal_overload": {
+        "name": "과부하",
+        "keywords": [
+          "overload",
+          "strain",
+          "stress",
+          "abnormal"
+        ],
+        "description": "과부하 상태의 이상 소리"
+      }
+    }
+  }
+}

@@ -16,6 +16,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const kakaoRoutes = require('./routes/kakaoRoutes');
 const monitoringRoutes = require('./routes/monitoringRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const weatherRoutes = require('./routes/weatherApi');
+const sensorDataRoutes = require('./routes/sensorDataApi');
 
 const app = express();
 
@@ -98,6 +100,19 @@ app.get('/audio_recorder_client', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/audio_recorder_client.html'));
 });
 
+// 오디오 연구 페이지들
+app.get('/audio-research', (req, res) => {
+    res.sendFile(path.join(__dirname, '../audio_research.html'));
+});
+
+app.get('/audio-research-features', (req, res) => {
+    res.sendFile(path.join(__dirname, '../audio_research_features.html'));
+});
+
+app.get('/audio-research-fixed', (req, res) => {
+    res.sendFile(path.join(__dirname, '../audio_research_fixed.html'));
+});
+
 app.get('/terms', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/legal.html'));
 });
@@ -125,19 +140,17 @@ app.get('/storage/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/storage/dashboard.html'));
 });
 
-// 고객용 대시보드 라우트 (로그인 필요)
-app.get('/dashboard', /* verifySession, */ (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/customer/dashboard.html'));
-});
+customer-dashboard
 
-// 모바일 친화적 대시보드 라우트
-app.get('/mobile_friendly_dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/customer/mobile_friendly_dashboard.html'));
-});
-
-// 모바일 친화적 대시보드 서브페이지 라우트 (SPA 방식) - 이 라우트는 404 핸들러보다 위에 위치해야 함
-app.get(/^\/mobile_friendly_dashboard\/(.*)$/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/customer/mobile_friendly_dashboard.html'));
+// ESP32 센서 대시보드 페이지
+app.get('/esp32-dashboard', (req, res) => {
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Vary', '*');
+    res.sendFile(path.join(__dirname, '../static/pages/esp32_dashboard.html'));
 });
 
 // API 라우트
@@ -147,6 +160,12 @@ app.use('/api/lightweight-analyze', aiRoutes); // 경량 AI는 별도 경로로�
 app.use('/api/kakao', kakaoRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/sensor', sensorDataRoutes);
+
+// ESP32 API 라우트
+const esp32DashboardApi = require('./routes/esp32DashboardApi');
+app.use('/api/esp32', esp32DashboardApi);
 
 // 카카오 로그인 라우트 (별도 경로)
 app.use('/auth/kakao', kakaoRoutes);
