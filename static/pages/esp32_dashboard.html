@@ -4422,7 +4422,7 @@
         // 센서 목록 로드
         async function loadSensorList() {
             try {
-                const response = await fetch('/api/esp32/data/recent?limit=1');
+                const response = await fetch('/api/esp32/features/recent?limit=1');
                 const data = await response.json();
                 
                 if (data.success && data.data.length > 0) {
