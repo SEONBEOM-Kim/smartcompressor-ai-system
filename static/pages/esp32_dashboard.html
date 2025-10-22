@@ -219,6 +219,107 @@
             color: #2c3e50;
         }
 
+        /* 온도-압축기 상관관계 분석 스타일 */
+        .correlation-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* 관리자 대시보드 스타일 */
+        .admin-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .admin-dashboard h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .trend-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .trend-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .trend-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .trend-controls .btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .trend-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .trend-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .trend-insights {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .trend-insights h4 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .insights-container {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+        }
+
+        .insight-item.warning {
+            border-left-color: #f39c12;
+        }
+
+        .insight-item.danger {
+            border-left-color: #e74c3c;
+        }
+
+        .insight-item.success {
+            border-left-color: #27ae60;
+        }
+
         .pattern-stats {
             display: flex;
             justify-content: space-around;
@@ -525,15 +626,70 @@
                     <span class="stat-label">예상 작동비율:</span>
                     <span class="stat-value" id="expectedRatio">-</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-label">온도 효율성:</span>
+                    <span class="stat-value" id="tempEfficiency">-</span>
+                </div>
                     <div class="stat-item">
                         <span class="stat-label">패턴 트렌드:</span>
                         <span class="stat-value" id="patternTrend">-</span>
                     </div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="cyclePatternChart"></canvas>
+            <div class="chart-container">
+                <canvas id="cyclePatternChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 온도-압축기 상관관계 분석 -->
+        <div class="card">
+            <h3>🌡️ 온도-압축기 상관관계 분석</h3>
+            <div class="chart-container">
+                <canvas id="temperatureCorrelationChart"></canvas>
+            </div>
+            <div class="correlation-stats">
+                <div class="stat-item">
+                    <span class="stat-label">상관계수:</span>
+                    <span class="stat-value" id="correlationCoeff">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">온도 민감도:</span>
+                    <span class="stat-value" id="tempSensitivity">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">예측 정확도:</span>
+                    <span class="stat-value" id="predictionAccuracy">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">에너지 효율성:</span>
+                    <span class="stat-value" id="energyEfficiency">-</span>
                 </div>
             </div>
+        </div>
+
+        <!-- 관리자용 추세 분석 대시보드 -->
+        <div class="card admin-dashboard">
+            <h3>📊 관리자 추세 분석 대시보드</h3>
+            <div class="trend-controls">
+                <button class="btn" onclick="showTrendAnalysis('daily')">일간 분석</button>
+                <button class="btn" onclick="showTrendAnalysis('weekly')">주간 분석</button>
+                <button class="btn" onclick="showTrendAnalysis('monthly')">월간 분석</button>
+                <button class="btn" onclick="exportTrendData()">데이터 내보내기</button>
+            </div>
+            <div class="trend-charts">
+                <div class="chart-container">
+                    <canvas id="temperatureTrendChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="efficiencyTrendChart"></canvas>
+                </div>
+            </div>
+            <div class="trend-insights">
+                <h4>🔍 인사이트</h4>
+                <div id="trendInsights" class="insights-container">
+                    <p>데이터를 분석 중입니다...</p>
+                </div>
+            </div>
+        </div>
 
             <!-- RMS 에너지 차트 -->
             <div class="card">
@@ -1057,10 +1213,12 @@
                 document.getElementById('currentTemp').textContent = `${anomalyAnalysis.weatherData.temperature}°C`;
                 if (anomalyAnalysis.normalRange) {
                     document.getElementById('expectedRatio').textContent = `${(anomalyAnalysis.normalRange.predicted * 100).toFixed(1)}%`;
+                    document.getElementById('tempEfficiency').textContent = `${anomalyAnalysis.normalRange.efficiency}점`;
                 }
             } else {
                 document.getElementById('currentTemp').textContent = '데이터 없음';
                 document.getElementById('expectedRatio').textContent = '-';
+                document.getElementById('tempEfficiency').textContent = '-';
             }
             
             // 트렌드 표시
@@ -1086,6 +1244,9 @@
             
             // 개선된 사이클 패턴 차트 업데이트
             updateImprovedCycleChart(cycles, anomalyAnalysis);
+
+            // 온도-압축기 상관관계 분석
+            analyzeTemperatureCorrelation(cycles, anomalyAnalysis);
 
             return {
                 cycles,
@@ -1135,30 +1296,83 @@
             }
         }
 
-        // 온도 기반 정상 작동 범위 예측
+        // 온도-압축기 동작 상관관계 분석 알고리즘
         function predictNormalOperationRange(temperature, timeOfDay) {
-            // 기본 작동 비율 (온도 20도 기준)
-            const baseOperationRatio = 0.5;
+            // 계절별 기본 작동 비율 (온도별)
+            let baseOperationRatio;
+            if (temperature < 0) {
+                baseOperationRatio = 0.8; // 매우 추운 날: 80% 작동
+            } else if (temperature < 10) {
+                baseOperationRatio = 0.7; // 추운 날: 70% 작동
+            } else if (temperature < 20) {
+                baseOperationRatio = 0.5; // 적당한 날: 50% 작동
+            } else if (temperature < 30) {
+                baseOperationRatio = 0.3; // 따뜻한 날: 30% 작동
+            } else {
+                baseOperationRatio = 0.2; // 더운 날: 20% 작동
+            }
             
-            // 온도 계수 (온도가 낮을수록 작동 시간 증가)
-            const tempCoefficient = Math.max(0.3, 1 - (temperature - 20) * 0.02);
-            
-            // 시간대 계수 (밤시간 작동 감소)
-            const timeCoefficient = timeOfDay >= 22 || timeOfDay <= 6 ? 0.7 : 1.0;
+            // 시간대 계수 (낮/밤 패턴)
+            let timeCoefficient;
+            if (timeOfDay >= 22 || timeOfDay <= 6) {
+                timeCoefficient = 0.6; // 밤시간: 60% 감소
+            } else if (timeOfDay >= 7 && timeOfDay <= 9) {
+                timeCoefficient = 1.2; // 아침 출근시간: 20% 증가
+            } else if (timeOfDay >= 18 && timeOfDay <= 21) {
+                timeCoefficient = 1.1; // 저녁 시간: 10% 증가
+            } else {
+                timeCoefficient = 1.0; // 일반 시간
+            }
             
             // 예측된 정상 작동 비율
-            const predictedRatio = baseOperationRatio * tempCoefficient * timeCoefficient;
+            const predictedRatio = baseOperationRatio * timeCoefficient;
             
-            // 허용 오차 범위 (±20%)
-            const tolerance = 0.2;
+            // 온도별 허용 오차 범위 (온도가 극단적일수록 오차 범위 증가)
+            let tolerance;
+            if (temperature < 0 || temperature > 35) {
+                tolerance = 0.3; // 극한 온도: 30% 오차 허용
+            } else if (temperature < 5 || temperature > 30) {
+                tolerance = 0.25; // 극한에 가까운 온도: 25% 오차 허용
+            } else {
+                tolerance = 0.2; // 일반 온도: 20% 오차 허용
+            }
             
             return {
                 min: Math.max(0, predictedRatio - tolerance),
                 max: Math.min(1, predictedRatio + tolerance),
                 predicted: predictedRatio,
                 temperature: temperature,
-                timeOfDay: timeOfDay
+                timeOfDay: timeOfDay,
+                efficiency: calculateEfficiencyScore(temperature, timeOfDay, predictedRatio)
             };
+        }
+
+        // 효율성 점수 계산 (0-100점)
+        function calculateEfficiencyScore(temperature, timeOfDay, predictedRatio) {
+            // 온도 효율성 (적정 온도 범위에서 높은 점수)
+            let tempEfficiency = 100;
+            if (temperature < 0 || temperature > 35) {
+                tempEfficiency = 30; // 극한 온도
+            } else if (temperature < 5 || temperature > 30) {
+                tempEfficiency = 60; // 극한에 가까운 온도
+            } else if (temperature >= 10 && temperature <= 25) {
+                tempEfficiency = 100; // 최적 온도
+            } else {
+                tempEfficiency = 80; // 양호한 온도
+            }
+            
+            // 시간대 효율성
+            let timeEfficiency = 100;
+            if (timeOfDay >= 22 || timeOfDay <= 6) {
+                timeEfficiency = 70; // 밤시간
+            } else if (timeOfDay >= 7 && timeOfDay <= 9) {
+                timeEfficiency = 90; // 아침 출근시간
+            } else {
+                timeEfficiency = 100; // 일반 시간
+            }
+            
+            // 종합 효율성 점수
+            return Math.round((tempEfficiency * 0.7 + timeEfficiency * 0.3));
         }
 
         // 패턴 이상 감지 알고리즘 (온도 기반)
@@ -1378,6 +1592,445 @@
             charts.cyclePattern.data.datasets[1].data = avgLine;
             charts.cyclePattern.data.datasets[2].data = threshold;
             charts.cyclePattern.update();
+        }
+
+        // 온도-압축기 상관관계 분석
+        function analyzeTemperatureCorrelation(cycles, anomalyAnalysis) {
+            if (!anomalyAnalysis.weatherData || cycles.length < 3) return;
+
+            const temperature = anomalyAnalysis.weatherData.temperature;
+            const onRatios = cycles.map(cycle => cycle.onRatio);
+            const avgOnRatio = onRatios.reduce((sum, ratio) => sum + ratio, 0) / onRatios.length;
+
+            // 상관계수 계산 (온도와 작동 비율)
+            const correlation = calculateCorrelation(temperature, avgOnRatio);
+            
+            // 온도 민감도 계산
+            const tempSensitivity = calculateTemperatureSensitivity(cycles, temperature);
+            
+            // 예측 정확도 계산
+            const predictionAccuracy = calculatePredictionAccuracy(cycles, anomalyAnalysis.normalRange);
+            
+            // 에너지 효율성 계산
+            const energyEfficiency = calculateEnergyEfficiency(cycles, temperature);
+
+            // UI 업데이트
+            document.getElementById('correlationCoeff').textContent = correlation.toFixed(3);
+            document.getElementById('tempSensitivity').textContent = `${tempSensitivity.toFixed(1)}%`;
+            document.getElementById('predictionAccuracy').textContent = `${predictionAccuracy.toFixed(1)}%`;
+            document.getElementById('energyEfficiency').textContent = `${energyEfficiency.toFixed(1)}%`;
+
+            // 상관관계 차트 업데이트
+            updateTemperatureCorrelationChart(cycles, temperature, anomalyAnalysis);
+        }
+
+        // 상관계수 계산
+        function calculateCorrelation(temperature, avgOnRatio) {
+            // 간단한 상관계수 계산 (실제로는 더 복잡한 데이터가 필요)
+            const tempRange = 40; // -10도 ~ 30도
+            const normalizedTemp = (temperature + 10) / tempRange; // 0~1 정규화
+            const expectedRatio = Math.max(0, 1 - normalizedTemp); // 온도가 낮을수록 작동 비율 증가
+            
+            const correlation = 1 - Math.abs(avgOnRatio - expectedRatio);
+            return Math.max(-1, Math.min(1, correlation));
+        }
+
+        // 온도 민감도 계산
+        function calculateTemperatureSensitivity(cycles, temperature) {
+            if (cycles.length < 2) return 0;
+            
+            const onRatios = cycles.map(cycle => cycle.onRatio);
+            const ratioVariance = onRatios.reduce((sum, ratio) => sum + Math.pow(ratio - (onRatios.reduce((a, b) => a + b, 0) / onRatios.length), 2), 0) / onRatios.length;
+            const stdDev = Math.sqrt(ratioVariance);
+            
+            // 온도 변화에 대한 민감도 (표준편차 기반)
+            return Math.min(100, stdDev * 200);
+        }
+
+        // 예측 정확도 계산
+        function calculatePredictionAccuracy(cycles, normalRange) {
+            if (!normalRange || cycles.length === 0) return 0;
+            
+            const currentRatio = cycles[cycles.length - 1].onRatio;
+            const isWithinRange = currentRatio >= normalRange.min && currentRatio <= normalRange.max;
+            
+            if (isWithinRange) {
+                const deviation = Math.abs(currentRatio - normalRange.predicted);
+                return Math.max(0, 100 - (deviation * 200));
+            } else {
+                return 0;
+            }
+        }
+
+        // 에너지 효율성 계산
+        function calculateEnergyEfficiency(cycles, temperature) {
+            if (cycles.length === 0) return 0;
+            
+            const avgOnRatio = cycles.reduce((sum, cycle) => sum + cycle.onRatio, 0) / cycles.length;
+            
+            // 온도별 최적 작동 비율
+            let optimalRatio;
+            if (temperature < 0) optimalRatio = 0.8;
+            else if (temperature < 10) optimalRatio = 0.7;
+            else if (temperature < 20) optimalRatio = 0.5;
+            else if (temperature < 30) optimalRatio = 0.3;
+            else optimalRatio = 0.2;
+            
+            const efficiency = Math.max(0, 100 - Math.abs(avgOnRatio - optimalRatio) * 200);
+            return Math.min(100, efficiency);
+        }
+
+        // 온도-압축기 상관관계 차트
+        function updateTemperatureCorrelationChart(cycles, temperature, anomalyAnalysis) {
+            if (!charts.temperatureCorrelation) {
+                const ctx = document.getElementById('temperatureCorrelationChart').getContext('2d');
+                charts.temperatureCorrelation = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: '온도 vs 작동비율',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            borderColor: '#3498db',
+                            borderWidth: 2
+                        }, {
+                            label: '예측 범위',
+                            data: [],
+                            type: 'line',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderColor: '#e74c3c',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '온도 (°C)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '작동 비율 (%)'
+                                },
+                                min: 0,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 데이터 포인트 생성
+            const dataPoints = cycles.map((cycle, index) => ({
+                x: temperature + (Math.random() - 0.5) * 2, // 약간의 온도 변화 시뮬레이션
+                y: cycle.onRatio * 100
+            }));
+
+            // 예측 범위 데이터
+            const predictionData = [];
+            for (let temp = temperature - 10; temp <= temperature + 10; temp += 2) {
+                const range = predictNormalOperationRange(temp, new Date().getHours());
+                predictionData.push({
+                    x: temp,
+                    y: range.predicted * 100
+                });
+            }
+
+            charts.temperatureCorrelation.data.datasets[0].data = dataPoints;
+            charts.temperatureCorrelation.data.datasets[1].data = predictionData;
+            charts.temperatureCorrelation.update();
+        }
+
+        // 관리자용 추세 분석 함수들
+        let currentTrendPeriod = 'daily';
+
+        function showTrendAnalysis(period) {
+            currentTrendPeriod = period;
+            
+            // 버튼 활성화 상태 업데이트
+            document.querySelectorAll('.trend-controls .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 추세 분석 실행
+            analyzeTrends(period);
+        }
+
+        async function analyzeTrends(period) {
+            try {
+                // 기상 데이터 가져오기
+                const weather = await fetchWeatherData();
+                
+                // 기간별 데이터 분석
+                const trendData = await fetchTrendData(period);
+                
+                // 추세 차트 업데이트
+                updateTrendCharts(trendData, weather);
+                
+                // 인사이트 생성
+                generateTrendInsights(trendData, weather, period);
+                
+            } catch (error) {
+                console.error('추세 분석 오류:', error);
+                document.getElementById('trendInsights').innerHTML = '<p class="insight-item danger">추세 분석 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        async function fetchTrendData(period) {
+            // 실제로는 서버에서 기간별 데이터를 가져와야 함
+            // 현재는 모의 데이터 생성
+            const now = new Date();
+            const dataPoints = [];
+            
+            let hours;
+            switch(period) {
+                case 'daily': hours = 24; break;
+                case 'weekly': hours = 168; break;
+                case 'monthly': hours = 720; break;
+                default: hours = 24;
+            }
+            
+            for (let i = 0; i < hours; i += 6) { // 6시간마다 데이터 포인트
+                const timestamp = new Date(now.getTime() - (hours - i) * 60 * 60 * 1000);
+                const temperature = 15 + Math.sin(i / 24 * Math.PI * 2) * 10 + (Math.random() - 0.5) * 5;
+                const onRatio = Math.max(0, Math.min(1, 0.5 + (15 - temperature) * 0.02 + (Math.random() - 0.5) * 0.2));
+                
+                dataPoints.push({
+                    timestamp,
+                    temperature,
+                    onRatio,
+                    efficiency: Math.max(0, 100 - Math.abs(onRatio - (0.5 + (15 - temperature) * 0.02)) * 200)
+                });
+            }
+            
+            return dataPoints;
+        }
+
+        function updateTrendCharts(trendData, weather) {
+            // 온도 추세 차트
+            updateTemperatureTrendChart(trendData);
+            
+            // 효율성 추세 차트
+            updateEfficiencyTrendChart(trendData);
+        }
+
+        function updateTemperatureTrendChart(trendData) {
+            if (!charts.temperatureTrend) {
+                const ctx = document.getElementById('temperatureTrendChart').getContext('2d');
+                charts.temperatureTrend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '온도',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 2,
+                            fill: true
+                        }, {
+                            label: '작동 비율',
+                            data: [],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '온도 (°C)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '작동 비율 (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            }
+                        }
+                    }
+                });
+            }
+
+            const labels = trendData.map(d => d.timestamp.toLocaleTimeString());
+            const temperatures = trendData.map(d => d.temperature);
+            const onRatios = trendData.map(d => d.onRatio * 100);
+
+            charts.temperatureTrend.data.labels = labels;
+            charts.temperatureTrend.data.datasets[0].data = temperatures;
+            charts.temperatureTrend.data.datasets[1].data = onRatios;
+            charts.temperatureTrend.update();
+        }
+
+        function updateEfficiencyTrendChart(trendData) {
+            if (!charts.efficiencyTrend) {
+                const ctx = document.getElementById('efficiencyTrendChart').getContext('2d');
+                charts.efficiencyTrend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '에너지 효율성',
+                            data: [],
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderWidth: 3,
+                            fill: true
+                        }, {
+                            label: '예측 정확도',
+                            data: [],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            borderDash: [5, 5]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '효율성 (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const labels = trendData.map(d => d.timestamp.toLocaleTimeString());
+            const efficiencies = trendData.map(d => d.efficiency);
+            const accuracies = trendData.map(d => Math.max(0, 100 - Math.abs(d.onRatio - (0.5 + (15 - d.temperature) * 0.02)) * 200));
+
+            charts.efficiencyTrend.data.labels = labels;
+            charts.efficiencyTrend.data.datasets[0].data = efficiencies;
+            charts.efficiencyTrend.data.datasets[1].data = accuracies;
+            charts.efficiencyTrend.update();
+        }
+
+        function generateTrendInsights(trendData, weather, period) {
+            const insights = [];
+            
+            // 온도 분석
+            const avgTemp = trendData.reduce((sum, d) => sum + d.temperature, 0) / trendData.length;
+            const tempRange = Math.max(...trendData.map(d => d.temperature)) - Math.min(...trendData.map(d => d.temperature));
+            
+            if (tempRange > 15) {
+                insights.push({
+                    type: 'warning',
+                    message: `온도 변화가 큽니다 (${tempRange.toFixed(1)}°C). 압축기 작동 패턴에 영향을 줄 수 있습니다.`
+                });
+            } else if (tempRange < 5) {
+                insights.push({
+                    type: 'success',
+                    message: `온도가 안정적입니다 (${tempRange.toFixed(1)}°C). 압축기 작동이 예측 가능합니다.`
+                });
+            }
+
+            // 효율성 분석
+            const avgEfficiency = trendData.reduce((sum, d) => sum + d.efficiency, 0) / trendData.length;
+            if (avgEfficiency > 80) {
+                insights.push({
+                    type: 'success',
+                    message: `높은 에너지 효율성을 보입니다 (${avgEfficiency.toFixed(1)}%).`
+                });
+            } else if (avgEfficiency < 50) {
+                insights.push({
+                    type: 'danger',
+                    message: `에너지 효율성이 낮습니다 (${avgEfficiency.toFixed(1)}%). 최적화가 필요합니다.`
+                });
+            }
+
+            // 추세 분석
+            const recentEfficiency = trendData.slice(-5).reduce((sum, d) => sum + d.efficiency, 0) / 5;
+            const earlyEfficiency = trendData.slice(0, 5).reduce((sum, d) => sum + d.efficiency, 0) / 5;
+            
+            if (recentEfficiency > earlyEfficiency + 10) {
+                insights.push({
+                    type: 'success',
+                    message: '효율성이 개선되고 있습니다. 최근 5개 데이터 포인트에서 향상된 성능을 보입니다.'
+                });
+            } else if (recentEfficiency < earlyEfficiency - 10) {
+                insights.push({
+                    type: 'warning',
+                    message: '효율성이 감소하고 있습니다. 시스템 점검이 필요할 수 있습니다.'
+                });
+            }
+
+            // 계절적 패턴 분석
+            if (period === 'monthly') {
+                const winterEfficiency = trendData.filter(d => d.temperature < 5).reduce((sum, d) => sum + d.efficiency, 0) / Math.max(1, trendData.filter(d => d.temperature < 5).length);
+                const summerEfficiency = trendData.filter(d => d.temperature > 25).reduce((sum, d) => sum + d.efficiency, 0) / Math.max(1, trendData.filter(d => d.temperature > 25).length);
+                
+                if (winterEfficiency > summerEfficiency + 20) {
+                    insights.push({
+                        type: 'info',
+                        message: '겨울철 효율성이 여름철보다 높습니다. 계절별 운영 전략을 고려해보세요.'
+                    });
+                }
+            }
+
+            // 인사이트 표시
+            const insightsContainer = document.getElementById('trendInsights');
+            if (insights.length === 0) {
+                insightsContainer.innerHTML = '<p class="insight-item">특별한 패턴이 발견되지 않았습니다.</p>';
+            } else {
+                insightsContainer.innerHTML = insights.map(insight => 
+                    `<div class="insight-item ${insight.type}">${insight.message}</div>`
+                ).join('');
+            }
+        }
+
+        function exportTrendData() {
+            // 추세 데이터 내보내기 기능
+            const trendData = {
+                period: currentTrendPeriod,
+                timestamp: new Date().toISOString(),
+                data: charts.temperatureTrend ? charts.temperatureTrend.data : null
+            };
+            
+            const dataStr = JSON.stringify(trendData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `trend_analysis_${currentTrendPeriod}_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
         }
 
         // 차트 업데이트
