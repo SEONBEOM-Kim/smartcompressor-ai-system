@@ -454,8 +454,18 @@
         // Function to load dashboard data from API
         async function loadDashboardData() {
             try {
+                // Only try to update dashboard data if we're on the main dashboard page
+                const totalAssetsElement = document.getElementById('total-assets');
+                if (!totalAssetsElement) return; // Exit if we're not on the dashboard page
+                
                 // Fetch dashboard summary data
                 const response = await fetch('/api/dashboard/summary');
+                
+                // Check if response is OK and valid JSON
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
                 
                 if (result.success) {
@@ -488,12 +498,23 @@
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
                 
-                // Fallback to showing 0 values if API call fails
-                document.getElementById('total-assets').textContent = '0';
-                document.getElementById('normal-assets').textContent = '0';
-                document.getElementById('anomaly-count').textContent = '0';
-                document.getElementById('urgent-action').textContent = '0';
-                document.getElementById('scheduled-maintenance').textContent = '0';
+                // Only update elements if they exist
+                const totalAssetsEl = document.getElementById('total-assets');
+                const normalAssetsEl = document.getElementById('normal-assets');
+                const anomalyCountEl = document.getElementById('anomaly-count');
+                const urgentActionEl = document.getElementById('urgent-action');
+                const scheduledMaintenanceEl = document.getElementById('scheduled-maintenance');
+                
+                if (totalAssetsEl) totalAssetsEl.textContent = '0';
+                if (normalAssetsEl) normalAssetsEl.textContent = '0';
+                if (anomalyCountEl) anomalyCountEl.textContent = '0';
+                if (urgentActionEl) urgentActionEl.textContent = '0';
+                if (scheduledMaintenanceEl) scheduledMaintenanceEl.textContent = '0';
+                
+                // If error is due to API not being available, it's handled gracefully
+                if (error.message.includes('404') || error.message.includes('not found')) {
+                    console.warn('Dashboard API endpoint not available, using default values');
+                }
             }
         }
         
@@ -523,28 +544,39 @@
         
         // Function to update the threat summary chart
         function updateThreatSummaryChart(labels, data) {
-            const chart = Chart.getChart(document.getElementById('threat-summary-chart'));
-            if (chart) {
-                chart.data.labels = labels;
-                chart.data.datasets[0].data = data;
-                chart.update();
+            const canvas = document.getElementById('threat-summary-chart');
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) {
+                    chart.data.labels = labels;
+                    chart.data.datasets[0].data = data;
+                    chart.update();
+                }
             }
         }
         
         // Function to update the risk score chart
         function updateRiskScoreChart(data) {
-            const chart = Chart.getChart(document.getElementById('risk-score-chart'));
-            if (chart) {
-                chart.data.datasets[0].data = data;
-                chart.update();
+            const canvas = document.getElementById('risk-score-chart');
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) {
+                    chart.data.datasets[0].data = data;
+                    chart.update();
+                }
             }
         }
         
         // Chart Initializations
         function initializeCharts() {
             // Threat Summary Chart
-            if (document.getElementById('threat-summary-chart')) {
-                new Chart(document.getElementById('threat-summary-chart'), { 
+            const threatSummaryCanvas = document.getElementById('threat-summary-chart');
+            if (threatSummaryCanvas) {
+                const existingChart = Chart.getChart(threatSummaryCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(threatSummaryCanvas, { 
                     type: 'line', 
                     data: { 
                         labels: [], 
@@ -567,8 +599,13 @@
             }
 
             // Risk Score Chart
-            if (document.getElementById('risk-score-chart')) {
-                new Chart(document.getElementById('risk-score-chart'), { 
+            const riskScoreCanvas = document.getElementById('risk-score-chart');
+            if (riskScoreCanvas) {
+                const existingChart = Chart.getChart(riskScoreCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(riskScoreCanvas, { 
                     type: 'doughnut', 
                     data: { 
                         labels: ['정상', '오프라인', '점검중', '오류'],
@@ -594,8 +631,13 @@
             }
 
             // Threats by Virus Chart
-            if (document.getElementById('threats-by-virus-chart')) {
-                new Chart(document.getElementById('threats-by-virus-chart'), { 
+            const threatsByVirusCanvas = document.getElementById('threats-by-virus-chart');
+            if (threatsByVirusCanvas) {
+                const existingChart = Chart.getChart(threatsByVirusCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(threatsByVirusCanvas, { 
                     type: 'doughnut', 
                     data: { 
                         labels: ['베어링 마모', '과도한 진동', '온도 급상승'],
@@ -622,6 +664,8 @@
         
         // Initialize charts and load data when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Destroy any existing charts first (though there shouldn't be any at this point)
+            destroyAllCharts();
             initializeCharts();
             loadDashboardData(); // Load the actual data from the API
             
@@ -642,14 +686,90 @@
             }
         }
 
-        // Function to load HTML components
-        async function loadComponent(url, containerId) {
-            try {
-                const response = await fetch(url);
-                const html = await response.text();
-                document.getElementById(containerId).innerHTML = html;
-            } catch (error) {
-                console.error(`Error loading component ${url}:`, error);
+        // Function to load page content based on page name
+        async function loadPageContent(pageName) {
+            switch(pageName) {
+                case 'reports':
+                    await loadReportsContent();
+                    break;
+                case 'help':
+                    showHelpContent();
+                    break;
+                case 'assets':
+                    await loadAssetsDetailContent();
+                    break;
+                case 'settings':
+                    await loadSettingsContent();
+                    break;
+                default:
+                    console.warn(`Unknown page name: ${pageName}`);
+            }
+        }
+        
+        // Function to show help content
+        function showHelpContent() {
+            // Destroy all existing charts before loading new content
+            destroyAllCharts();
+            
+            // Create the help content
+            const helpContent = `
+                <header class="page-header">
+                    <div class="header-left">
+                        <h1>도움말</h1>
+                        <p>시스템 사용에 대한 도움말을 제공합니다.</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="도움말 검색...">
+                        </div>
+                        <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                        <button class="icon-button"><i class="fas fa-bell"></i></button>
+                    </div>
+                </header>
+
+                <div id="help-content">
+                    <div class="grid-card">
+                        <div class="card-header">
+                            <h3 class="card-title">자주 묻는 질문</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>이 시스템에 대한 자주 묻는 질문과 답변을 확인하세요.</p>
+                            <ul>
+                                <li><strong>자산을 어떻게 추가하나요?</strong> 관리자에게 문의하여 자산을 등록해주세요.</li>
+                                <li><strong>이상 징후는 어떻게 확인하나요?</strong> 이상 징후 메뉴에서 실시간으로 확인할 수 있습니다.</li>
+                                <li><strong>리포트는 어떻게 생성되나요?</strong> 리포트 메뉴에서 필요한 리포트를 생성할 수 있습니다.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-card">
+                        <div class="card-header">
+                            <h3 class="card-title">문의하기</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>추가 문의사항이 있으시면 아래로 연락주세요.</p>
+                            <p>이메일: support@signalcraft.com</p>
+                            <p>전화: 02-1234-5678</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update the main content area with the help content
+            document.getElementById('main-content').innerHTML = helpContent;
+            
+            // Update active state of navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Find and activate the help link in the sidebar
+            const helpLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                link.innerHTML.includes('도움말')
+            );
+            if (helpLink) {
+                helpLink.classList.add('active');
             }
         }
 
@@ -717,45 +837,176 @@
         
         // Function to handle navigation after sidebar is loaded
         function setupNavigationAfterLoad() {
-            document.getElementById('dashboard-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Navigate to the refactored dashboard
-                window.location.href = '/dashboard';
-            });
-            
-            document.getElementById('anomalies-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadAnomaliesDetailContent();
-            });
-            
-            document.getElementById('assets-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadAssetsDetailContent();
-            });
-            
-            document.getElementById('reports-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadReportsContent();
-            });
-            
-            document.getElementById('settings-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadSettingsContent();
-            });
-            
-            document.getElementById('help-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('도움말 페이지로 이동합니다.');
-            });
-            
-            document.getElementById('logout-link')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('정말 로그아웃 하시겠습니까?')) {
-                    window.location.href = '/login';
-                }
-            });
-            
+            // Use event delegation to handle clicks on navigation items
+            // This ensures that dynamically loaded elements will still work
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.addEventListener('click', function(e) {
+                    const target = e.target.closest('.nav-link');
+                    if (!target) return;
+                    
+                    e.preventDefault();
+                    
+                    if (target.id === 'dashboard-link') {
+                        loadDashboardContent();
+                    } else if (target.id === 'anomalies-link') {
+                        loadAnomaliesDetailContent();
+                    } else if (target.id === 'assets-link') {
+                        loadAssetsDetailContent();
+                    } else if (target.id === 'reports-link') {
+                        loadReportsContent();
+                    } else if (target.id === 'settings-link') {
+                        loadSettingsContent();
+                    } else if (target.id === 'help-link') {
+                        alert('도움말 페이지로 이동합니다.');
+                    } else if (target.id === 'logout-link') {
+                        if (confirm('정말 로그아웃 하시겠습니까?')) {
+                            window.location.href = '/login';
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Function to reload the dashboard content
+        async function loadDashboardContent() {
+            try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
+                // Recreate the main dashboard content
+                const dashboardContent = `
+                    <header class="page-header">
+                        <div class="header-left">
+                            <h1>안녕하세요, 고객님</h1>
+                            <p>자산 상태를 실시간으로 모니터링하세요.</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="자산 검색...">
+                            </div>
+                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                            <button class="icon-button"><i class="fas fa-bell"></i></button>
+                        </div>
+                    </header>
 
+                    <!-- Dashboard Grid -->
+                    <div class="dashboard-grid">
+
+                        <!-- 현황 요약 카드 -->
+                        <div class="current-risk-cards">
+                            <div class="risk-card">
+                                <h5>총 자산</h5>
+                                <h2 id="total-assets">0</h2>
+                            </div>
+                            <div class="risk-card">
+                                <h5>정상 자산</h5>
+                                <h2 id="normal-assets">0</h2>
+                            </div>
+                            <div class="risk-card">
+                                <h5>이상 징후</h5>
+                                <h2 id="anomaly-count">0</h2>
+                            </div>
+                            <div class="risk-card">
+                                <h5>긴급 조치 필요</h5>
+                                <h2 id="urgent-action">0</h2>
+                            </div>
+                            <div class="risk-card">
+                                <h5>오늘 점검 예정</h5>
+                                <h2 id="scheduled-maintenance">0</h2>
+                            </div>
+                        </div>
+
+                        <!-- 이상 징후 요약 -->
+                        <div class="grid-card threat-summary-card">
+                            <div class="card-header">
+                                <h3 class="card-title">이상 징후 요약</h3>
+                                <div class="card-menu">...</div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="threat-summary-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 자산 종합 상태 -->
+                        <div class="grid-card risk-score-card">
+                            <div class="card-header">
+                                <h3 class="card-title">자산 종합 상태</h3>
+                                <div class="card-menu">...</div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="risk-score-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 최근 이상 징후 상세 -->
+                        <div class="grid-card threat-details-card">
+                            <div class="card-header">
+                                <h3 class="card-title">최근 이상 징후 상세</h3>
+                                <div class="card-menu">...</div>
+                            </div>
+                            <table id="anomalies-table">
+                                <thead>
+                                    <tr>
+                                        <th>날짜</th>
+                                        <th>자산 ID</th>
+                                        <th>징후 유형</th>
+                                        <th>상세 내용</th>
+                                        <th>심각도</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data will be loaded via API -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 징후 유형별 통계 -->
+                        <div class="grid-card threat-by-virus-card">
+                            <div class="card-header">
+                                <h3 class="card-title">징후 유형별 통계</h3>
+                                <div class="card-menu">...</div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="threats-by-virus-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 자산별 이상 징후 -->
+                        <div class="grid-card threat-by-device-card">
+                            <div class="card-header">
+                                <h3 class="card-title">자산별 이상 징후</h3>
+                                <div class="card-menu">...</div>
+                            </div>
+                            <!-- content here -->
+                        </div>
+
+                    </div>
+                `;
+                
+                // Update the main content area with the dashboard content
+                document.getElementById('main-content').innerHTML = dashboardContent;
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the dashboard link in the sidebar
+                const dashboardLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('대시보드')
+                );
+                if (dashboardLink) {
+                    dashboardLink.classList.add('active');
+                }
+                
+                // Reinitialize the main dashboard charts and data
+                initializeCharts();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error loading dashboard content:', error);
+            }
         }
         
         // Set up mobile navigation functionality
@@ -792,6 +1043,9 @@
         // Function to load anomalies detail content for the original dashboard
         async function loadAnomaliesDetailContent() {
             try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
                 // Create the anomalies detail content with containers for components
                 const anomaliesContent = `
                     <header class="page-header">
@@ -850,8 +1104,13 @@
         // Initialize anomalies-specific charts
         function initializeAnomaliesCharts() {
             // Anomaly Trend Chart
-            if (document.getElementById('anomaly-trend-chart')) {
-                new Chart(document.getElementById('anomaly-trend-chart').getContext('2d'), {
+            const anomalyTrendCanvas = document.getElementById('anomaly-trend-chart');
+            if (anomalyTrendCanvas) {
+                const existingChart = Chart.getChart(anomalyTrendCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(anomalyTrendCanvas, {
                     type: 'line',
                     data: {
                         labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
@@ -884,8 +1143,13 @@
             }
             
             // Anomaly Type Chart (Donut chart)
-            if (document.getElementById('anomaly-type-chart')) {
-                new Chart(document.getElementById('anomaly-type-chart').getContext('2d'), {
+            const anomalyTypeCanvas = document.getElementById('anomaly-type-chart');
+            if (anomalyTypeCanvas) {
+                const existingChart = Chart.getChart(anomalyTypeCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(anomalyTypeCanvas, {
                     type: 'doughnut',
                     data: {
                         labels: ['위험', '경고'],
@@ -915,8 +1179,13 @@
         // Initialize mini charts in each anomaly item
         function initializeMiniCharts() {
             // Mini chart for first anomaly
-            if (document.getElementById('mini-chart-1')) {
-                new Chart(document.getElementById('mini-chart-1').getContext('2d'), {
+            const miniChart1 = document.getElementById('mini-chart-1');
+            if (miniChart1) {
+                const existingChart1 = Chart.getChart(miniChart1);
+                if (existingChart1) {
+                    existingChart1.destroy();
+                }
+                new Chart(miniChart1, {
                     type: 'line',
                     data: {
                         labels: ['2시간 전', '1시간 전', '지금'],
@@ -952,8 +1221,13 @@
             }
             
             // Mini chart for second anomaly
-            if (document.getElementById('mini-chart-2')) {
-                new Chart(document.getElementById('mini-chart-2').getContext('2d'), {
+            const miniChart2 = document.getElementById('mini-chart-2');
+            if (miniChart2) {
+                const existingChart2 = Chart.getChart(miniChart2);
+                if (existingChart2) {
+                    existingChart2.destroy();
+                }
+                new Chart(miniChart2, {
                     type: 'line',
                     data: {
                         labels: ['2시간 전', '1시간 전', '지금'],
@@ -1024,9 +1298,51 @@
     </script>
     
     <script>
+        // Function to destroy all existing charts before creating new ones
+        function destroyAllCharts() {
+            // Get all canvas elements that might have charts
+            const chartCanvases = [
+                'threat-summary-chart', 
+                'risk-score-chart', 
+                'threats-by-virus-chart',
+                'anomaly-trend-chart',
+                'anomaly-type-chart',
+                'mini-chart-1',
+                'mini-chart-2',
+                'asset-trend-chart',
+                'asset-health-chart',
+                'anomalyTypeChart'
+            ];
+            
+            chartCanvases.forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        chart.destroy();
+                    }
+                }
+            });
+            
+            // Also clean up any other potential chart containers by removing and re-creating them
+            // This ensures a clean state for all chart containers
+            const chartContainers = document.querySelectorAll('.chart-container canvas');
+            chartContainers.forEach(canvas => {
+                if (canvas && canvas.parentNode) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        chart.destroy();
+                    }
+                }
+            });
+        }
+        
         // Function to load assets detail content
         async function loadAssetsDetailContent() {
             try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
                 // Create the assets detail content with containers for components
                 const assetsContent = `
                     <header class="page-header">
@@ -1085,8 +1401,13 @@
         // Initialize assets-specific charts
         function initializeAssetsCharts() {
             // Asset Trend Chart
-            if (document.getElementById('asset-trend-chart')) {
-                new Chart(document.getElementById('asset-trend-chart').getContext('2d'), {
+            const assetTrendCanvas = document.getElementById('asset-trend-chart');
+            if (assetTrendCanvas) {
+                const existingChart = Chart.getChart(assetTrendCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(assetTrendCanvas, {
                     type: 'line',
                     data: {
                         labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
@@ -1125,8 +1446,13 @@
             }
             
             // Asset Health Chart (Donut chart)
-            if (document.getElementById('asset-health-chart')) {
-                new Chart(document.getElementById('asset-health-chart').getContext('2d'), {
+            const assetHealthCanvas = document.getElementById('asset-health-chart');
+            if (assetHealthCanvas) {
+                const existingChart = Chart.getChart(assetHealthCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(assetHealthCanvas, {
                     type: 'doughnut',
                     data: {
                         labels: ['정상', '경고', '위험', '오프라인'],
@@ -1192,6 +1518,9 @@
         // Function to load reports content
         async function loadReportsContent() {
             try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
                 // Create the reports content with containers for components
                 const reportsContent = `
                     <header class="page-header">
@@ -1244,8 +1573,13 @@
         // Initialize reports-specific charts
         function initializeReportsCharts() {
             // Initialize anomaly type chart if element exists
-            if (document.getElementById('anomalyTypeChart')) {
-                new Chart(document.getElementById('anomalyTypeChart').getContext('2d'), {
+            const anomalyTypeChartCanvas = document.getElementById('anomalyTypeChart');
+            if (anomalyTypeChartCanvas) {
+                const existingChart = Chart.getChart(anomalyTypeChartCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(anomalyTypeChartCanvas, {
                     type: 'doughnut',
                     data: {
                         labels: ['베어링 마모 의심', '과도한 진동', '온도 급상승', '기타'],
@@ -1287,6 +1621,9 @@
         // Function to load settings content
         async function loadSettingsContent() {
             try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
                 // Load the settings component
                 await loadComponent('/static/dashboard-components/settings/settings-main.html', 'main-content');
                 
