@@ -1,0 +1,517 @@
+{
+  "interview_template": {
+    "title": "기계 엔지니어 지식 명시화 인터뷰",
+    "purpose": "기계 설치 전 AI 학습을 위한 엔지니어 지식 환산",
+    "duration": "2-3시간",
+    "participants": ["기계 엔지니어", "AI 개발자", "기록자"],
+    "sections": [
+      {
+        "section_id": "S001",
+        "title": "소리 분류 기준",
+        "description": "정상/이상 소리의 분류 기준과 특징",
+        "questions": [
+          {
+            "question_id": "Q001",
+            "question": "정상적인 압축기 소리는 어떤 특징을 가지나요?",
+            "sub_questions": [
+              "주파수는 어느 범위인가요?",
+              "진폭(볼륨)은 어느 정도인가요?",
+              "시간적 패턴은 어떤가요? (일정한/불규칙한)",
+              "안정성은 어떤가요?"
+            ],
+            "expected_output": {
+              "frequency_range": "저주파 (20-200Hz)",
+              "amplitude_range": "중간 (0.2-0.4)",
+              "temporal_pattern": "일정한 리듬",
+              "stability": "높음",
+              "confidence": 0.9
+            }
+          },
+          {
+            "question_id": "Q002",
+            "question": "베어링 마모 소리는 어떤 특징을 가지나요?",
+            "sub_questions": [
+              "주파수는 어느 범위인가요?",
+              "진폭은 어느 정도인가요?",
+              "시간적 패턴은 어떤가요?",
+              "다른 소리와 구별되는 특징은 무엇인가요?"
+            ],
+            "expected_output": {
+              "frequency_range": "고주파 (2000-8000Hz)",
+              "amplitude_range": "강한 (0.6-1.0)",
+              "temporal_pattern": "불규칙한 진동",
+              "distinguishing_features": "마찰음, 고주파 진동",
+              "confidence": 0.85
+            }
+          },
+          {
+            "question_id": "Q003",
+            "question": "언밸런스 소리는 어떤 특징을 가지나요?",
+            "sub_questions": [
+              "주파수는 어느 범위인가요?",
+              "진폭은 어느 정도인가요?",
+              "시간적 패턴은 어떤가요?",
+              "언밸런스의 진행 단계별 소리 변화는 어떤가요?"
+            ],
+            "expected_output": {
+              "frequency_range": "저주파 (50-500Hz)",
+              "amplitude_range": "중간-강한 (0.3-0.8)",
+              "temporal_pattern": "주기적 진동",
+              "progression_stages": "초기-중기-심각 단계별 변화",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q004",
+            "question": "마찰 소리는 어떤 특징을 가지나요?",
+            "sub_questions": [
+              "주파수는 어느 범위인가요?",
+              "진폭은 어느 정도인가요?",
+              "시간적 패턴은 어떤가요?",
+              "마찰의 원인은 무엇인가요?"
+            ],
+            "expected_output": {
+              "frequency_range": "중주파 (500-3000Hz)",
+              "amplitude_range": "중간 (0.25-0.7)",
+              "temporal_pattern": "불규칙한 패턴",
+              "causes": "부품 간 마찰, 윤활 부족",
+              "confidence": 0.75
+            }
+          },
+          {
+            "question_id": "Q005",
+            "question": "과부하 소리는 어떤 특징을 가지나요?",
+            "sub_questions": [
+              "주파수는 어느 범위인가요?",
+              "진폭은 어느 정도인가요?",
+              "시간적 패턴은 어떤가요?",
+              "과부하의 위험도는 어떻게 판단하나요?"
+            ],
+            "expected_output": {
+              "frequency_range": "전체 주파수 (20-8000Hz)",
+              "amplitude_range": "매우 강한 (0.5-1.0)",
+              "temporal_pattern": "불규칙한 노이즈",
+              "risk_assessment": "즉시 조치 필요",
+              "confidence": 0.9
+            }
+          }
+        ]
+      },
+      {
+        "section_id": "S002",
+        "title": "진단 방법 및 기준",
+        "description": "실제 진단 과정과 판단 기준",
+        "questions": [
+          {
+            "question_id": "Q006",
+            "question": "소리로 이상을 진단하는 과정을 단계별로 설명해주세요",
+            "sub_questions": [
+              "첫 번째로 무엇을 확인하나요?",
+              "어떤 순서로 분석하나요?",
+              "최종 판단은 어떻게 내리나요?",
+              "불확실한 경우 어떻게 하나요?"
+            ],
+            "expected_output": {
+              "step_1": "소음 위치 및 유형 확인",
+              "step_2": "주파수 분석",
+              "step_3": "진폭 및 패턴 분석",
+              "step_4": "임계값 비교 및 판단",
+              "uncertainty_handling": "추가 검사 또는 전문가 상담",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q007",
+            "question": "안정성은 어떻게 평가하나요?",
+            "sub_questions": [
+              "안정성의 정의는 무엇인가요?",
+              "어떤 지표로 측정하나요?",
+              "임계값은 어떻게 설정하나요?",
+              "환경에 따른 차이가 있나요?"
+            ],
+            "expected_output": {
+              "definition": "RMS와 ZCR의 변동계수",
+              "measurement": "시간에 따른 변화율 계산",
+              "threshold": "0.8 이상이면 안정적",
+              "environmental_factors": "온도, 습도, 부하에 따라 조정",
+              "confidence": 0.9
+            }
+          },
+          {
+            "question_id": "Q008",
+            "question": "주파수 일관성은 어떻게 평가하나요?",
+            "sub_questions": [
+              "주파수 일관성의 정의는 무엇인가요?",
+              "어떤 방법으로 측정하나요?",
+              "정상 범위는 어느 정도인가요?",
+              "일관성이 떨어지면 무엇을 의미하나요?"
+            ],
+            "expected_output": {
+              "definition": "스펙트럼 센트로이드의 안정성",
+              "measurement": "시간에 따른 주파수 분포 변화",
+              "normal_range": "0.7 이상이면 일관적",
+              "implication": "부품 마모 또는 불균형",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q009",
+            "question": "패턴 규칙성은 어떻게 평가하나요?",
+            "sub_questions": [
+              "패턴 규칙성의 정의는 무엇인가요?",
+              "어떤 방법으로 측정하나요?",
+              "정상 범위는 어느 정도인가요?",
+              "불규칙한 패턴은 무엇을 의미하나요?"
+            ],
+            "expected_output": {
+              "definition": "자기상관 함수를 이용한 주기성",
+              "measurement": "주기적 패턴의 일관성 측정",
+              "normal_range": "0.7 이상이면 규칙적",
+              "implication": "부품 마모 또는 고장",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q010",
+            "question": "진단의 신뢰도는 어떻게 평가하나요?",
+            "sub_questions": [
+              "신뢰도에 영향을 주는 요인은 무엇인가요?",
+              "어떤 경우에 확신하나요?",
+              "어떤 경우에 불확실하나요?",
+              "신뢰도를 높이는 방법은 무엇인가요?"
+            ],
+            "expected_output": {
+              "influencing_factors": ["경험", "데이터 품질", "환경 조건"],
+              "high_confidence": "명확한 증상, 경험 있는 케이스",
+              "low_confidence": "복잡한 증상, 새로운 케이스",
+              "improvement_methods": "추가 검사, 전문가 상담, 데이터 수집",
+              "confidence": 0.8
+            }
+          }
+        ]
+      },
+      {
+        "section_id": "S003",
+        "title": "경험 사례 및 사고",
+        "description": "실제 경험한 고장 사례와 해결 과정",
+        "questions": [
+          {
+            "question_id": "Q011",
+            "question": "가장 기억에 남는 고장 사례를 말씀해주세요",
+            "sub_questions": [
+              "언제, 어떤 상황이었나요?",
+              "어떤 증상이 있었나요?",
+              "어떻게 진단하셨나요?",
+              "어떻게 해결하셨나요?",
+              "예방 방법은 무엇인가요?"
+            ],
+            "expected_output": {
+              "situation": "구체적인 상황 설명",
+              "symptoms": ["증상 1", "증상 2", "증상 3"],
+              "diagnosis_process": "진단 과정 단계별 설명",
+              "solution": "해결 방법 및 결과",
+              "prevention": "예방 방법 및 교훈",
+              "confidence": 0.9
+            }
+          },
+          {
+            "question_id": "Q012",
+            "question": "베어링 마모 사례를 말씀해주세요",
+            "sub_questions": [
+              "초기 단계에서 어떤 증상이 있었나요?",
+              "진행 단계별로 어떻게 변화했나요?",
+              "언제 교체를 결정하셨나요?",
+              "교체 후 어떤 변화가 있었나요?"
+            ],
+            "expected_output": {
+              "initial_stage": "초기 증상 및 특징",
+              "progression": "단계별 변화 과정",
+              "replacement_decision": "교체 결정 기준",
+              "post_replacement": "교체 후 개선 사항",
+              "confidence": 0.85
+            }
+          },
+          {
+            "question_id": "Q013",
+            "question": "언밸런스 사례를 말씀해주세요",
+            "sub_questions": [
+              "언밸런스의 원인은 무엇이었나요?",
+              "어떤 증상이 나타났나요?",
+              "어떻게 확인하셨나요?",
+              "해결 방법은 무엇이었나요?"
+            ],
+            "expected_output": {
+              "cause": "언밸런스 원인",
+              "symptoms": "나타난 증상들",
+              "verification": "확인 방법",
+              "solution": "해결 방법",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q014",
+            "question": "예방 정비 경험을 말씀해주세요",
+            "sub_questions": [
+              "어떤 징후를 보고 예방 정비를 하셨나요?",
+              "얼마나 자주 점검하셨나요?",
+              "어떤 기준으로 점검하셨나요?",
+              "예방 정비의 효과는 어땠나요?"
+            ],
+            "expected_output": {
+              "warning_signs": "예방 정비 징후",
+              "frequency": "점검 주기",
+              "criteria": "점검 기준",
+              "effectiveness": "예방 정비 효과",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q015",
+            "question": "실패한 진단 사례가 있나요?",
+            "sub_questions": [
+              "어떤 진단을 내렸나요?",
+              "실제 원인은 무엇이었나요?",
+              "왜 잘못 진단했나요?",
+              "어떤 교훈을 얻으셨나요?"
+            ],
+            "expected_output": {
+              "wrong_diagnosis": "잘못된 진단",
+              "actual_cause": "실제 원인",
+              "misdiagnosis_reason": "오진 이유",
+              "lessons_learned": "교훈 및 개선점",
+              "confidence": 0.7
+            }
+          }
+        ]
+      },
+      {
+        "section_id": "S004",
+        "title": "휴리스틱 지식 및 직감",
+        "description": "경험에 기반한 직감적 판단과 휴리스틱",
+        "questions": [
+          {
+            "question_id": "Q016",
+            "question": "이상하다고 느끼는 순간은 언제인가요?",
+            "sub_questions": [
+              "어떤 느낌이 드나요?",
+              "어떤 패턴을 보면 위험하다고 생각하나요?",
+              "직감이 맞았던 경우가 있나요?",
+              "직감을 신뢰하시나요?"
+            ],
+            "expected_output": {
+              "feeling": "이상하다고 느끼는 감각",
+              "dangerous_patterns": "위험한 패턴들",
+              "intuition_accuracy": "직감의 정확도",
+              "trust_level": "직감 신뢰도",
+              "confidence": 0.7
+            }
+          },
+          {
+            "question_id": "Q017",
+            "question": "빠른 판단을 위한 노하우가 있나요?",
+            "sub_questions": [
+              "어떤 기준으로 빠르게 판단하나요?",
+              "가장 중요한 지표는 무엇인가요?",
+              "환경에 따른 차이점이 있나요?",
+              "계절이나 시간대에 따른 차이가 있나요?"
+            ],
+            "expected_output": {
+              "quick_criteria": "빠른 판단 기준",
+              "key_indicators": "중요한 지표들",
+              "environmental_differences": "환경별 차이점",
+              "temporal_differences": "시간별 차이점",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q018",
+            "question": "소음 레벨 판단 기준이 있나요?",
+            "sub_questions": [
+              "정상 범위는 어느 정도인가요?",
+              "주의 범위는 어느 정도인가요?",
+              "위험 범위는 어느 정도인가요?",
+              "갑작스러운 변화는 어떻게 판단하나요?"
+            ],
+            "expected_output": {
+              "normal_range": "정상 소음 레벨 범위",
+              "warning_range": "주의 소음 레벨 범위",
+              "danger_range": "위험 소음 레벨 범위",
+              "sudden_change": "갑작스러운 변화 판단 기준",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q019",
+            "question": "진동과 소음의 관계는 어떻게 보시나요?",
+            "sub_questions": [
+              "진동이 크면 소음도 큰가요?",
+              "진동과 소음이 다른 경우가 있나요?",
+              "어떤 경우에 진동만 있고 소음은 없나요?",
+              "어떤 경우에 소음만 있고 진동은 없나요?"
+            ],
+            "expected_output": {
+              "correlation": "진동과 소음의 상관관계",
+              "different_cases": "다른 경우들",
+              "vibration_only": "진동만 있는 경우",
+              "noise_only": "소음만 있는 경우",
+              "confidence": 0.7
+            }
+          },
+          {
+            "question_id": "Q020",
+            "question": "환경 요인에 따른 차이점은 무엇인가요?",
+            "sub_questions": [
+              "온도에 따른 차이가 있나요?",
+              "습도에 따른 차이가 있나요?",
+              "부하에 따른 차이가 있나요?",
+              "설치 환경에 따른 차이가 있나요?"
+            ],
+            "expected_output": {
+              "temperature_effect": "온도에 따른 영향",
+              "humidity_effect": "습도에 따른 영향",
+              "load_effect": "부하에 따른 영향",
+              "installation_effect": "설치 환경에 따른 영향",
+              "confidence": 0.8
+            }
+          }
+        ]
+      },
+      {
+        "section_id": "S005",
+        "title": "문제 해결 과정 및 트러블슈팅",
+        "description": "체계적인 문제 해결 과정과 트러블슈팅 방법",
+        "questions": [
+          {
+            "question_id": "Q021",
+            "question": "문제 해결 과정을 단계별로 설명해주세요",
+            "sub_questions": [
+              "첫 번째로 무엇을 확인하나요?",
+              "어떤 순서로 조사하나요?",
+              "의사결정 포인트는 어디인가요?",
+              "불확실한 경우 어떻게 하나요?"
+            ],
+            "expected_output": {
+              "step_1": "문제 상황 파악",
+              "step_2": "증상 분석",
+              "step_3": "원인 추정",
+              "step_4": "해결책 수립",
+              "step_5": "실행 및 검증",
+              "uncertainty_handling": "불확실성 처리 방법",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q022",
+            "question": "압축기 이상 진단 과정을 설명해주세요",
+            "sub_questions": [
+              "어떤 증상부터 확인하나요?",
+              "어떤 도구를 사용하나요?",
+              "어떤 순서로 측정하나요?",
+              "최종 진단은 어떻게 내리나요?"
+            ],
+            "expected_output": {
+              "symptom_check": "증상 확인 순서",
+              "tools_used": "사용 도구들",
+              "measurement_order": "측정 순서",
+              "final_diagnosis": "최종 진단 과정",
+              "confidence": 0.8
+            }
+          },
+          {
+            "question_id": "Q023",
+            "question": "복합적인 문제는 어떻게 접근하나요?",
+            "sub_questions": [
+              "여러 증상이 동시에 나타나면 어떻게 하나요?",
+              "원인이 여러 개일 때는 어떻게 하나요?",
+              "우선순위는 어떻게 정하나요?",
+              "단계별 해결 방법은 무엇인가요?"
+            ],
+            "expected_output": {
+              "multiple_symptoms": "다중 증상 처리 방법",
+              "multiple_causes": "다중 원인 처리 방법",
+              "priority_setting": "우선순위 설정 기준",
+              "step_by_step": "단계별 해결 방법",
+              "confidence": 0.7
+            }
+          },
+          {
+            "question_id": "Q024",
+            "question": "긴급 상황에서는 어떻게 대응하나요?",
+            "sub_questions": [
+              "긴급 상황의 기준은 무엇인가요?",
+              "즉시 해야 할 조치는 무엇인가요?",
+              "안전을 어떻게 확보하나요?",
+              "후속 조치는 어떻게 하나요?"
+            ],
+            "expected_output": {
+              "emergency_criteria": "긴급 상황 기준",
+              "immediate_actions": "즉시 조치 사항",
+              "safety_measures": "안전 확보 방법",
+              "follow_up": "후속 조치",
+              "confidence": 0.9
+            }
+          },
+          {
+            "question_id": "Q025",
+            "question": "실패 사례와 교훈을 말씀해주세요",
+            "sub_questions": [
+              "어떤 실패를 경험하셨나요?",
+              "실패의 원인은 무엇이었나요?",
+              "어떤 교훈을 얻으셨나요?",
+              "같은 실패를 방지하는 방법은 무엇인가요?"
+            ],
+            "expected_output": {
+              "failure_cases": "실패 사례들",
+              "failure_causes": "실패 원인들",
+              "lessons_learned": "교훈들",
+              "prevention_methods": "방지 방법들",
+              "confidence": 0.8
+            }
+          }
+        ]
+      }
+    ],
+    "output_format": {
+      "sound_descriptions": {
+        "description": "소리 분류 기준 및 특징",
+        "fields": ["name", "description", "frequency", "amplitude", "temporal", "expert_notes", "confidence"]
+      },
+      "diagnostic_methods": {
+        "description": "진단 방법 및 기준",
+        "fields": ["name", "description", "steps", "thresholds", "decision_logic", "confidence_factors", "expert_notes"]
+      },
+      "experience_stories": {
+        "description": "경험 사례 및 교훈",
+        "fields": ["situation", "context", "symptoms", "diagnosis", "solution", "prevention", "confidence", "frequency"]
+      },
+      "heuristic_tips": {
+        "description": "휴리스틱 지식 및 직감",
+        "fields": ["name", "rule", "conditions", "action", "confidence", "expert_notes", "applicability"]
+      },
+      "troubleshooting_stories": {
+        "description": "문제 해결 과정 및 트러블슈팅",
+        "fields": ["problem_type", "problem_description", "investigation_steps", "decision_points", "solution_paths", "success_criteria", "lessons_learned"]
+      }
+    },
+    "interview_guidelines": {
+      "preparation": [
+        "인터뷰 목적과 과정 설명",
+        "기록 방법 및 동의서 작성",
+        "편안한 환경 조성",
+        "충분한 시간 확보"
+      ],
+      "during_interview": [
+        "구체적인 질문으로 답변 유도",
+        "경험 중심의 답변 유도",
+        "수치화 가능한 답변 유도",
+        "불확실한 부분 명확히 하기"
+      ],
+      "post_interview": [
+        "기록 내용 검토 및 보완",
+        "불명확한 부분 추가 질문",
+        "지식 구조화 및 검증",
+        "후속 인터뷰 계획 수립"
+      ]
+    }
+  }
+}

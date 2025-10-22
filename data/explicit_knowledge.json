@@ -1,0 +1,269 @@
+{
+  "sound_classification": {
+    "normal_sounds": {
+      "compressor_normal": {
+        "description": "정상 압축기 소리",
+        "frequency_range": [20, 200],
+        "amplitude_range": [0.1, 0.3],
+        "pattern_regularity": 0.8,
+        "stability_factor": 0.8,
+        "expert_notes": "일정한 저주파 소음, 안정적",
+        "confidence": 0.9
+      },
+      "fan_normal": {
+        "description": "정상 팬 소리",
+        "frequency_range": [200, 1000],
+        "amplitude_range": [0.2, 0.4],
+        "pattern_regularity": 0.9,
+        "stability_factor": 0.9,
+        "expert_notes": "부드러운 중주파 소음, 일정한 바람 소리",
+        "confidence": 0.9
+      },
+      "motor_normal": {
+        "description": "정상 모터 소리",
+        "frequency_range": [1000, 5000],
+        "amplitude_range": [0.15, 0.35],
+        "pattern_regularity": 0.85,
+        "stability_factor": 0.85,
+        "expert_notes": "규칙적인 고주파 소음, 안정적",
+        "confidence": 0.85
+      }
+    },
+    "abnormal_sounds": {
+      "bearing_wear": {
+        "description": "베어링 마모 소리",
+        "frequency_range": [2000, 8000],
+        "amplitude_range": [0.4, 1.0],
+        "pattern_regularity": 0.3,
+        "stability_factor": 0.3,
+        "expert_notes": "불규칙한 고주파 진동, 마찰음",
+        "confidence": 0.85
+      },
+      "unbalance": {
+        "description": "언밸런스 소리",
+        "frequency_range": [50, 500],
+        "amplitude_range": [0.3, 0.8],
+        "pattern_regularity": 0.6,
+        "stability_factor": 0.4,
+        "expert_notes": "주기적 진동, 저주파, 리듬 변화",
+        "confidence": 0.8
+      },
+      "friction": {
+        "description": "마찰 소리",
+        "frequency_range": [500, 3000],
+        "amplitude_range": [0.25, 0.7],
+        "pattern_regularity": 0.5,
+        "stability_factor": 0.5,
+        "expert_notes": "긁는 소리, 중주파, 불안정",
+        "confidence": 0.75
+      },
+      "overload": {
+        "description": "과부하 소리",
+        "frequency_range": [20, 8000],
+        "amplitude_range": [0.5, 1.0],
+        "pattern_regularity": 0.2,
+        "stability_factor": 0.2,
+        "expert_notes": "불규칙한 노이즈, 전체 주파수, 과부하",
+        "confidence": 0.9
+      }
+    }
+  },
+  "diagnostic_methods": {
+    "stability_analysis": {
+      "description": "안정성 분석",
+      "method": "RMS와 ZCR의 변동계수 계산",
+      "formula": "stability = 1 / (1 + std(rms_windows) / mean(rms_windows))",
+      "thresholds": {
+        "excellent": 0.9,
+        "good": 0.8,
+        "fair": 0.6,
+        "poor": 0.4,
+        "critical": 0.2
+      },
+      "decision_logic": {
+        "excellent": "정상 운영",
+        "good": "정기 모니터링",
+        "fair": "모니터링 강화",
+        "poor": "점검 계획 수립",
+        "critical": "즉시 점검 필요"
+      },
+      "confidence": 0.9
+    },
+    "frequency_consistency": {
+      "description": "주파수 일관성 분석",
+      "method": "스펙트럼 센트로이드의 안정성 측정",
+      "formula": "consistency = 1 / (1 + std(spectral_centroids) / mean(spectral_centroids))",
+      "thresholds": {
+        "excellent": 0.8,
+        "good": 0.7,
+        "fair": 0.5,
+        "poor": 0.3,
+        "critical": 0.1
+      },
+      "decision_logic": {
+        "excellent": "정상 운영",
+        "good": "정기 모니터링",
+        "fair": "주파수 변화 모니터링",
+        "poor": "주파수 분석 강화",
+        "critical": "주파수 이상 원인 분석"
+      },
+      "confidence": 0.8
+    },
+    "pattern_regularity": {
+      "description": "패턴 규칙성 분석",
+      "method": "자기상관 함수를 이용한 주기성 측정",
+      "formula": "regularity = max(autocorr[1:]) / autocorr[0]",
+      "thresholds": {
+        "excellent": 0.8,
+        "good": 0.7,
+        "fair": 0.5,
+        "poor": 0.3,
+        "critical": 0.1
+      },
+      "decision_logic": {
+        "excellent": "정상 운영",
+        "good": "정기 모니터링",
+        "fair": "패턴 변화 모니터링",
+        "poor": "패턴 분석 강화",
+        "critical": "패턴 이상 원인 분석"
+      },
+      "confidence": 0.8
+    }
+  },
+  "experience_rules": {
+    "bearing_wear_progression": {
+      "stage_1": {
+        "description": "초기 단계",
+        "symptoms": ["고주파 진동 미미", "주기적 패턴 유지"],
+        "frequency_range": [2000, 4000],
+        "amplitude_range": [0.4, 0.6],
+        "action": "모니터링 강화",
+        "confidence": 0.8
+      },
+      "stage_2": {
+        "description": "진행 단계",
+        "symptoms": ["고주파 진동 증가", "패턴 약간 불규칙"],
+        "frequency_range": [3000, 6000],
+        "amplitude_range": [0.6, 0.8],
+        "action": "점검 계획 수립",
+        "confidence": 0.85
+      },
+      "stage_3": {
+        "description": "심각 단계",
+        "symptoms": ["고주파 진동 심각", "패턴 불규칙"],
+        "frequency_range": [4000, 8000],
+        "amplitude_range": [0.8, 1.0],
+        "action": "즉시 교체 필요",
+        "confidence": 0.9
+      }
+    },
+    "unbalance_development": {
+      "stage_1": {
+        "description": "초기 단계",
+        "symptoms": ["저주파 진동 미미", "리듬 유지"],
+        "frequency_range": [50, 200],
+        "amplitude_range": [0.3, 0.5],
+        "action": "모니터링 강화",
+        "confidence": 0.8
+      },
+      "stage_2": {
+        "description": "진행 단계",
+        "symptoms": ["저주파 진동 증가", "리듬 약간 변화"],
+        "frequency_range": [100, 300],
+        "amplitude_range": [0.5, 0.7],
+        "action": "밸런싱 계획 수립",
+        "confidence": 0.85
+      },
+      "stage_3": {
+        "description": "심각 단계",
+        "symptoms": ["저주파 진동 심각", "리듬 불안정"],
+        "frequency_range": [150, 500],
+        "amplitude_range": [0.7, 1.0],
+        "action": "즉시 밸런싱 필요",
+        "confidence": 0.9
+      }
+    }
+  },
+  "heuristic_knowledge": {
+    "noise_level_judgment": {
+      "description": "소음 레벨 판단",
+      "rule": "소음이 갑자기 증가하면 이상 징후",
+      "conditions": ["소음 레벨 변화", "시간적 변화", "환경 변화 없음"],
+      "action": "즉시 점검 필요",
+      "confidence": 0.8,
+      "applicability": "general"
+    },
+    "vibration_noise_correlation": {
+      "description": "진동과 소음의 상관관계",
+      "rule": "진동이 크면 소음도 큰 경우가 많음",
+      "conditions": ["진동 증가", "소음 증가", "동시 발생"],
+      "action": "진동 원인 분석",
+      "confidence": 0.7,
+      "applicability": "general"
+    },
+    "environmental_factors": {
+      "description": "환경 요인 고려",
+      "rule": "온도가 높으면 진동 증가, 습도가 높으면 마찰 증가",
+      "conditions": ["온도 변화", "습도 변화", "부하 변화"],
+      "action": "환경 조건 고려한 진단",
+      "confidence": 0.8,
+      "applicability": "environmental"
+    },
+    "quick_diagnosis": {
+      "description": "빠른 진단 기준",
+      "rule": "RMS와 주파수 분포를 먼저 확인",
+      "conditions": ["RMS > 0.5", "고주파 에너지 > 0.3"],
+      "action": "상세 분석 필요",
+      "confidence": 0.8,
+      "applicability": "quick"
+    }
+  },
+  "troubleshooting_rules": {
+    "problem_approach": {
+      "description": "문제 접근 방법",
+      "steps": [
+        "문제 상황 파악",
+        "증상 분석",
+        "원인 추정",
+        "해결책 수립",
+        "실행 및 검증"
+      ],
+      "confidence": 0.8
+    },
+    "investigation_order": {
+      "description": "조사 순서",
+      "steps": [
+        "소음 위치 확인",
+        "주파수 분석",
+        "진동 측정",
+        "부하 상태 확인",
+        "환경 조건 확인"
+      ],
+      "confidence": 0.8
+    },
+    "decision_points": {
+      "description": "의사결정 포인트",
+      "points": [
+        "정상 범위 내?",
+        "점진적 변화?",
+        "급격한 변화?",
+        "다른 증상 동반?",
+        "환경 요인 영향?"
+      ],
+      "confidence": 0.8
+    },
+    "emergency_response": {
+      "description": "긴급 상황 대응",
+      "criteria": ["소음 급격한 증가", "진동 심각", "과부하 신호"],
+      "actions": [
+        "즉시 운전 중단",
+        "안전 조치",
+        "전문가 호출",
+        "상세 분석"
+      ],
+      "confidence": 0.9
+    }
+  },
+  "conversion_timestamp": "2024-01-01T00:00:00",
+  "version": "1.0.0"
+}

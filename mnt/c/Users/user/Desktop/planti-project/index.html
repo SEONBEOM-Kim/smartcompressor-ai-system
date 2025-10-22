@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planti - 대화형 식물 페르소나</title>
+    <meta name="description" content="온디바이스 LLM 기술로 식물과 직접 대화하세요. 6가지 센서와 AI가 만드는 혁신적인 식물 관리 경험.">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-seedling"></i>
+                <span>Planti</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">기능</a>
+                <a href="#demo" class="nav-link">데모</a>
+                <a href="#pricing" class="nav-link">가격</a>
+                <a href="#contact" class="nav-link">문의</a>
+            </div>
+            <div class="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    식물과 <span class="highlight">대화</span>하세요
+                </h1>
+                <p class="hero-subtitle">
+                    온디바이스 LLM 기술로 식물의 마음을 읽고, 
+                    자연스러운 대화로 상태를 알려주는 혁신적인 식물 관리 솔루션
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="openWaitlistModal()">
+                        <i class="fas fa-rocket"></i>
+                        대기자 명단에 등록하기
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToDemo()">
+                        <i class="fas fa-play"></i>
+                        데모 보기
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">센서</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">온디바이스</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">실시간 모니터링</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="plant-container">
+                    <div class="plant-pot">
+                        <div class="plant-body">
+                            <div class="leaf leaf-1"></div>
+                            <div class="leaf leaf-2"></div>
+                            <div class="leaf leaf-3"></div>
+                        </div>
+                        <div class="sensor-dots">
+                            <div class="sensor-dot" data-sensor="co2"></div>
+                            <div class="sensor-dot" data-sensor="moisture"></div>
+                            <div class="sensor-dot" data-sensor="light"></div>
+                            <div class="sensor-dot" data-sensor="temp"></div>
+                            <div class="sensor-dot" data-sensor="voc"></div>
+                            <div class="sensor-dot" data-sensor="ph"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-chat-bubble">
+                    <div class="chat-content">
+                        <div class="chat-avatar">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="chat-message">
+                            "안녕하세요! 오늘 저의 컨디션을 말씀드릴게요..."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 문제점 섹션 -->
+    <section class="problem-section">
+        <div class="container">
+            <h2 class="section-title">기존 식물 관리의 한계</h2>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>복잡한 데이터</h3>
+                    <p>토양 습도 10%, CO₂ 1200ppm... 이런 숫자들을 해석하기 어려워요</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>단조로운 알림</h3>
+                    <p>😥 물 주세요! 💡 빛 부족! 이런 이모지 알림만으로는 맥락을 알 수 없어요</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h3>인터넷 의존</h3>
+                    <p>네트워크가 끊어지면 식물 상태를 확인할 수 없어요</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 솔루션 섹션 -->
+    <section class="solution-section">
+        <div class="container">
+            <h2 class="section-title">Planti의 혁신적인 해결책</h2>
+            <div class="solution-content">
+                <div class="solution-text">
+                    <h3>🌱 대화형 AI 페르소나</h3>
+                    <p>각 식물마다 고유한 AI 페르소나가 되어, 6가지 센서 데이터를 '감각'으로 인식하고 자연스러운 대화로 상태를 알려드립니다.</p>
+                    
+                    <h3>🧠 온디바이스 LLM</h3>
+                    <p>Meta LLAMA 3.2 1B와 퀄컴 AI 엔진을 활용해 인터넷 연결 없이도 즉각적이고 안정적인 반응을 제공합니다.</p>
+                    
+                    <h3>💬 맥락적 이해</h3>
+                    <p>복합적인 환경 문제를 하나의 자연스러운 문장으로 조합해, 식물의 진짜 '기분'과 '필요'를 전달합니다.</p>
+                </div>
+                <div class="solution-demo">
+                    <div class="demo-scenario">
+                        <div class="scenario-header">
+                            <span class="scenario-label">시나리오 1: 물이 필요할 때</span>
+                        </div>
+                        <div class="scenario-content">
+                            <div class="before-after">
+                                <div class="before">
+                                    <h4>기존 방식</h4>
+                                    <div class="notification old">
+                                        <i class="fas fa-tint"></i>
+                                        <span>토양 습도: 10%</span>
+                                        <span class="emoji">😥</span>
+                                    </div>
+                                </div>
+                                <div class="after">
+                                    <h4>Planti 방식</h4>
+                                    <div class="chat-message new">
+                                        <div class="message-avatar">
+                                            <i class="fas fa-seedling"></i>
+                                        </div>
+                                        <div class="message-text">
+                                            "아... 오늘따라 유난히 목이 마르네요. 흙 속이 바싹 마른 기분이에요. 혹시 시간 되실 때 시원한 물 한잔 주실 수 있을까요?"
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 기능 섹션 -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">핵심 기능</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI 식물 페르소나</h3>
+                    <p>각 식물의 성격과 특성을 반영한 고유한 AI 페르소나로 자연스러운 대화를 제공합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>6가지 센서</h3>
+                    <p>CO₂, 토양 습도, 빛, 온도, VOCs, pH를 실시간으로 모니터링하여 종합적인 식물 상태를 파악합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>맥락적 이해</h3>
+                    <p>복합적인 환경 문제를 하나의 자연스러운 문장으로 조합해 식물의 진짜 상태를 전달합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>온디바이스 처리</h3>
+                    <p>인터넷 연결 없이도 즉각적이고 안정적인 반응을 제공하여 실시간 식물 관리가 가능합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>감성적 연결</h3>
+                    <p>단순 정보 제공을 넘어 식물과 정서적 유대감을 쌓는 '반려'의 경험을 제공합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>직관적 UI</h3>
+                    <p>복잡한 대시보드 대신 식물과의 대화 중심의 직관적인 사용자 인터페이스를 제공합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 데모 섹션 -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <h2 class="section-title">실제 사용 시나리오</h2>
+            <div class="demo-container">
+                <div class="demo-scenarios">
+                    <div class="scenario-tabs">
+                        <button class="tab-btn active" onclick="showScenario(1)">물이 필요할 때</button>
+                        <button class="tab-btn" onclick="showScenario(2)">환경 문제</button>
+                        <button class="tab-btn" onclick="showScenario(3)">과습 경고</button>
+                    </div>
+                    <div class="scenario-content">
+                        <div id="scenario-1" class="scenario active">
+                            <div class="scenario-data">
+                                <h4>센서 데이터</h4>
+                                <div class="data-grid">
+                                    <div class="data-item">
+                                        <span class="data-label">토양 습도</span>
+                                        <span class="data-value low">10%</span>
+                                    </div>
+                                    <div class="data-item">
+                                        <span class="data-label">빛</span>
+                                        <span class="data-value good">적절함</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="scenario-chat">
+                                <div class="chat-message plant-message">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <div class="message-text">
+                                        "아... 오늘따라 유난히 목이 마르네요. 흙 속이 바싹 마른 기분이에요. 혹시 시간 되실 때 시원한 물 한잔 주실 수 있을까요?"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="scenario-2" class="scenario">
+                            <div class="scenario-data">
+                                <h4>센서 데이터</h4>
+                                <div class="data-grid">
+                                    <div class="data-item">
+                                        <span class="data-label">빛</span>
+                                        <span class="data-value low">100 lux</span>
+                                    </div>
+                                    <div class="data-item">
+                                        <span class="data-label">CO₂</span>
+                                        <span class="data-value high">1200ppm</span>
+                                    </div>
+                                    <div class="data-item">
+                                        <span class="data-label">토양 습도</span>
+                                        <span class="data-value good">적절함</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="scenario-chat">
+                                <div class="chat-message plant-message">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <div class="message-text">
+                                        "음... 왠지 공기가 좀 답답한 것 같아요. 빛도 조금 부족해서 그런지... 광합성을 시작하기가 조금 힘드네요. 괜찮으시다면, 창문을 살짝 열어주시거나 저를 조금 더 밝은 곳으로 옮겨주실 수 있나요?"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="scenario-3" class="scenario">
+                            <div class="scenario-data">
+                                <h4>센서 데이터</h4>
+                                <div class="data-grid">
+                                    <div class="data-item">
+                                        <span class="data-label">토양 습도</span>
+                                        <span class="data-value high">매우 높음 (3일 지속)</span>
+                                    </div>
+                                    <div class="data-item">
+                                        <span class="data-label">VOCs</span>
+                                        <span class="data-value warning">스트레스 패턴 감지</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="scenario-chat">
+                                <div class="chat-message plant-message">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <div class="message-text">
+                                        "저기... 며칠째 흙이 계속 축축해서... 속이 좀 더부룩하고 불편해요. 뿌리 쪽이 숨을 잘 못 쉬는 것 같아요. 당분간은 물을 안 주셔도 괜찮을 것 같아요."
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 가격 섹션 -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <h2 class="section-title">가격 정보</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>스타터</h3>
+                        <div class="price">
+                            <span class="currency">₩</span>
+                            <span class="amount">29,000</span>
+                            <span class="period">/월</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> 식물 1개 관리</li>
+                            <li><i class="fas fa-check"></i> 6가지 센서 모니터링</li>
+                            <li><i class="fas fa-check"></i> AI 대화 기능</li>
+                            <li><i class="fas fa-check"></i> 기본 알림</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline" onclick="openWaitlistModal()">대기자 등록</button>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">인기</div>
+                    <div class="pricing-header">
+                        <h3>프로</h3>
+                        <div class="price">
+                            <span class="currency">₩</span>
+                            <span class="amount">49,000</span>
+                            <span class="period">/월</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> 식물 5개 관리</li>
+                            <li><i class="fas fa-check"></i> 고급 AI 페르소나</li>
+                            <li><i class="fas fa-check"></i> 상세한 분석 리포트</li>
+                            <li><i class="fas fa-check"></i> 우선 지원</li>
+                            <li><i class="fas fa-check"></i> 커스텀 알림</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary" onclick="openWaitlistModal()">대기자 등록</button>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>엔터프라이즈</h3>
+                        <div class="price">
+                            <span class="currency">₩</span>
+                            <span class="amount">99,000</span>
+                            <span class="period">/월</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> 무제한 식물 관리</li>
+                            <li><i class="fas fa-check"></i> 팀 협업 기능</li>
+                            <li><i class="fas fa-check"></i> API 접근</li>
+                            <li><i class="fas fa-check"></i> 전용 지원</li>
+                            <li><i class="fas fa-check"></i> 커스텀 통합</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline" onclick="openWaitlistModal()">대기자 등록</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 섹션 -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>지금 시작하세요</h2>
+                <p>식물과의 새로운 대화를 경험해보세요. 대기자 명단에 등록하고 출시 소식을 가장 먼저 받아보세요.</p>
+                <button class="btn btn-primary btn-large" onclick="openWaitlistModal()">
+                    <i class="fas fa-rocket"></i>
+                    무료로 대기자 등록하기
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-seedling"></i>
+                        <span>Planti</span>
+                    </div>
+                    <p>식물과의 새로운 대화를 시작하세요</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>제품</h4>
+                        <ul>
+                            <li><a href="#features">기능</a></li>
+                            <li><a href="#demo">데모</a></li>
+                            <li><a href="#pricing">가격</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>지원</h4>
+                        <ul>
+                            <li><a href="#contact">문의</a></li>
+                            <li><a href="#">도움말</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>회사</h4>
+                        <ul>
+                            <li><a href="#">소개</a></li>
+                            <li><a href="#">블로그</a></li>
+                            <li><a href="#">채용</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Planti. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 대기자 등록 모달 -->
+    <div id="waitlistModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>대기자 명단에 등록하기</h3>
+                <span class="close" onclick="closeWaitlistModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Planti 출시 소식을 가장 먼저 받아보세요!</p>
+                <form id="waitlistForm">
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="이메일 주소를 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="name" placeholder="이름을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="interest" required>
+                            <option value="">관심 있는 플랜을 선택하세요</option>
+                            <option value="starter">스타터 (₩29,000/월)</option>
+                            <option value="pro">프로 (₩49,000/월)</option>
+                            <option value="enterprise">엔터프라이즈 (₩99,000/월)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-rocket"></i>
+                        대기자 등록하기
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

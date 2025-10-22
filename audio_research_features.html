@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 센서 데이터 연구 시스템</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        .data-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .file-info {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .analysis-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .status-normal { color: #28a745; }
+        .status-warning { color: #ffc107; }
+        .status-danger { color: #dc3545; }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 5px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .metric-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                            <i class="fas fa-microphone"></i> ESP32 센서 데이터 연구 시스템
+                        </a>
+                        <button class="btn btn-outline-light" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> 새로고침
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 데이터 목록 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> 최근 센서 데이터</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                        <div id="dataList" class="loading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">로딩 중...</span>
+                            </div>
+                            <p class="mt-2">데이터를 불러오는 중...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 데이터 분석 -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> 센서 데이터 분석</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 데이터가 선택되지 않은 경우 -->
+                        <div id="noDataSelected" class="text-center text-muted">
+                            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                            <p>분석할 센서 데이터를 선택하세요</p>
+                        </div>
+
+                        <!-- 선택된 데이터 분석 -->
+                        <div id="dataAnalysis" style="display: none;">
+                            <!-- 기본 메트릭 -->
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="rmsValue">-</div>
+                                        <div class="metric-label">RMS 에너지</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="spectralCentroid">-</div>
+                                        <div class="metric-label">스펙트럼 중심</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="compressorState">-</div>
+                                        <div class="metric-label">압축기 상태</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="temperatureEstimate">-</div>
+                                        <div class="metric-label">온도 추정</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 고급 특징 -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6 class="text-warning">고급 오디오 특징</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>RMS 에너지:</strong> <span id="rmsEnergy">-</span></p>
+                                    <p><strong>스펙트럼 중심:</strong> <span id="spectralCentroidDetail">-</span></p>
+                                    <p><strong>제로 크로싱 비율:</strong> <span id="zeroCrossingRate">-</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>압축기 상태:</strong> <span id="compressorStateDetail">-</span></p>
+                                    <p><strong>이상 점수:</strong> <span id="anomalyScore">-</span></p>
+                                    <p><strong>온도 추정:</strong> <span id="temperatureEstimateDetail">-</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>효율성 점수:</strong> <span id="efficiencyScore">-</span></p>
+                                    <p><strong>스펙트럼 롤오프:</strong> <span id="spectralRolloff">-</span></p>
+                                </div>
+                            </div>
+                            
+                            <!-- 고급 스펙트럼 특징 -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6 class="text-info">고급 스펙트럼 특징</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>스펙트럼 대역폭:</strong> <span id="spectralBandwidth">-</span></p>
+                                    <p><strong>스펙트럼 대비:</strong> <span id="spectralContrast">-</span></p>
+                                    <p><strong>스펙트럼 평탄도:</strong> <span id="spectralFlatness">-</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>스펙트럼 왜도:</strong> <span id="spectralSkewness">-</span></p>
+                                    <p><strong>스펙트럼 첨도:</strong> <span id="spectralKurtosis">-</span></p>
+                                    <p><strong>하모닉 비율:</strong> <span id="harmonicRatio">-</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>비하모닉성:</strong> <span id="inharmonicity">-</span></p>
+                                </div>
+                            </div>
+                            
+                            <!-- ADSR 특징 -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6 class="text-success">ADSR 특징</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong>Attack Time:</strong> <span id="attackTime">-</span></p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong>Decay Time:</strong> <span id="decayTime">-</span></p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong>Sustain Level:</strong> <span id="sustainLevel">-</span></p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong>Release Time:</strong> <span id="releaseTime">-</span></p>
+                                </div>
+                            </div>
+                            
+                            <!-- 소리 분류 -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6 class="text-danger">소리 분류</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>소리 유형:</strong> <span id="soundType">-</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>강도 레벨:</strong> <span id="intensityLevel">-</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>주파수 지배도:</strong> <span id="frequencyDominance">-</span></p>
+                                </div>
+                            </div>
+                            
+                            <!-- MFCC 계수 -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="text-primary">MFCC 계수 (0-12)</h6>
+                                    <div id="mfccCoefficients" class="row">
+                                        <!-- MFCC 계수들이 여기에 동적으로 추가됩니다 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시계열 차트 -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> 시계열 분석</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="timeSeriesChart" width="400" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sensorData = [];
+        let currentData = null;
+        let timeSeriesChart = null;
+
+        // 페이지 로드 시 데이터 가져오기
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('페이지 로드됨 - 센서 데이터 새로고침 시작');
+            refreshData();
+            initTimeSeriesChart();
+        });
+
+        // 데이터 새로고침
+        async function refreshData() {
+            console.log('센서 데이터 새로고침 시작...');
+            try {
+                const response = await fetch('/api/esp32/data/recent');
+                console.log('API 응답 상태:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                sensorData = result.data || [];
+                console.log('로드된 센서 데이터 수:', sensorData.length);
+                displayDataList();
+                updateTimeSeriesChart();
+            } catch (error) {
+                console.error('센서 데이터 로드 실패:', error);
+                document.getElementById('dataList').innerHTML =
+                    '<div class="alert alert-danger">센서 데이터를 불러올 수 없습니다.<br>오류: ' + error.message + '</div>';
+            }
+        }
+
+        // 데이터 목록 표시
+        function displayDataList() {
+            const dataList = document.getElementById('dataList');
+            console.log('데이터 목록 표시 중... 데이터 수:', sensorData.length);
+
+            if (sensorData.length === 0) {
+                dataList.innerHTML = '<div class="text-center text-muted">센서 데이터가 없습니다.</div>';
+                return;
+            }
+
+            dataList.innerHTML = sensorData.map((data, index) => `
+                <div class="list-group-item data-card" onclick="selectData(${index})">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${data.device_id}</h6>
+                        <small>${formatTime(data.received_at)}</small>
+                    </div>
+                    <p class="mb-1 file-info">
+                        <i class="fas fa-clock"></i> ${formatDate(data.received_at)}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">RMS: ${data.rms_energy.toFixed(2)}</small>
+                        <span class="badge ${data.compressor_state > 0.5 ? 'bg-danger' : 'bg-success'}">
+                            ${data.compressor_state > 0.5 ? '압축기 ON' : '압축기 OFF'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 데이터 선택
+        function selectData(index) {
+            console.log('데이터 선택됨:', index);
+            currentData = sensorData[index];
+            if (!currentData) {
+                console.error('데이터를 찾을 수 없음:', index);
+                return;
+            }
+
+            // 분석 섹션 표시
+            document.getElementById('noDataSelected').style.display = 'none';
+            document.getElementById('dataAnalysis').style.display = 'block';
+
+            // 데이터 분석 표시
+            displayDataAnalysis();
+        }
+
+        // 데이터 분석 표시
+        function displayDataAnalysis() {
+            if (!currentData) return;
+
+            // 기본 메트릭 업데이트
+            document.getElementById('rmsValue').textContent = currentData.rms_energy.toFixed(2);
+            document.getElementById('spectralCentroid').textContent = currentData.spectral_centroid.toFixed(3);
+            document.getElementById('compressorState').textContent = currentData.compressor_state > 0.5 ? 'ON' : 'OFF';
+            document.getElementById('temperatureEstimate').textContent = currentData.temperature_estimate.toFixed(1) + '°C';
+
+            // 상세 분석 업데이트
+            updateBasicFeatures(currentData);
+            updateAdvancedFeatures(currentData);
+            updateADSRFeatures(currentData);
+            updateSoundClassification(currentData);
+            updateMFCCCoefficients(currentData);
+        }
+
+        // 기본 특징 업데이트
+        function updateBasicFeatures(data) {
+            document.getElementById('rmsEnergy').textContent = (data.rms_energy || 0).toFixed(2);
+            document.getElementById('spectralCentroidDetail').textContent = (data.spectral_centroid || 0).toFixed(3);
+            document.getElementById('zeroCrossingRate').textContent = (data.zero_crossing_rate || 0).toFixed(3);
+            document.getElementById('compressorStateDetail').textContent = (data.compressor_state > 0.5) ? 'ON' : 'OFF';
+            document.getElementById('anomalyScore').textContent = (data.anomaly_score || 0).toFixed(3);
+            document.getElementById('temperatureEstimateDetail').textContent = (data.temperature_estimate || 0).toFixed(1) + '°C';
+            document.getElementById('efficiencyScore').textContent = (data.efficiency_score || 0).toFixed(3);
+            document.getElementById('spectralRolloff').textContent = (data.spectral_rolloff || 0).toFixed(3);
+        }
+
+        // 고급 특징 업데이트
+        function updateAdvancedFeatures(data) {
+            document.getElementById('spectralBandwidth').textContent = (data.spectral_bandwidth || 0).toFixed(2);
+            document.getElementById('spectralContrast').textContent = (data.spectral_contrast || 0).toFixed(4);
+            document.getElementById('spectralFlatness').textContent = (data.spectral_flatness || 0).toFixed(4);
+            document.getElementById('spectralSkewness').textContent = (data.spectral_skewness || 0).toFixed(4);
+            document.getElementById('spectralKurtosis').textContent = (data.spectral_kurtosis || 0).toFixed(4);
+            document.getElementById('harmonicRatio').textContent = (data.harmonic_ratio || 0).toFixed(4);
+            document.getElementById('inharmonicity').textContent = (data.inharmonicity || 0).toFixed(4);
+        }
+
+        // ADSR 특징 업데이트
+        function updateADSRFeatures(data) {
+            document.getElementById('attackTime').textContent = (data.attack_time || 0).toFixed(4);
+            document.getElementById('decayTime').textContent = (data.decay_time || 0).toFixed(4);
+            document.getElementById('sustainLevel').textContent = (data.sustain_level || 0).toFixed(4);
+            document.getElementById('releaseTime').textContent = (data.release_time || 0).toFixed(4);
+        }
+
+        // 소리 분류 업데이트
+        function updateSoundClassification(data) {
+            const soundType = data.sound_type || 0;
+            const soundTypeNames = ['정적', '압축기', '팬', '이상음', '기타'];
+            const soundTypeName = soundTypeNames[Math.round(soundType)] || '알 수 없음';
+            
+            document.getElementById('soundType').textContent = soundTypeName;
+            document.getElementById('intensityLevel').textContent = ((data.intensity_level || 0) * 100).toFixed(1) + '%';
+            document.getElementById('frequencyDominance').textContent = (data.frequency_dominance || 0).toFixed(3);
+        }
+
+        // MFCC 계수 업데이트
+        function updateMFCCCoefficients(data) {
+            const mfccContainer = document.getElementById('mfccCoefficients');
+            const mfcc = data.mfcc || [];
+            
+            mfccContainer.innerHTML = '';
+            for (let i = 0; i < 13; i++) {
+                const col = document.createElement('div');
+                col.className = 'col-md-1';
+                col.innerHTML = `
+                    <div class="text-center">
+                        <small class="text-muted">C${i}</small><br>
+                        <strong>${(mfcc[i] || 0).toFixed(3)}</strong>
+                    </div>
+                `;
+                mfccContainer.appendChild(col);
+            }
+        }
+
+        // 시계열 차트 초기화
+        function initTimeSeriesChart() {
+            const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+            timeSeriesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'RMS 에너지',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }, {
+                        label: '압축기 상태',
+                        data: [],
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    minute: 'HH:mm'
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // 시계열 차트 업데이트
+        function updateTimeSeriesChart() {
+            if (!timeSeriesChart || sensorData.length === 0) return;
+
+            const labels = sensorData.map(d => new Date(d.received_at));
+            const rmsData = sensorData.map(d => d.rms_energy);
+            const compressorData = sensorData.map(d => d.compressor_state);
+
+            timeSeriesChart.data.labels = labels;
+            timeSeriesChart.data.datasets[0].data = rmsData;
+            timeSeriesChart.data.datasets[1].data = compressorData;
+            timeSeriesChart.update();
+        }
+
+        // 유틸리티 함수들
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('ko-KR');
+        }
+
+        function formatTime(dateString) {
+            return new Date(dateString).toLocaleTimeString('ko-KR');
+        }
+    </script>
+</body>
+</html>
