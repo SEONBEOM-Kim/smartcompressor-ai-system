@@ -348,13 +348,14 @@ router.post('/test-data', (req, res) => {
         
         let successCount = 0;
         testData.forEach(data => {
+            const decibel_level = parseFloat(data.audio_level);
             stmt.run([
                 data.device_id,
                 data.timestamp,
                 parseFloat(data.temperature),
-                parseFloat(data.audio_level),
+                decibel_level,
                 parseFloat(data.rms_energy),
-                parseFloat(data.audio_level),
+                decibel_level,
                 decibel_level >= 45 ? 1 : 0,
                 data.vibration.x,
                 data.vibration.y,
