@@ -16,6 +16,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const kakaoRoutes = require('./routes/kakaoRoutes');
 const monitoringRoutes = require('./routes/monitoringRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const weatherRoutes = require('./routes/weatherApi');
 
 const app = express();
 
@@ -125,6 +126,17 @@ app.get('/storage/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/storage/dashboard.html'));
 });
 
+// ESP32 센서 대시보드 페이지
+app.get('/esp32-dashboard', (req, res) => {
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Vary', '*');
+    res.sendFile(path.join(__dirname, '../static/pages/esp32_dashboard.html'));
+});
+
 // API 라우트
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
@@ -132,6 +144,11 @@ app.use('/api/lightweight-analyze', aiRoutes); // 경량 AI는 별도 경로로�
 app.use('/api/kakao', kakaoRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/weather', weatherRoutes);
+
+// ESP32 API 라우트
+const esp32DashboardApi = require('./routes/esp32DashboardApi');
+app.use('/api/esp32', esp32DashboardApi);
 
 // 카카오 로그인 라우트 (별도 경로)
 app.use('/auth/kakao', kakaoRoutes);

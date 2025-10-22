@@ -87,6 +87,13 @@ router.get('/features/recent', (req, res) => {
         // 제한된 개수만 반환
         const recentData = allData.slice(0, limit);
 
+        // 45dB 기준으로 compressor_state 재계산
+        recentData.forEach(item => {
+            if (item.decibel_level !== undefined) {
+                item.compressor_state = item.decibel_level >= 45 ? 1 : 0;
+            }
+        });
+
         console.log(`[DEBUG] 최종 반환 데이터: ${recentData.length}`);
 
         res.json({
