@@ -517,6 +517,14 @@
                     <span class="stat-label">패턴 안정성:</span>
                     <span class="stat-value" id="stability">-</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-label">현재 온도:</span>
+                    <span class="stat-value" id="currentTemp">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">예상 작동비율:</span>
+                    <span class="stat-value" id="expectedRatio">-</span>
+                </div>
                     <div class="stat-item">
                         <span class="stat-label">패턴 트렌드:</span>
                         <span class="stat-value" id="patternTrend">-</span>
@@ -1041,8 +1049,19 @@
             const stability = typeof anomalyAnalysis.anomalyScore === 'number' ? (100 - anomalyAnalysis.anomalyScore) : 100;
             
             // UI 업데이트
-            document.getElementById('efficiency').textContent = efficiency > 0 ? `${efficiency.toFixed(1)}%` : '-';
-            document.getElementById('stability').textContent = stability > 0 ? `${stability.toFixed(0)}%` : '-';
+            document.getElementById('efficiency').textContent = efficiency > 0 ? `${Number(efficiency).toFixed(1)}%` : '-';
+            document.getElementById('stability').textContent = stability > 0 ? `${Number(stability).toFixed(0)}%` : '-';
+            
+            // 온도 정보 업데이트
+            if (anomalyAnalysis.weatherData) {
+                document.getElementById('currentTemp').textContent = `${anomalyAnalysis.weatherData.temperature}°C`;
+                if (anomalyAnalysis.normalRange) {
+                    document.getElementById('expectedRatio').textContent = `${(anomalyAnalysis.normalRange.predicted * 100).toFixed(1)}%`;
+                }
+            } else {
+                document.getElementById('currentTemp').textContent = '데이터 없음';
+                document.getElementById('expectedRatio').textContent = '-';
+            }
             
             // 트렌드 표시
             const trendElement = document.getElementById('patternTrend');
@@ -1078,102 +1097,145 @@
             };
         }
 
-        // 패턴 이상 감지 알고리즘
-        function detectPatternAnomalies(cycles) {
+        // 온도 기반 지능형 이상 감지 시스템
+        let weatherData = null;
+        let lastWeatherUpdate = 0;
+        const WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000; // 30분마다 업데이트
+
+        // 기상 데이터 가져오기
+        async function fetchWeatherData() {
+            const now = Date.now();
+            if (now - lastWeatherUpdate < WEATHER_UPDATE_INTERVAL && weatherData) {
+                return weatherData;
+            }
+
+            try {
+                // OpenWeatherMap API 사용 (무료 계정으로도 충분)
+                // API 키는 서버에서 환경변수로 관리하거나 여기에 직접 입력
+                const apiKey = 'YOUR_OPENWEATHER_API_KEY'; // 실제 API 키로 교체 필요
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=37.5665&lon=126.9780&appid=${apiKey}&units=metric`);
+                const data = await response.json();
+                
+                weatherData = {
+                    temperature: data.main.temp,
+                    humidity: data.main.humidity,
+                    timestamp: now,
+                    location: data.name
+                };
+                lastWeatherUpdate = now;
+                
+                console.log('🌡️ 기상 데이터 업데이트:', weatherData);
+                return weatherData;
+            } catch (error) {
+                console.error('기상 데이터 가져오기 실패:', error);
+                return null;
+            }
+        }
+
+        // 온도 기반 정상 작동 범위 예측
+        function predictNormalOperationRange(temperature, timeOfDay) {
+            // 기본 작동 비율 (온도 20도 기준)
+            const baseOperationRatio = 0.5;
+            
+            // 온도 계수 (온도가 낮을수록 작동 시간 증가)
+            const tempCoefficient = Math.max(0.3, 1 - (temperature - 20) * 0.02);
+            
+            // 시간대 계수 (밤시간 작동 감소)
+            const timeCoefficient = timeOfDay >= 22 || timeOfDay <= 6 ? 0.7 : 1.0;
+            
+            // 예측된 정상 작동 비율
+            const predictedRatio = baseOperationRatio * tempCoefficient * timeCoefficient;
+            
+            // 허용 오차 범위 (±20%)
+            const tolerance = 0.2;
+            
+            return {
+                min: Math.max(0, predictedRatio - tolerance),
+                max: Math.min(1, predictedRatio + tolerance),
+                predicted: predictedRatio,
+                temperature: temperature,
+                timeOfDay: timeOfDay
+            };
+        }
+
+        // 패턴 이상 감지 알고리즘 (온도 기반)
+        async function detectPatternAnomalies(cycles) {
             if (cycles.length < 3) {
                 return { anomalyScore: 0, anomalies: [], trend: 'insufficient_data' };
             }
 
+            // 1. 기상 데이터 가져오기
+            const weather = await fetchWeatherData();
+            const currentTime = new Date();
+            const timeOfDay = currentTime.getHours();
+            
             const recentCycles = cycles.slice(-5); // 최근 5개 사이클
             const onTimes = recentCycles.map(cycle => cycle.onTime);
             const onRatios = recentCycles.map(cycle => cycle.onRatio);
             
-            // 1. 평균값 계산
+            // 2. 온도 기반 정상 범위 예측
+            let normalRange = null;
+            if (weather) {
+                normalRange = predictNormalOperationRange(weather.temperature, timeOfDay);
+            }
+            
+            // 3. 기본 통계 계산
             const avgOnTime = onTimes.reduce((sum, time) => sum + time, 0) / onTimes.length;
             const avgOnRatio = onRatios.reduce((sum, ratio) => sum + ratio, 0) / onRatios.length;
-            
-            // 2. 표준편차 계산
-            const timeVariance = onTimes.reduce((sum, time) => sum + Math.pow(time - avgOnTime, 2), 0) / onTimes.length;
-            const ratioVariance = onRatios.reduce((sum, ratio) => sum + Math.pow(ratio - avgOnRatio, 2), 0) / onRatios.length;
-            const timeStdDev = Math.sqrt(timeVariance);
-            const ratioStdDev = Math.sqrt(ratioVariance);
-
-            const currentOnTime = onTimes[onTimes.length - 1];
             const currentOnRatio = onRatios[onRatios.length - 1];
             
-            // 3. 이상 감지 점수 계산 (0-1 범위)
             let anomalyScore = 0;
             const anomalies = [];
             
-            // 작동 시간 이상 감지
-            if (timeStdDev > 0) {
-                const timeZScore = Math.abs(currentOnTime - avgOnTime) / timeStdDev;
-                const timeAnomaly = Math.min(timeZScore / 2, 1); // 2-sigma 규칙
-                anomalyScore = Math.max(anomalyScore, timeAnomaly);
-
-                if (timeZScore > 2) {
-                    if (currentOnTime > avgOnTime) {
-                        anomalies.push(`작동시간 비정상 증가: ${currentOnTime}분 (평균: ${avgOnTime.toFixed(1)}분)`);
+            // 4. 온도 기반 이상 감지
+            if (normalRange) {
+                const isWithinNormalRange = currentOnRatio >= normalRange.min && currentOnRatio <= normalRange.max;
+                
+                if (!isWithinNormalRange) {
+                    const deviation = Math.abs(currentOnRatio - normalRange.predicted);
+                    const severity = Math.min(deviation / 0.2, 1); // 20% 이상 벗어나면 최대 점수
+                    anomalyScore = Math.max(anomalyScore, severity);
+                    
+                    if (currentOnRatio > normalRange.max) {
+                        anomalies.push(`온도 대비 과부하: ${(currentOnRatio * 100).toFixed(1)}% (예상: ${(normalRange.predicted * 100).toFixed(1)}%, 온도: ${weather.temperature}°C)`);
                     } else {
-                        anomalies.push(`작동시간 비정상 감소: ${currentOnTime}분 (평균: ${avgOnTime.toFixed(1)}분)`);
+                        anomalies.push(`온도 대비 저부하: ${(currentOnRatio * 100).toFixed(1)}% (예상: ${(normalRange.predicted * 100).toFixed(1)}%, 온도: ${weather.temperature}°C)`);
                     }
+                } else {
+                    anomalies.push(`정상 작동 범위 내 (온도: ${weather.temperature}°C, 예상: ${(normalRange.predicted * 100).toFixed(1)}%)`);
                 }
-            }
-
-            // 작동 비율 이상 감지
-            if (ratioStdDev > 0) {
-                const ratioZScore = Math.abs(currentOnRatio - avgOnRatio) / ratioStdDev;
-                const ratioAnomaly = Math.min(ratioZScore / 2, 1);
-                anomalyScore = Math.max(anomalyScore, ratioAnomaly);
-
-                if (ratioZScore > 2) {
-                    anomalies.push(`작동비율 급변: ${(currentOnRatio * 100).toFixed(1)}% (평균: ${(avgOnRatio * 100).toFixed(1)}%)`);
+            } else {
+                // 5. 기상 데이터 없을 때 기존 방식 사용
+                const timeVariance = onTimes.reduce((sum, time) => sum + Math.pow(time - avgOnTime, 2), 0) / onTimes.length;
+                const ratioVariance = onRatios.reduce((sum, ratio) => sum + Math.pow(ratio - avgOnRatio, 2), 0) / onRatios.length;
+                const timeStdDev = Math.sqrt(timeVariance);
+                const ratioStdDev = Math.sqrt(ratioVariance);
+                
+                if (timeStdDev > 0) {
+                    const timeZScore = Math.abs(onTimes[onTimes.length - 1] - avgOnTime) / timeStdDev;
+                    anomalyScore = Math.max(anomalyScore, Math.min(timeZScore / 2, 1));
+                }
+                
+                if (ratioStdDev > 0) {
+                    const ratioZScore = Math.abs(currentOnRatio - avgOnRatio) / ratioStdDev;
+                    anomalyScore = Math.max(anomalyScore, Math.min(ratioZScore / 2, 1));
                 }
             }
             
-            // 4. 트렌드 분석 (작동 시간 기준)
+            // 6. 트렌드 분석
             let trend = 'stable';
             if (onTimes.length >= 3) {
                 const recentTrend = onTimes.slice(-3);
                 const isIncreasing = recentTrend[2] > recentTrend[1] && recentTrend[1] > recentTrend[0];
                 const isDecreasing = recentTrend[2] < recentTrend[1] && recentTrend[1] < recentTrend[0];
                 
-                if (isIncreasing) {
-                    trend = 'increasing';
-                    anomalyScore = Math.max(anomalyScore, 0.3);
-                } else if (isDecreasing) {
-                    trend = 'decreasing';
-                    anomalyScore = Math.max(anomalyScore, 0.2);
-                }
+                if (isIncreasing) trend = 'increasing';
+                else if (isDecreasing) trend = 'decreasing';
             }
-
-            // 5. 연속 패턴 감지
-            if (onTimes.length >= 3) {
-                const allHigh = onTimes.slice(-3).every(time => time > avgOnTime + timeStdDev);
-                const allLow = onTimes.slice(-3).every(time => time < avgOnTime - timeStdDev);
-                
-                if (allHigh) {
-                    anomalies.push('연속 고부하 상태 감지');
-                    anomalyScore = Math.max(anomalyScore, 0.8);
-                } else if (allLow) {
-                    anomalies.push('연속 저부하 상태 감지');
-                    anomalyScore = Math.max(anomalyScore, 0.6);
-                }
-            }
-
-            // 6. 효율성 분석
-            const efficiency = currentOnRatio;
-            if (efficiency > 0.8) {
-                anomalies.push('과부하 상태 (효율성 > 80%)');
-                anomalyScore = Math.max(anomalyScore, 0.7);
-            } else if (efficiency < 0.2) {
-                anomalies.push('저효율 상태 (효율성 < 20%)');
-                anomalyScore = Math.max(anomalyScore, 0.5);
-            }
-
+            
             // 7. 종합 이상 점수 (0-100점)
             const finalScore = Math.round(anomalyScore * 100);
-
+            
             return {
                 anomalyScore: finalScore,
                 anomalies,
@@ -1181,7 +1243,9 @@
                 avgOnRatio: avgOnRatio * 100,
                 currentOnRatio: currentOnRatio * 100,
                 avgOnTime: avgOnTime,
-                currentOnTime: currentOnTime
+                currentOnTime: onTimes[onTimes.length - 1],
+                weatherData: weather,
+                normalRange: normalRange
             };
         }
 
