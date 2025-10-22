@@ -1,0 +1,164 @@
+<style>
+    .section-container {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .section-header h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary, #FFFFFF);
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+    
+    .section-header h2 i {
+        color: var(--danger, #E53E3E);
+        margin-right: 0.5rem;
+    }
+    
+    .current-risk-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .risk-card {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        cursor: pointer;
+    }
+    
+    .risk-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .risk-card h5 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-secondary, #A0AEC0);
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .risk-card h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    .urgent-card h2 { color: var(--danger, #E53E3E); }
+    .warning-card h2 { color: var(--warning, #ED8936); }
+    .info-card h2 { color: var(--accent-primary, #8A5CFE); }
+    .asset-card h2 { color: var(--success, #48BB78); }
+    
+    .description {
+        color: var(--text-secondary, #A0AEC0);
+        font-size: 0.9rem;
+        margin: 0.5rem 0 0 0;
+    }
+    
+    /* Mobile responsive styles for today-briefing */
+    @media (max-width: 768px) {
+        .current-risk-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .section-header h2 {
+            font-size: 1.1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .current-risk-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .risk-card h2 {
+            font-size: 1.5rem;
+        }
+        
+        .risk-card h5 {
+            font-size: 0.9rem;
+        }
+        
+        .description {
+            font-size: 0.8rem;
+        }
+    }
+</style>
+<section class="section-container">
+    <div class="section-header">
+        <h2><i class="fas fa-bullhorn" style="color: var(--danger, #E53E3E);"></i> 오늘의 브리핑</h2>
+    </div>
+    <div class="current-risk-cards">
+        <div class="risk-card urgent-card" onclick="filterAnomalies('urgent')">
+            <h5><i class="fas fa-exclamation-triangle" style="color: var(--danger, #E53E3E);"></i> 위험 알림</h5>
+            <h2>2 건</h2>
+            <p class="description">압축기 #3, 냉동고-A1</p>
+        </div>
+        
+        <div class="risk-card warning-card" onclick="filterAnomalies('warning')">
+            <h5><i class="fas fa-exclamation-circle" style="color: var(--warning, #ED8936);"></i> 신규 경고</h5>
+            <h2>5 건</h2>
+            <p class="description">냉동고-A1, 냉동고-C3 외 3건</p>
+        </div>
+        
+        <div class="risk-card info-card" onclick="filterAnomalies('unconfirmed')">
+            <h5><i class="fas fa-info-circle" style="color: var(--accent-primary, #8A5CFE);"></i> 미확인 알림</h5>
+            <h2>3 건</h2>
+            <p class="description">클릭하여 필터링</p>
+        </div>
+        
+        <div class="risk-card asset-card" onclick="filterByAsset('Compressor-3')">
+            <h5><i class="fas fa-tools" style="color: var(--success, #48BB78);"></i> 최다 문제 자산</h5>
+            <h2>압축기 #3</h2>
+            <p class="description">지난 24시간 내 5건 발생</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Function to implement filtering when clicking on briefing cards
+    function filterAnomalies(filterType) {
+        // This function would interact with the anomaly feed to filter results
+        console.log('Filtering anomalies by: ' + filterType);
+        
+        // In a real implementation, you would update the anomaly feed based on the filter
+        // This might involve updating the URL, sending an AJAX request, or updating state
+        alert('필터링 기능: ' + filterType + ' 항목으로 이상 징후를 필터링합니다.');
+    }
+    
+    function filterByAsset(assetId) {
+        // This function would filter by a specific asset
+        console.log('Filtering by asset: ' + assetId);
+        alert('자산 필터링 기능: ' + assetId + ' 자산의 이상 징후를 표시합니다.');
+    }
+</script>

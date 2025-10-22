@@ -4,597 +4,1525 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signalcraft 대시보드</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Custom CSS -->
-    <link href="/static/css/dashboard.css" rel="stylesheet">
+    <link href="/static/css/dashboard_v3.css?v=3.0" rel="stylesheet">
+    <!-- Mobile Responsive CSS -->
+    <link href="/static/css/dashboard_mobile_responsive.css" rel="stylesheet">
+    
+    <style>
+        .grid-card {
+            position: relative;
+            transition: all 0.3s ease;
+            width: 100%; /* Ensure cards don't exceed container width */
+            max-width: 100%; /* Prevent overflow */
+        }
+        
+        .grid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        }
+        
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .grid-card:hover .card-overlay {
+            opacity: 1;
+        }
+        
+        .view-more-btn {
+            color: white;
+            font-weight: bold;
+            background: var(--accent-primary, #007bff);
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-more-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .grid-card:hover .view-more-btn i {
+            transform: translateX(3px);
+        }
+
+        /* --- 가독성 향상을 위한 중앙 정렬 스타일 --- */
+        .page-header,
+        .risk-card {
+            text-align: left; /* 좌측 정렬로 변경 */
+        }
+
+        .card-header {
+            /* flex 컨테이너에서 제목을 중앙에 두기 위해 전체적으로 정렬 */
+            justify-content: center;
+        }
+        /* --- 끝 --- */
+        
+        /* Mobile responsiveness improvements */
+        @media (max-width: 768px) {
+            /* Hamburger menu positioning */
+            .hamburger-menu {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                z-index: 1050; /* Higher than sidebar z-index to stay on top */
+                background: var(--accent-primary, #007bff);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 10px;
+                font-size: 1.5rem;
+                cursor: pointer;
+                display: block;
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Mobile Navigation Overlay */
+            .mobile-nav-overlay {
+                position: fixed;
+                top: 0;
+                right: -300px; /* Start hidden to the right */
+                width: 280px;
+                height: 100vh;
+                background: white;
+                z-index: 1049; /* Just below hamburger menu */
+                transition: right 0.3s ease;
+                box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+                overflow-y: auto;
+            }
+            
+            .mobile-nav-overlay.active {
+                right: 0; /* Slide in from right */
+            }
+            
+            .mobile-nav-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                background: var(--accent-primary, #007bff);
+                color: white;
+            }
+            
+            .mobile-nav-menu {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .mobile-nav-menu li {
+                border-bottom: 1px solid #eee;
+            }
+            
+            .mobile-nav-menu .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 15px 20px;
+                color: #333;
+                text-decoration: none;
+                transition: background-color 0.2s;
+            }
+            
+            .mobile-nav-menu .nav-link:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .mobile-nav-menu .nav-link.active {
+                background-color: #e6f0ff;
+                color: var(--accent-primary, #007bff);
+            }
+            
+            .mobile-nav-menu .nav-link i {
+                margin-right: 12px;
+                width: 20px;
+                text-align: center;
+            }
+            
+            .mobile-nav-menu .nav-link span {
+                flex: 1;
+            }
+            
+            /* Adjust z-index to work with the component's own sidebar styles */
+            #sidebar {
+                z-index: 1000; /* Match the component's z-index */
+            }
+            
+            /* Hide sidebar on mobile since we're using the overlay */
+            @media (max-width: 768px) {
+                #sidebar {
+                    display: none;
+                }
+            }
+            
+            /* Adjust main content when sidebar is present */
+            #main-content {
+                margin-left: 0;
+                transition: margin-left 0.3s ease;
+                position: relative;
+                z-index: 10;
+                width: 100%; /* Ensure main content doesn't exceed screen width */
+                max-width: 100vw; /* Prevent horizontal overflow */
+                overflow-x: hidden; /* Prevent horizontal scrolling */
+            }
+            
+            /* Prevent horizontal scrolling */
+            body {
+                overflow-x: hidden;
+                max-width: 100vw; /* Prevent body from exceeding viewport width */
+            }
+            
+            /* Ensure containers don't cause overflow */
+            .dashboard-grid,
+            .current-risk-cards,
+            .grid-card,
+            .card-container {
+                overflow: hidden;
+                width: 100%; /* Ensure containers don't exceed their parent */
+                max-width: 100%; /* Prevent overflow */
+            }
+            
+            /* Responsive dashboard grid */
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                width: 100%; /* Ensure grid doesn't exceed container */
+                max-width: 100%; /* Prevent grid from causing overflow */
+            }
+            
+            /* Responsive risk cards */
+            .current-risk-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                width: 100%; /* Ensure cards grid doesn't cause overflow */
+                max-width: 100%;
+            }
+            
+            /* Make charts responsive */
+            .chart-container {
+                min-height: 200px;
+                width: 100% !important; /* Force charts to fit container */
+                overflow: hidden; /* Prevent chart overflow */
+            }
+            
+            /* Ensure canvas elements have proper dimensions on mobile */
+            .chart-container canvas {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important; /* Ensure canvas doesn't cause overflow */
+            }
+            
+            /* Header adjustments */
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                width: 100%; /* Ensure header doesn't cause overflow */
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            /* Table adjustments for mobile */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                width: 100%; /* Ensure table container fits properly */
+                max-width: 100%; /* Prevent table from causing overflow */
+            }
+            
+            .anomaly-table {
+                min-width: 600px; /* Allow horizontal scrolling for tables */
+                font-size: 0.8rem;
+            }
+            
+            /* Responsive adjustments for all content */
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .grid-card {
+                margin-bottom: 1rem;
+                padding: 1rem;
+                box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+            }
+            
+            .card-header {
+                padding: 0.5rem;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+            }
+            
+            /* Adjust icon buttons */
+            .icon-button {
+                padding: 0.5rem;
+            }
+            
+            /* Responsive search bar */
+            .search-bar {
+                padding: 0.5rem;
+            }
+            
+            .search-bar input {
+                font-size: 0.9rem;
+                width: 100%; /* Ensure search input doesn't cause overflow */
+            }
+        }
+        
+        /* Tablet styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .current-risk-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+        
+        /* Extra small devices (phones, 600px and down) */
+        @media only screen and (max-width: 600px) {
+            .current-risk-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                min-height: 150px;
+            }
+            
+            .risk-card h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Additional global fix for any potential horizontal overflow */
+        *, *::before, *::after {
+            box-sizing: border-box; /* Include padding and border in element width */
+        }
+    </style>
 </head>
 <body>
-    <!-- 네비게이션 바 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-snowflake me-2"></i>
-                Signalcraft
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+
+    <!-- Hamburger Menu Button (Visible on Mobile) -->
+    <button class="hamburger-menu" id="hamburger-menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Navigation Overlay (slides in from right) -->
+    <nav class="mobile-nav-overlay" id="mobile-nav-overlay">
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <button class="close-btn" id="mobile-nav-close">
+                <i class="fas fa-times"></i>
             </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#overview">
-                            <i class="fas fa-tachometer-alt me-1"></i>개요
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#stores">
-                            <i class="fas fa-store me-1"></i>매장
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#devices">
-                            <i class="fas fa-microchip me-1"></i>디바이스
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#analytics">
-                            <i class="fas fa-chart-line me-1"></i>분석
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#notifications">
-                            <i class="fas fa-bell me-1"></i>알림
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>
-                            <span id="userName">관리자</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#profile"><i class="fas fa-user me-2"></i>프로필</a></li>
-                            <li><a class="dropdown-item" href="#settings"><i class="fas fa-cog me-2"></i>설정</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#logout"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
         </div>
+        <ul class="mobile-nav-menu">
+            <li><a href="#" class="nav-link active" onclick="loadMainDashboard(); closeMobileNav(); return false;"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
+            <li><a href="#" id="assets-link" class="nav-link" onclick="loadAssetsDetailContent(); closeMobileNav(); return false;"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadPageContent('reports'); closeMobileNav(); return false;"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
+            <li><a href="#settings" id="settings-link" class="nav-link" onclick="loadSettingsContent(); closeMobileNav(); return false;"><i class="fas fa-cog"></i> <span>설정</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadPageContent('help'); closeMobileNav(); return false;"><i class="fas fa-life-ring"></i> <span>도움말</span></a></li>
+            <li><a href="#" id="logout-link" class="nav-link" onclick="logoutUser(); closeMobileNav(); return false;"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+        </ul>
     </nav>
 
-    <!-- 메인 컨텐츠 -->
-    <div class="container-fluid mt-5 pt-3">
-        <!-- 개요 섹션 -->
-        <div id="overview" class="dashboard-section">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="mb-3">
-                        <i class="fas fa-tachometer-alt me-2"></i>시스템 개요
-                    </h2>
-                </div>
-            </div>
-            
-            <!-- 주요 지표 카드 -->
-            <div class="row mb-4">
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-primary shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        총 매장 수
-                                    </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalStores">-</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-store fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-success shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                        온라인 디바이스
-                                    </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="onlineDevices">-</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-microchip fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-warning shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                        경고 알림
-                                    </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="warningAlerts">-</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-info shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                        에너지 비용
-                                    </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="energyCost">-</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-bolt fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 차트 영역 -->
-            <div class="row mb-4">
-                <div class="col-xl-8 col-lg-7">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">에너지 소비량 추이</h6>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow">
-                                    <a class="dropdown-item" href="#" onclick="updateChart('7d')">최근 7일</a>
-                                    <a class="dropdown-item" href="#" onclick="updateChart('30d')">최근 30일</a>
-                                    <a class="dropdown-item" href="#" onclick="updateChart('90d')">최근 90일</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <canvas id="energyChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-4 col-lg-5">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">디바이스 상태</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-pie pt-4 pb-2">
-                                <canvas id="deviceStatusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 매장 섹션 -->
-        <div id="stores" class="dashboard-section" style="display: none;">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="mb-3">
-                        <i class="fas fa-store me-2"></i>매장 관리
-                    </h2>
-                </div>
-            </div>
-            
-            <!-- 매장 목록 -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">매장 목록</h6>
-                    <button class="btn btn-primary btn-sm" onclick="showAddStoreModal()">
-                        <i class="fas fa-plus me-1"></i>매장 추가
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="storesTable">
-                            <thead>
-                                <tr>
-                                    <th>매장명</th>
-                                    <th>주소</th>
-                                    <th>상태</th>
-                                    <th>디바이스 수</th>
-                                    <th>가동률</th>
-                                    <th>마지막 활동</th>
-                                    <th>작업</th>
-                                </tr>
-                            </thead>
-                            <tbody id="storesTableBody">
-                                <!-- 동적으로 로드됨 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 디바이스 섹션 -->
-        <div id="devices" class="dashboard-section" style="display: none;">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="mb-3">
-                        <i class="fas fa-microchip me-2"></i>디바이스 관리
-                    </h2>
-                </div>
-            </div>
-            
-            <!-- 디바이스 목록 -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">디바이스 목록</h6>
-                    <button class="btn btn-primary btn-sm" onclick="showAddDeviceModal()">
-                        <i class="fas fa-plus me-1"></i>디바이스 추가
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="devicesTable">
-                            <thead>
-                                <tr>
-                                    <th>디바이스명</th>
-                                    <th>매장</th>
-                                    <th>타입</th>
-                                    <th>상태</th>
-                                    <th>건강도</th>
-                                    <th>마지막 점검</th>
-                                    <th>작업</th>
-                                </tr>
-                            </thead>
-                            <tbody id="devicesTableBody">
-                                <!-- 동적으로 로드됨 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 분석 섹션 -->
-        <div id="analytics" class="dashboard-section" style="display: none;">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="mb-3">
-                        <i class="fas fa-chart-line me-2"></i>데이터 분석
-                    </h2>
-                </div>
-            </div>
-            
-            <!-- 분석 차트들 -->
-            <div class="row mb-4">
-                <div class="col-xl-6 col-lg-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">온도 트렌드</h6>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="temperatureChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-6 col-lg-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">진동 분석</h6>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="vibrationChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mb-4">
-                <div class="col-xl-6 col-lg-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">전력 소비 패턴</h6>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="powerChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-6 col-lg-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">이상 감지 패턴</h6>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="anomalyChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 알림 섹션 -->
-        <div id="notifications" class="dashboard-section" style="display: none;">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="mb-3">
-                        <i class="fas fa-bell me-2"></i>알림 관리
-                    </h2>
-                </div>
-            </div>
-            
-            <!-- 알림 설정 -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">알림 설정</h6>
-                </div>
-                <div class="card-body">
-                    <form id="notificationSettingsForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">이메일 알림</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="emailEnabled" checked>
-                                        <label class="form-check-label" for="emailEnabled">
-                                            이메일 알림 받기
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">SMS 알림</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="smsEnabled" checked>
-                                        <label class="form-check-label" for="smsEnabled">
-                                            SMS 알림 받기
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">조용한 시간</label>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <input type="time" class="form-control" id="quietStart" value="22:00">
-                                        </div>
-                                        <div class="col-6">
-                                            <input type="time" class="form-control" id="quietEnd" value="08:00">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">최대 알림 수 (시간당)</label>
-                                    <input type="number" class="form-control" id="maxNotifications" value="10" min="1" max="100">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">설정 저장</button>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- 알림 이력 -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">알림 이력</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="notificationsTable">
-                            <thead>
-                                <tr>
-                                    <th>시간</th>
-                                    <th>유형</th>
-                                    <th>매장</th>
-                                    <th>메시지</th>
-                                    <th>상태</th>
-                                </tr>
-                            </thead>
-                            <tbody id="notificationsTableBody">
-                                <!-- 동적으로 로드됨 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Sidebar will be loaded as a component but hidden on mobile -->
+    <aside id="sidebar">
+        <!-- This will be populated by JavaScript -->
+    </aside>
 
-    <!-- 매장 추가 모달 -->
-    <div class="modal fade" id="addStoreModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">매장 추가</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addStoreForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">매장명 *</label>
-                                    <input type="text" class="form-control" id="storeName" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">매장 유형</label>
-                                    <select class="form-control" id="storeType">
-                                        <option value="franchise">프랜차이즈</option>
-                                        <option value="corporate">직영</option>
-                                        <option value="partner">파트너</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group mb-3">
-                            <label class="form-label">주소 *</label>
-                            <input type="text" class="form-control" id="storeAddress" required>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">도시 *</label>
-                                    <input type="text" class="form-control" id="storeCity" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">시/도 *</label>
-                                    <input type="text" class="form-control" id="storeState" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">우편번호 *</label>
-                                    <input type="text" class="form-control" id="storeZipCode" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">전화번호 *</label>
-                                    <input type="tel" class="form-control" id="storePhone" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">이메일 *</label>
-                                    <input type="email" class="form-control" id="storeEmail" required>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="button" class="btn btn-primary" onclick="addStore()">추가</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Initial content will be loaded dynamically -->
+    </main>
 
-    <!-- 디바이스 추가 모달 -->
-    <div class="modal fade" id="addDeviceModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">디바이스 추가</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addDeviceForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">디바이스명 *</label>
-                                    <input type="text" class="form-control" id="deviceName" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">매장 *</label>
-                                    <select class="form-control" id="deviceStore" required>
-                                        <option value="">매장 선택</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">디바이스 타입 *</label>
-                                    <select class="form-control" id="deviceType" required>
-                                        <option value="compressor">압축기</option>
-                                        <option value="sensor">센서</option>
-                                        <option value="monitor">모니터</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">모델 *</label>
-                                    <input type="text" class="form-control" id="deviceModel" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group mb-3">
-                            <label class="form-label">시리얼 번호 *</label>
-                            <input type="text" class="form-control" id="deviceSerial" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="button" class="btn btn-primary" onclick="addDevice()">추가</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Function to load the main dashboard content and then initialize charts
+        async function loadMainDashboard() {
+            // Load the anomalies page as the new main dashboard
+            await loadAnomaliesDetailContent();
+        }
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Dashboard Modules -->
-    <script src="/static/js/dashboard/utils/formatters.js"></script>
-    <script src="/static/js/dashboard/utils/helpers.js"></script>
-    <script src="/static/js/dashboard/charts/energy-chart.js"></script>
-    <script src="/static/js/dashboard/charts/device-status-chart.js"></script>
-    <script src="/static/js/dashboard/charts/temperature-chart.js"></script>
-    <script src="/static/js/dashboard/charts/vibration-chart.js"></script>
-    <script src="/static/js/dashboard/charts/power-chart.js"></script>
-    <script src="/static/js/dashboard/charts/anomaly-chart.js"></script>
-    <script src="/static/js/dashboard/charts/chart-manager.js"></script>
-    <script src="/static/js/dashboard/data/api-client.js"></script>
-    <script src="/static/js/dashboard/data/data-loader.js"></script>
-    <script src="/static/js/dashboard/ui/table-renderer.js"></script>
-    <script src="/static/js/dashboard/ui/section-manager.js"></script>
-    <script src="/static/js/dashboard/ui/card-updater.js"></script>
-    <script src="/static/js/dashboard/dashboard.js"></script>
+        // Function to load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                // Fetch dashboard summary data
+                const response = await fetch('/api/dashboard/summary');
+                
+                // Check if response is OK before parsing JSON
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // First check if the response is JSON before parsing
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response is not JSON');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const summary = result.summary;
+                    
+                    // Update the counters
+                    document.getElementById('total-assets').textContent = summary.totalAssets || 0;
+                    document.getElementById('normal-assets').textContent = summary.normalAssets || 0;
+                    document.getElementById('anomaly-count').textContent = summary.anomalyCount || 0;
+                    document.getElementById('urgent-action').textContent = summary.urgentAction || 0;
+                    document.getElementById('scheduled-maintenance').textContent = summary.scheduledMaintenance || 0;
+                    
+                    // Update the anomalies table
+                    updateAnomaliesTable(result.anomalies || []);
+                    
+                    // Update the charts with the retrieved data
+                    if (result.energy_data) {
+                        updateThreatSummaryChart(result.energy_data.labels, result.energy_data.values);
+                    }
+                    
+                    if (result.device_status) {
+                        updateRiskScoreChart([
+                            result.device_status.online,
+                            result.device_status.offline,
+                            result.device_status.maintenance,
+                            result.device_status.error
+                        ]);
+                    }
+                    
+                    if (result.threats_by_type) {
+                        updateThreatsByVirusChart(result.threats_by_type.labels, result.threats_by_type.values);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                
+                // Fallback to showing meaningful mock data when API call fails
+                document.getElementById('total-assets').textContent = '12';
+                document.getElementById('normal-assets').textContent = '10';
+                document.getElementById('anomaly-count').textContent = '2';
+                document.getElementById('urgent-action').textContent = '1';
+                document.getElementById('scheduled-maintenance').textContent = '3';
+                
+                // Update the anomalies table with mock data
+                updateAnomaliesTable([
+                    { date: '2023-05-15 14:30', assetId: 'A-101', type: '온도 급상승', details: '서버 룸 온도가 정상 범위를 초과함', severity: '위험' },
+                    { date: '2023-05-15 12:15', assetId: 'A-205', type: '과도한 진동', details: '펌프 진동 수치 이상', severity: '경고' }
+                ]);
+                
+                // Update the charts with mock data
+                updateThreatSummaryChart(
+                    ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM'], 
+                    [2, 1, 3, 2, 5, 4, 2]
+                );
+                
+                updateRiskScoreChart([10, 1, 0, 1]); // [normal, offline, maintenance, error]
+                
+                updateThreatsByVirusChart(
+                    ['베어링 마모', '과도한 진동', '온도 급상승'],
+                    [4, 3, 2]
+                );
+            }
+        }
+        
+        // Function to update the anomalies table
+        function updateAnomaliesTable(anomalies) {
+            const tbody = document.querySelector('#anomalies-table tbody');
+            if (!tbody) return; // Guard against element not being present
+            tbody.innerHTML = ''; // Clear existing rows
+            
+            if (anomalies.length === 0) {
+                // Show a message when there are no anomalies
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">이상 징후가 없습니다.</td></tr>';
+                return;
+            }
+            
+            anomalies.forEach(anomaly => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${anomaly.date || ''}</td>
+                    <td>${anomaly.assetId || ''}</td>
+                    <td>${anomaly.type || ''}</td>
+                    <td>${anomaly.details || ''}</td>
+                    <td><span class="severity-badge ${anomaly.severity === '위험' ? 'danger' : 'warning'}">${anomaly.severity || ''}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Function to update the threat summary chart
+        function updateThreatSummaryChart(labels, data) {
+            const canvas = document.getElementById('threat-summary-chart');
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) {
+                    chart.data.labels = labels || [];
+                    chart.data.datasets[0].data = data || [];
+                    chart.update();
+                }
+            }
+        }
+        
+        // Function to update the risk score chart
+        function updateRiskScoreChart(data) {
+            const canvas = document.getElementById('risk-score-chart');
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) {
+                    chart.data.datasets[0].data = data || [];
+                    chart.update();
+                }
+            }
+        }
+        
+        // Function to update the threats by virus chart
+        function updateThreatsByVirusChart(labels, data) {
+            const canvas = document.getElementById('threats-by-virus-chart');
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) {
+                    chart.data.labels = labels || [];
+                    chart.data.datasets[0].data = data || [];
+                    chart.update();
+                }
+            }
+        }
+        
+        // Chart Initializations with improved mobile compatibility
+        function initializeCharts() {
+            const initializeChart = (canvasId, chartType, chartData, chartOptions) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.warn(`Canvas with id ${canvasId} not found`);
+                    return null;
+                }
+                
+                // Ensure canvas is visible and has dimensions before chart initialization
+                const container = canvas.parentElement;
+                if(container && (container.offsetWidth === 0 || container.offsetHeight === 0)) {
+                    // Wait a bit and try again if container has no dimensions yet
+                    setTimeout(() => {
+                        if(container.offsetWidth > 0 && container.offsetHeight > 0) {
+                            initializeChart(canvasId, chartType, chartData, chartOptions);
+                        }
+                    }, 300);
+                    return null;
+                }
+                
+                try {
+                    const existingChart = Chart.getChart(canvas);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                    
+                    // Set initial dimensions to ensure chart canvas is not 0x0
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                    
+                    return new Chart(canvas, {
+                        type: chartType,
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false, // Allow charts to fit container
+                            animation: {
+                                duration: 200 // Animation duration for better mobile performance
+                            },
+                            // Improved mobile responsiveness
+                            ...chartOptions
+                        }
+                    });
+                } catch (error) {
+                    console.error(`Error initializing chart for canvas ${canvasId}:`, error);
+                    return null;
+                }
+            };
+
+            // Initialize threat summary chart
+            initializeChart('threat-summary-chart', 'line', {
+                labels: [],
+                datasets: [{
+                    label: '이상 징후',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1
+                }]
+            }, {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+
+            // Initialize risk score chart
+            initializeChart('risk-score-chart', 'doughnut', {
+                labels: ['정상', '오프라인', '점검중', '오류'],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        'rgb(72, 187, 120)',    // normal color
+                        'rgb(160, 174, 192)',   // offline color
+                        'rgb(255, 193, 7)',     // maintenance/warning color
+                        'rgb(220, 53, 69)'      // error/danger color
+                    ]
+                }]
+            }, {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            });
+
+            // Initialize threats by virus chart
+            initializeChart('threats-by-virus-chart', 'doughnut', {
+                labels: ['베어링 마모', '과도한 진동', '온도 급상승'],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            }, {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            });
+        }
+        
+        // Function to ensure charts are properly rendered on mobile
+        function ensureChartVisibility() {
+            // Small delay to ensure DOM has fully rendered
+            setTimeout(() => {
+                const chartCanvases = document.querySelectorAll('canvas');
+                chartCanvases.forEach(canvas => {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        // Update chart dimensions if needed
+                        const container = canvas.parentElement;
+                        if (container && 
+                            (canvas.width !== container.offsetWidth || canvas.height !== container.offsetHeight)) {
+                            canvas.width = container.offsetWidth;
+                            canvas.height = container.offsetHeight;
+                            chart.resize();
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        // Initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load the main dashboard by default
+            loadMainDashboard();
+            
+            // Refresh data every 30 seconds
+            setInterval(loadDashboardData, 30000);
+            
+            // Additional check for mobile rendering
+            window.addEventListener('resize', ensureChartVisibility);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(ensureChartVisibility, 300); // Delay to allow orientation change to complete
+            });
+        });
+    </script>
+    
+    <script>
+        // Function to load HTML components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            } catch (error) {
+                console.error(`Error loading component ${url}:`, error);
+            }
+        }
+
+        // Function to load page content based on page name
+        async function loadPageContent(pageName) {
+            switch(pageName) {
+                case 'reports':
+                    await loadReportsContent();
+                    break;
+                case 'help':
+                    showHelpContent();
+                    break;
+                case 'assets':
+                    await loadAssetsDetailContent();
+                    break;
+                case 'settings':
+                    await loadSettingsContent();
+                    break;
+                default:
+                    console.warn(`Unknown page name: ${pageName}`);
+            }
+        }
+        
+        // Function to show help content
+        function showHelpContent() {
+            // Destroy all existing charts before loading new content
+            destroyAllCharts();
+            
+            // Create the help content
+            const helpContent = `
+                <header class="page-header">
+                    <div class="header-left">
+                        <h1>도움말</h1>
+                        <p>시스템 사용에 대한 도움말을 제공합니다.</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="도움말 검색...">
+                        </div>
+                        <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                        <button class="icon-button"><i class="fas fa-bell"></i></button>
+                    </div>
+                </header>
+
+                <div id="help-content">
+                    <div class="grid-card">
+                        <div class="card-header">
+                            <h3 class="card-title">자주 묻는 질문</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>이 시스템에 대한 자주 묻는 질문과 답변을 확인하세요.</p>
+                            <ul>
+                                <li><strong>자산을 어떻게 추가하나요?</strong> 관리자에게 문의하여 자산을 등록해주세요.</li>
+                                <li><strong>이상 징후는 어떻게 확인하나요?</strong> 이상 징후 메뉴에서 실시간으로 확인할 수 있습니다.</li>
+                                <li><strong>리포트는 어떻게 생성되나요?</strong> 리포트 메뉴에서 필요한 리포트를 생성할 수 있습니다.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-card">
+                        <div class="card-header">
+                            <h3 class="card-title">문의하기</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>추가 문의사항이 있으시면 아래로 연락주세요.</p>
+                            <p>이메일: support@signalcraft.com</p>
+                            <p>전화: 02-1234-5678</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update the main content area with the help content
+            document.getElementById('main-content').innerHTML = helpContent;
+            
+            // Update active state of navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Find and activate the help link in the sidebar
+            const helpLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                link.innerHTML.includes('도움말')
+            );
+            if (helpLink) {
+                helpLink.classList.add('active');
+            }
+        }
+
+        // Mobile navigation overlay functionality
+        async function setupMobileSidebar() {
+            const hamburgerMenu = document.getElementById('hamburger-menu');
+            const mobileNav = document.getElementById('mobile-nav-overlay');
+            const closeBtn = document.getElementById('mobile-nav-close');
+            
+            // Open mobile navigation when hamburger menu is clicked
+            hamburgerMenu?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileNav.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            });
+            
+            // Close mobile navigation when close button is clicked
+            closeBtn?.addEventListener('click', function() {
+                mobileNav.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            });
+            
+            // Close mobile navigation when clicking outside of it
+            document.addEventListener('click', function(e) {
+                if (mobileNav.classList.contains('active') && 
+                    !mobileNav.contains(e.target) && 
+                    e.target !== hamburgerMenu) {
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+            
+            // Close mobile navigation when window is resized to desktop size
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+        }
+        
+        // Function to close the mobile navigation
+        function closeMobileNav() {
+            const mobileNav = document.getElementById('mobile-nav-overlay');
+            if (mobileNav) {
+                mobileNav.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }
+        }
+
+        // Load sidebar component when the page loads
+        // Load sidebar component when the page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadComponent('/static/dashboard-components/sidebar.html', 'sidebar');
+            
+            // After loading the sidebar, set up navigation event listeners
+            setTimeout(setupNavigationAfterLoad, 300);  // Small delay to ensure sidebar is fully loaded
+            
+            // Set up mobile navigation
+            setupMobileNavigation();
+            
+            // Set up mobile sidebar functionality (with a slight delay to ensure DOM is ready)
+            setTimeout(setupMobileSidebar, 400);
+        });
+        
+        // Function to handle navigation after sidebar is loaded
+        function setupNavigationAfterLoad() {
+            // Use event delegation to handle clicks on navigation items
+            // This ensures that dynamically loaded elements will still work
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.addEventListener('click', function(e) {
+                    const target = e.target.closest('.nav-link');
+                    if (!target) return;
+                    
+                    e.preventDefault();
+                    
+                    if (target.id === 'dashboard-link') {
+                        loadDashboardContent();
+                    } else if (target.id === 'anomalies-link') {
+                        loadAnomaliesDetailContent();
+                    } else if (target.id === 'assets-link') {
+                        loadAssetsDetailContent();
+                    } else if (target.id === 'reports-link') {
+                        loadReportsContent();
+                    } else if (target.id === 'settings-link') {
+                        loadSettingsContent();
+                    } else if (target.id === 'help-link') {
+                        alert('도움말 페이지로 이동합니다.');
+                    } else if (target.id === 'logout-link') {
+                        if (confirm('정말 로그아웃 하시겠습니까?')) {
+                            window.location.href = '/login';
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Function to reload the dashboard content
+        async function loadDashboardContent() {
+            try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
+                // Load the main dashboard content using the dedicated function
+                await loadMainDashboard();
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the dashboard link in the sidebar
+                const dashboardLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('대시보드')
+                );
+                if (dashboardLink) {
+                    dashboardLink.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading dashboard content:', error);
+            }
+        }
+        
+        // Set up mobile navigation functionality
+        function setupMobileNavigation() {
+            const hamburgerMenu = document.getElementById('hamburger-menu');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (hamburgerMenu && sidebar) {
+                hamburgerMenu.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnHamburger = hamburgerMenu.contains(event.target);
+                    
+                    if (!isClickInsideSidebar && !isClickOnHamburger && window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+                
+                // Close sidebar when window is resized to desktop size
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            }
+        }
+    </script>
+    
+    <script>
+        // Function to load anomalies detail content for the original dashboard
+        async function loadAnomaliesDetailContent() {
+            try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
+                // Create the anomalies detail content with containers for components
+                const anomaliesContent = `
+                    <header class="page-header">
+                        <div class="header-left">
+                            <h1>대시 보드</h1>
+                            <p>실시간 이상 징후 모니터링 및 조치</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="자산 또는 이벤트 검색...">
+                            </div>
+                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                            <button class="icon-button"><i class="fas fa-bell"></i></button>
+                        </div>
+                    </header>
+
+                    <!-- Anomalies Content will be loaded here -->
+                    <div id="anomalies-content">
+                        <div id="today-briefing-container"></div>
+                        <div id="anomaly-feed-container"></div>
+                        <div id="anomaly-trend-container"></div>
+                    </div>
+                `;
+                
+                // Update the main content area with the anomalies detail content
+                document.getElementById('main-content').innerHTML = anomaliesContent;
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the anomalies link in the sidebar
+                const anomalyLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('이상 징후')
+                );
+                if (anomalyLink) {
+                    anomalyLink.classList.add('active');
+                }
+                
+                // Load individual anomalies components in correct order: summary, list, trend
+                await loadComponent('/static/dashboard-components/anomalies/today-briefing.html', 'today-briefing-container');
+                await loadComponent('/static/dashboard-components/anomalies/anomaly-feed.html', 'anomaly-feed-container');
+                await loadComponent('/static/dashboard-components/anomalies/anomaly-trend.html', 'anomaly-trend-container');
+                
+                // Initialize charts and event handlers after content is loaded
+                setTimeout(initializeAnomaliesCharts, 500);
+                setTimeout(setupAnomalyDetailsToggle, 1000);
+                setTimeout(setupGroupByFunctionality, 1000);
+            } catch (error) {
+                console.error('Error loading anomalies detail content:', error);
+            }
+        }
+        
+        // Initialize anomalies-specific charts
+        function initializeAnomaliesCharts() {
+            // Anomaly Trend Chart
+            const anomalyTrendCanvas = document.getElementById('anomaly-trend-chart');
+            if (anomalyTrendCanvas) {
+                const existingChart = Chart.getChart(anomalyTrendCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(anomalyTrendCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
+                        datasets: [{
+                            label: '이상 징후 수',
+                            data: [2, 1, 3, 2, 5, 4, 2, 1, 0],
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '발생 건수'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Anomaly Type Chart (Donut chart)
+            const anomalyTypeCanvas = document.getElementById('anomaly-type-chart');
+            if (anomalyTypeCanvas) {
+                const existingChart = Chart.getChart(anomalyTypeCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(anomalyTypeCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['위험', '경고'],
+                        datasets: [{
+                            data: [2, 5],
+                            backgroundColor: [
+                                'rgb(220, 53, 69)',    // danger color for '위험'
+                                'rgb(255, 193, 7)'     // warning color for '경고'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize mini charts for each anomaly
+            initializeMiniCharts();
+        }
+        
+        // Initialize mini charts in each anomaly item
+        function initializeMiniCharts() {
+            // Mini chart for first anomaly
+            const miniChart1 = document.getElementById('mini-chart-1');
+            if (miniChart1) {
+                const existingChart1 = Chart.getChart(miniChart1);
+                if (existingChart1) {
+                    existingChart1.destroy();
+                }
+                new Chart(miniChart1, {
+                    type: 'line',
+                    data: {
+                        labels: ['2시간 전', '1시간 전', '지금'],
+                        datasets: [{
+                            label: '센서 데이터',
+                            data: [10, 15, 25],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 2
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Mini chart for second anomaly
+            const miniChart2 = document.getElementById('mini-chart-2');
+            if (miniChart2) {
+                const existingChart2 = Chart.getChart(miniChart2);
+                if (existingChart2) {
+                    existingChart2.destroy();
+                }
+                new Chart(miniChart2, {
+                    type: 'line',
+                    data: {
+                        labels: ['2시간 전', '1시간 전', '지금'],
+                        datasets: [{
+                            label: '센서 데이터',
+                            data: [8, 10, 18],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 2
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Toggle anomaly details
+        function setupAnomalyDetailsToggle() {
+            document.querySelectorAll('.toggle-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const details = this.closest('.anomaly-item').querySelector('.anomaly-details');
+                    const icon = this.querySelector('i');
+                    
+                    if (details.style.display === 'none' || details.style.display === '') {
+                        details.style.display = 'block';
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        details.style.display = 'none';
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                });
+            });
+        }
+
+        // Setup group by functionality
+        function setupGroupByFunctionality() {
+            document.getElementById('groupByAsset')?.addEventListener('click', function() {
+                alert('자산별로 묶어보기 기능이 작동합니다.');
+                // Here you would implement the logic to group anomalies by asset
+            });
+            
+            document.getElementById('groupBySeverity')?.addEventListener('click', function() {
+                alert('심각도별로 묶어보기 기능이 작동합니다.');
+                // Here you would implement the logic to group anomalies by severity
+            });
+        }
+    </script>
+    
+    <script>
+        // Function to destroy all existing charts before creating new ones
+        function destroyAllCharts() {
+            // Get all canvas elements that might have charts
+            const chartCanvases = [
+                'threat-summary-chart', 
+                'risk-score-chart', 
+                'threats-by-virus-chart',
+                'anomaly-trend-chart',
+                'anomaly-type-chart',
+                'mini-chart-1',
+                'mini-chart-2',
+                'asset-trend-chart',
+                'asset-health-chart',
+                'anomalyTypeChart'
+            ];
+            
+            chartCanvases.forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        chart.destroy();
+                    }
+                }
+            });
+            
+            // Also clean up any other potential chart containers by removing and re-creating them
+            // This ensures a clean state for all chart containers
+            const chartContainers = document.querySelectorAll('.chart-container canvas');
+            chartContainers.forEach(canvas => {
+                if (canvas && canvas.parentNode) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        chart.destroy();
+                    }
+                }
+            });
+        }
+        
+        // Function to load assets detail content
+        async function loadAssetsDetailContent() {
+            try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
+                // Create the assets detail content with containers for components
+                const assetsContent = `
+                    <header class="page-header">
+                        <div class="header-left">
+                            <h1>자산 목록</h1>
+                            <p>실시간 자산 상태 모니터링 및 관리</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="자산명 검색...">
+                            </div>
+                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                            <button class="icon-button"><i class="fas fa-bell"></i></button>
+                        </div>
+                    </header>
+
+                    <!-- Assets Content will be loaded here -->
+                    <div id="assets-content">
+                        <div id="asset-summary-container"></div>
+                        <div id="asset-feed-container"></div>
+                        <div id="asset-trend-container"></div>
+                    </div>
+                `;
+                
+                // Update the main content area with the assets detail content
+                document.getElementById('main-content').innerHTML = assetsContent;
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the assets link in the sidebar
+                const assetsLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('자산 목록')
+                );
+                if (assetsLink) {
+                    assetsLink.classList.add('active');
+                }
+                
+                // Load individual assets components in correct order: summary, list, trend
+                await loadComponent('/static/dashboard-components/assets/asset-summary.html', 'asset-summary-container');
+                await loadComponent('/static/dashboard-components/assets/asset-feed.html', 'asset-feed-container');
+                await loadComponent('/static/dashboard-components/assets/asset-trend.html', 'asset-trend-container');
+                
+                // Initialize charts and event handlers after content is loaded
+                setTimeout(initializeAssetsCharts, 500);
+                setTimeout(setupAssetDetailsToggle, 1000);
+                setTimeout(setupAssetGroupByFunctionality, 1000);
+            } catch (error) {
+                console.error('Error loading assets detail content:', error);
+            }
+        }
+        
+        // Initialize assets-specific charts
+        function initializeAssetsCharts() {
+            // Asset Trend Chart
+            const assetTrendCanvas = document.getElementById('asset-trend-chart');
+            if (assetTrendCanvas) {
+                const existingChart = Chart.getChart(assetTrendCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(assetTrendCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
+                        datasets: [{
+                            label: '정상 상태 자산 수',
+                            data: [10, 10, 9, 9, 8, 9, 10, 10, 10],
+                            borderColor: 'rgb(72, 187, 120)',
+                            backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                            tension: 0.3
+                        }, {
+                            label: '이상 상태 자산 수',
+                            data: [2, 2, 3, 3, 4, 3, 2, 2, 2],
+                            borderColor: 'rgb(220, 53, 69)',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '자산 수'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Asset Health Chart (Donut chart)
+            const assetHealthCanvas = document.getElementById('asset-health-chart');
+            if (assetHealthCanvas) {
+                const existingChart = Chart.getChart(assetHealthCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(assetHealthCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['정상', '경고', '위험', '오프라인'],
+                        datasets: [{
+                            data: [10, 1, 1, 0],
+                            backgroundColor: [
+                                'rgb(72, 187, 120)',    // normal color
+                                'rgb(255, 193, 7)',     // warning color
+                                'rgb(220, 53, 69)',     // danger color
+                                'rgb(160, 174, 192)'    // offline color
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Toggle asset details
+        function setupAssetDetailsToggle() {
+            document.getElementById('closeDetailView')?.addEventListener('click', function() {
+                const detailView = document.getElementById('asset-detail-view');
+                if (detailView) {
+                    detailView.style.display = 'none';
+                }
+            });
+            
+            // Handle asset detail buttons
+            document.querySelectorAll('.btn-outline-primary').forEach(button => {
+                if (button.textContent.includes('상세보기')) {
+                    button.addEventListener('click', function() {
+                        const detailView = document.getElementById('asset-detail-view');
+                        if (detailView) {
+                            detailView.style.display = 'block';
+                        }
+                    });
+                }
+            });
+        }
+
+        // Setup group by functionality for assets
+        function setupAssetGroupByFunctionality() {
+            document.getElementById('groupByName')?.addEventListener('click', function() {
+                alert('이름별로 정렬 기능이 작동합니다.');
+                // Here you would implement the logic to sort assets by name
+            });
+            
+            document.getElementById('groupByType')?.addEventListener('click', function() {
+                alert('유형별로 정렬 기능이 작동합니다.');
+                // Here you would implement the logic to sort assets by type
+            });
+        }
+    </script>
+    
+    <script>
+        // Function to load reports content
+        async function loadReportsContent() {
+            try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
+                // Create the reports content with containers for components
+                const reportsContent = `
+                    <header class="page-header">
+                        <div class="header-left">
+                            <h1>리포트</h1>
+                            <p>데이터 기반 인사이트 및 분석 리포트</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="리포트 검색...">
+                            </div>
+                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                            <button class="icon-button"><i class="fas fa-bell"></i></button>
+                        </div>
+                    </header>
+
+                    <!-- Reports Content will be loaded here -->
+                    <div id="reports-content">
+                        <div id="reports-main-container"></div>
+                    </div>
+                `;
+                
+                // Update the main content area with the reports content
+                document.getElementById('main-content').innerHTML = reportsContent;
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the reports link in the sidebar
+                const reportsLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('리포트')
+                );
+                if (reportsLink) {
+                    reportsLink.classList.add('active');
+                }
+                
+                // Load the reports component
+                await loadComponent('/static/dashboard-components/reports/reports-main.html', 'reports-main-container');
+                
+                // Initialize charts after content is loaded
+                setTimeout(initializeReportsCharts, 500);
+            } catch (error) {
+                console.error('Error loading reports content:', error);
+            }
+        }
+        
+        // Initialize reports-specific charts
+        function initializeReportsCharts() {
+            // Initialize anomaly type chart if element exists
+            const anomalyTypeChartCanvas = document.getElementById('anomalyTypeChart');
+            if (anomalyTypeChartCanvas) {
+                const existingChart = Chart.getChart(anomalyTypeChartCanvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+                new Chart(anomalyTypeChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['베어링 마모 의심', '과도한 진동', '온도 급상승', '기타'],
+                        datasets: [{
+                            label: '징후 유형',
+                            data: [12, 9, 6, 3],
+                            backgroundColor: [
+                                '#e74c3c',
+                                '#f39c12',
+                                '#8259de',
+                                '#3498db'
+                            ],
+                            borderColor: '#2c2c54',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#e0e0e0'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '징후 유형별 분포',
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+    
+    <script>
+        // Function to load settings content
+        async function loadSettingsContent() {
+            try {
+                // Destroy all existing charts before loading new content
+                destroyAllCharts();
+                
+                // Load the settings component
+                await loadComponent('/static/dashboard-components/settings/settings-main.html', 'main-content');
+                
+                // Update active state of navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the settings link in the sidebar
+                const settingsLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                    link.innerHTML.includes('설정')
+                );
+                if (settingsLink) {
+                    settingsLink.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading settings content:', error);
+            }
+        }
+    </script>
+    <script src="/static/js/dashboard/dashboard.js" type="module"></script>
 </body>
 </html>

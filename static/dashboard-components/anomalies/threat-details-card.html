@@ -1,0 +1,59 @@
+<style>
+    /* Mobile responsive styles for threat-details-card */
+    @media (max-width: 768px) {
+        .threat-details-card {
+            grid-column: span 12 !important;
+        }
+        
+        table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+        }
+        
+        table th, table td {
+            min-width: 100px;
+            padding: 0.5rem;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .card-title {
+            font-size: 0.9rem;
+        }
+        
+        table th, table td {
+            min-width: 80px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+<div class="grid-card threat-details-card" onclick="window.location='/anomalies-detail'" style="cursor: pointer;">
+    <div class="card-header">
+        <h3 class="card-title">최근 이상 징후 상세</h3>
+        <div class="card-menu">...</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>날짜</th>
+                <th>자산 ID</th>
+                <th>징후 유형</th>
+                <th>상세 내용</th>
+                <th>심각도</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>2025-10-17</td><td>Freezer-A1</td><td>온도 급상승</td><td>-18°C -> -5°C</td><td>위험</td></tr>
+            <tr><td>2025-10-17</td><td>Freezer-C3</td><td>컴프레서 과부하</td><td>전력 소비 150% 증가</td><td>경고</td></tr>
+        </tbody>
+    </table>
+    <div class="card-overlay">
+        <span class="view-more-btn">자세히 보기 <i class="fas fa-arrow-right"></i></span>
+    </div>
+</div>

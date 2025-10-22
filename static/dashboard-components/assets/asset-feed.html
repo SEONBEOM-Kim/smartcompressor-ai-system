@@ -1,0 +1,455 @@
+<style>
+    .section-container {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start !important; /* Force left alignment */
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .section-header h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary, #FFFFFF);
+        display: flex;
+        align-items: center;
+        margin: 0;
+        margin-right: 6rem; /* Added more space for better layout */
+    }
+    
+    .section-header h2 i {
+        color: var(--accent-primary, #8A5CFE);
+        margin-right: 0.5rem;
+    }
+    
+    .controls {
+        display: flex;
+        gap: 0.5rem; /* Normal gap between filter elements */
+        align-items: center;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    
+    .form-control, .form-select {
+        background-color: var(--primary-bg, #1A1C23);
+        color: var(--text-primary, #FFFFFF);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        min-width: 150px; /* Ensure minimum width for better UI */
+    }
+    
+    .btn-outline-primary {
+        background-color: transparent;
+        color: var(--accent-primary, #8A5CFE);
+        border: 1px solid var(--accent-primary, #8A5CFE);
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--accent-primary, #8A5CFE);
+        color: white;
+    }
+    
+    .table.asset-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    .table.asset-table th,
+    .table.asset-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color, #32363C);
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    .table.asset-table th {
+        color: var(--text-secondary, #A0AEC0);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .status-badge.active {
+        background-color: rgba(72, 187, 120, 0.2);
+        color: var(--success, #48BB78);
+    }
+    
+    .status-badge.warning {
+        background-color: rgba(237, 137, 54, 0.2);
+        color: var(--warning, #ED8936);
+    }
+    
+    .status-badge.danger {
+        background-color: rgba(229, 62, 62, 0.2);
+        color: var(--danger, #E53E3E);
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 0.25rem;
+    }
+    
+    .btn.btn-outline-primary {
+        background-color: transparent;
+        color: var(--accent-primary, #8A5CFE);
+        border: 1px solid var(--accent-primary, #8A5CFE);
+    }
+    
+    .btn.btn-outline-primary:hover {
+        background-color: var(--accent-primary, #8A5CFE);
+        color: white;
+    }
+    
+    /* Asset detail view styles */
+    .asset-detail-view {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .detail-header h4 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-primary, #FFFFFF);
+        margin: 0;
+    }
+    
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary, #A0AEC0);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+    
+    .close-btn:hover {
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    .mini-chart-container h5,
+    .asset-details h5,
+    .action-log h5,
+    .quick-actions h5 {
+        color: var(--accent-primary, #8A5CFE);
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .mini-chart-container h5::before,
+    .asset-details h5::before,
+    .action-log h5::before,
+    .quick-actions h5::before {
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        margin-right: 0.5rem;
+    }
+    
+    .mini-chart-container h5::before { content: '\f201'; } /* chart icon */
+    .asset-details h5::before { content: '\f05a'; } /* info circle */
+    .action-log h5::before { content: '\f02d'; } /* clipboard */
+    .quick-actions h5::before { content: '\f04b'; } /* play */
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .detail-item label {
+        color: var(--text-secondary, #A0AEC0);
+        font-weight: 500;
+    }
+    
+    .detail-item span {
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    #action-log-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    #action-log-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color, #32363C);
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    .timestamp {
+        color: var(--accent-primary, #8A5CFE);
+        font-weight: 600;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .btn-success { background-color: var(--success, #48BB78); color: white; }
+    .btn-primary { background-color: var(--accent-primary, #8A5CFE); color: white; }
+    .btn-info { background-color: var(--accent-secondary, #38B2AC); color: white; }
+    .btn-warning { background-color: var(--warning, #ED8936); color: white; }
+    
+    .btn-success:hover, .btn-primary:hover, .btn-info:hover, .btn-warning:hover {
+        opacity: 0.9;
+    }
+    
+    /* Mobile responsive styles for asset-feed */
+    @media (max-width: 768px) {
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .controls {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-control, .form-select {
+            width: 100% !important; /* Override min-width on mobile */
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-outline-primary {
+            align-self: flex-start; /* Align buttons at start on mobile */
+            margin-bottom: 0.5rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table.asset-table {
+            min-width: 900px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .section-header h2 {
+            font-size: 1.1rem;
+        }
+        
+        .btn-outline-primary {
+            padding: 0.4rem 0.6rem; /* Slightly smaller buttons on very small screens */
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* For the detail view */
+    @media (max-width: 768px) {
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .mini-chart-container {
+            width: 100%;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+</style>
+<section class="section-container">
+    <div class="section-header">
+        <h2><i class="fas fa-list"></i> 자산 목록</h2>
+        <div class="controls">
+            <input type="text" class="form-control" placeholder="자산명 검색...">
+            <select class="form-select">
+                <option>모든 자산 유형</option>
+                <option>냉동고</option>
+                <option>압축기</option>
+                <option>에어컨</option>
+            </select>
+            <select class="form-select">
+                <option>모든 상태</option>
+                <option>정상</option>
+                <option>경고</option>
+                <option>위험</option>
+            </select>
+            <button id="groupByName" class="btn btn-outline-primary btn-sm">이름별로 정렬</button>
+            <button id="groupByType" class="btn btn-outline-primary btn-sm">유형별로 정렬</button>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table asset-table">
+            <thead>
+                <tr>
+                    <th>자산 ID</th>
+                    <th>자산명</th>
+                    <th>자산 유형</th>
+                    <th>상태</th>
+                    <th>위치</th>
+                    <th>모델</th>
+                    <th>상태</th>
+                    <th>조치</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ASSET-001</td>
+                    <td>냉동고-A1</td>
+                    <td>냉동고</td>
+                    <td><span class="status-badge active">🟢 정상</span></td>
+                    <td>서울 본사</td>
+                    <td>FRZ-2025-A</td>
+                    <td>정상 작동</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td>ASSET-002</td>
+                    <td>냉동고-C3</td>
+                    <td>냉동고</td>
+                    <td><span class="status-badge warning">🟡 경고</span></td>
+                    <td>서울 본사</td>
+                    <td>FRZ-2025-C</td>
+                    <td>전력 과다 소비</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td>ASSET-003</td>
+                    <td>압축기-3</td>
+                    <td>압축기</td>
+                    <td><span class="status-badge danger">🔴 위험</span></td>
+                    <td>서울 본사</td>
+                    <td>CP-2024-X</td>
+                    <td>고온 경보</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td>ASSET-004</td>
+                    <td>냉동고-B2</td>
+                    <td>냉동고</td>
+                    <td><span class="status-badge active">🟢 정상</span></td>
+                    <td>서울 본사</td>
+                    <td>FRZ-2025-B</td>
+                    <td>정상 작동</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Expandable detail view for when user clicks "상세보기" -->
+    <div id="asset-detail-view" class="asset-detail-view" style="display: none;">
+        <div class="detail-header">
+            <h4>자산 상세 정보</h4>
+            <button class="close-btn" id="closeDetailView"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="detail-content">
+            <div class="mini-chart-container">
+                <h5>상태 트렌드 차트</h5>
+                <canvas id="mini-chart-detail" class="mini-chart"></canvas>
+            </div>
+            
+            <div class="asset-details">
+                <h5>자산 상세 정보</h5>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>자산 ID:</label>
+                        <span>ASSET-001</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>자산명:</label>
+                        <span>냉동고-A1</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>자산 유형:</label>
+                        <span>냉동고</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>모델명:</label>
+                        <span>FRZ-2025-A</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>설치 위치:</label>
+                        <span>서울 본사</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>설치일:</label>
+                        <span>2025-01-15</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>상태:</label>
+                        <span>정상</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-log">
+                <h5>최근 활동 내역</h5>
+                <ul id="action-log-list">
+                    <li><span class="timestamp">14:30</span> - 시스템: 정상 상태로 전환됨</li>
+                    <li><span class="timestamp">14:25</span> - 시스템: 이상 감지 (고온)</li>
+                    <li><span class="timestamp">10:15</span> - 유지보수: 정기 점검 완료</li>
+                </ul>
+            </div>
+            
+            <div class="quick-actions">
+                <h5>빠른 조치</h5>
+                <div class="action-buttons">
+                    <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> 점검 완료</button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-user"></i> 담당자 지정</button>
+                    <button class="btn btn-info btn-sm"><i class="fas fa-comment"></i> 코멘트 추가</button>
+                    <button class="btn btn-warning btn-sm"><i class="fas fa-redo"></i> 재시작</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

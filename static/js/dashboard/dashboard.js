@@ -36,8 +36,16 @@ function initializeDashboard() {
     // 초기화
     chartManager.initializeAllCharts();
     sectionManager.setupNavigation();
+    applyTheme(); // 테마 적용 함수 호출
 
     console.log('대시보드 초기화 완료');
+}
+
+function applyTheme() {
+    const savedSettings = JSON.parse(localStorage.getItem('settings'));
+    const theme = savedSettings?.general?.theme || 'dark'; // 기본 테마는 dark로 설정
+    document.body.classList.remove('light-theme', 'dark-theme');
+    document.body.classList.add(`${theme}-theme`);
 }
 
 async function loadDashboardData() {
@@ -303,3 +311,32 @@ window.addEventListener('online', function() {
 window.addEventListener('offline', function() {
     showAlert('인터넷 연결이 끊어졌습니다.', 'warning');
 });
+
+// 전역 설정 초기화 함수
+window.initializeSettingsPage = async function() {
+    try {
+        // 동적으로 설정 관련 JS 모듈 로드
+        const { SettingsManager } = await import('/static/js/dashboard/settings/settings-main.js');
+        const settingsManager = new SettingsManager();
+        await settingsManager.initialize();
+        
+        // 전역으로 사용할 수 있도록 설정
+        window.settingsManager = settingsManager;
+        
+        // 설정 저장 이벤트 연결
+        const saveButton = document.querySelector('.settings-footer .btn-primary');
+        if (saveButton) {
+            saveButton.addEventListener('click', async function() {
+                try {
+                    await settingsManager.saveSettings();
+                    showAlert('설정이 성공적으로 저장되었습니다.', 'success');
+                } catch (error) {
+                    console.error('설정 저장 오류:', error);
+                    showAlert('설정 저장에 실패했습니다.', 'danger');
+                }
+            });
+        }
+    } catch (error) {
+        console.error('설정 페이지 초기화 오류:', error);
+    }
+};
