@@ -1026,7 +1026,7 @@
             // 통계 계산
             const avgOnTime = cycles.length > 0 ? Math.round(cycles.reduce((sum, cycle) => sum + cycle.onTime, 0) / cycles.length) : 0;
             const avgOffTime = cycles.length > 0 ? Math.round(cycles.reduce((sum, cycle) => sum + cycle.offTime, 0) / cycles.length) : 0;
-            const avgOnRatio = cycles.length > 0 ? (cycles.reduce((sum, cycle) => sum + cycle.onRatio, 0) / cycles.length * 100).toFixed(1) : 0;
+            const avgOnRatio = cycles.length > 0 ? (cycles.reduce((sum, cycle) => sum + cycle.onRatio, 0) / cycles.length * 100) : 0;
 
             // UI 업데이트
             document.getElementById('avgOnTime').textContent = avgOnTime > 0 ? `${avgOnTime}분` : '-';
@@ -1037,8 +1037,8 @@
             updateAnomalyScore(anomalyAnalysis.anomalyScore);
             
             // 효율성 및 안정성 계산
-            const efficiency = avgOnRatio > 0 ? avgOnRatio : 0;
-            const stability = 100 - anomalyAnalysis.anomalyScore; // 이상 점수가 낮을수록 안정
+            const efficiency = typeof avgOnRatio === 'number' && avgOnRatio > 0 ? avgOnRatio : 0;
+            const stability = typeof anomalyAnalysis.anomalyScore === 'number' ? (100 - anomalyAnalysis.anomalyScore) : 100;
             
             // UI 업데이트
             document.getElementById('efficiency').textContent = efficiency > 0 ? `${efficiency.toFixed(1)}%` : '-';
