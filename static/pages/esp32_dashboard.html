@@ -761,9 +761,46 @@
         .learning-controls {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .control-group select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .control-group input[type="range"] {
+            width: 80px;
         }
 
         .learning-controls .btn {
@@ -774,6 +811,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 0.9em;
         }
 
         .learning-controls .btn:hover {
@@ -781,16 +819,34 @@
             transform: translateY(-2px);
         }
 
-        .learning-controls select {
+        .learning-controls .btn.primary {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: rgba(46, 204, 113, 0.5);
+        }
+
+        .learning-controls .btn.primary:hover {
+            background: rgba(46, 204, 113, 0.5);
+        }
+
+        .learning-filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .learning-filters select {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
+            min-width: 150px;
         }
 
-        .learning-controls select option {
+        .learning-filters select option {
             background: #2c3e50;
             color: white;
         }
@@ -891,6 +947,47 @@
             height: 100%;
             background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
             transition: width 0.3s ease;
+        }
+
+        /* 학습 통계 스타일 */
+        .learning-statistics {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .learning-statistics h4 {
+            margin: 0 0 15px 0;
+            text-align: center;
+            color: #f39c12;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .pattern-breakdown,
+        .failure-breakdown {
+            margin-top: 15px;
+        }
+
+        .pattern-breakdown h5,
+        .failure-breakdown h5 {
+            margin: 0 0 10px 0;
+            color: #3498db;
+        }
+
+        .pattern-item,
+        .failure-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 3px solid #f39c12;
         }
 
         .pattern-stats {
@@ -1230,15 +1327,52 @@
                 </div>
             </div>
             <div class="learning-controls">
-                <button class="btn" onclick="startContextualLearning()">맥락 학습 시작</button>
+                <div class="control-group">
+                    <label>학습 기간:</label>
+                    <select id="learningPeriod">
+                        <option value="1">최근 1시간</option>
+                        <option value="6">최근 6시간</option>
+                        <option value="24" selected>최근 24시간</option>
+                        <option value="168">최근 1주일</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>윈도우 크기:</label>
+                    <select id="windowSize">
+                        <option value="60">1분</option>
+                        <option value="300" selected>5분</option>
+                        <option value="900">15분</option>
+                        <option value="3600">1시간</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>최소 신뢰도:</label>
+                    <input type="range" id="minConfidence" min="0" max="100" value="60" onchange="updateConfidenceDisplay()">
+                    <span id="confidenceDisplay">60%</span>
+                </div>
+                <button class="btn primary" onclick="startContextualLearning()">실시간 학습 시작</button>
+                <button class="btn" onclick="pauseLearning()">학습 일시정지</button>
                 <button class="btn" onclick="showLearningResults()">학습 결과 조회</button>
-                <button class="btn" onclick="exportLearningData()">학습 데이터 내보내기</button>
+                <button class="btn" onclick="showLearningStatistics()">학습 통계</button>
+                <button class="btn" onclick="exportLearningData()">데이터 내보내기</button>
+            </div>
+            <div class="learning-filters">
                 <select id="learningFilter" onchange="filterLearningResults()">
                     <option value="all">전체 패턴</option>
                     <option value="gradual_degradation">점진적 성능 저하</option>
                     <option value="sudden_failure">급격한 고장</option>
                     <option value="intermittent_failure">간헐적 고장</option>
                     <option value="cascade_failure">계단식 고장</option>
+                    <option value="thermal_stress">열 응력</option>
+                    <option value="normal_operation">정상 운영</option>
+                </select>
+                <select id="failureTypeFilter" onchange="filterLearningResults()">
+                    <option value="all">전체 고장 유형</option>
+                    <option value="bearing_wear">베어링 마모</option>
+                    <option value="electrical_fault">전기 고장</option>
+                    <option value="mechanical_looseness">기계적 느슨함</option>
+                    <option value="compressor_fatigue">압축기 피로</option>
+                    <option value="normal">정상</option>
                 </select>
             </div>
             <div class="learning-results" id="learningResults">
@@ -3458,6 +3592,15 @@
         let contextualLearningActive = false;
         let learningData = [];
         let learningProgress = 0;
+        let learningInterval = null;
+        let learningStatistics = {
+            totalWindows: 0,
+            patternCounts: {},
+            failureTypeCounts: {},
+            avgConfidence: 0,
+            learningStartTime: null,
+            lastLearningTime: null
+        };
 
         class ContextualLearningSystem {
             constructor() {
@@ -3465,6 +3608,8 @@
                 this.timeSeriesBuffer = [];
                 this.contextBuffer = [];
                 this.learningResults = [];
+                this.minConfidence = 0.6;
+                this.learningPeriod = 24; // 시간
             }
 
             // 시계열 윈도우 생성
@@ -3643,8 +3788,49 @@
 
             calculatePeriodicity(values) {
                 if (values.length < 10) return 0;
-                // 간단한 주기성 계산 (실제로는 FFT 사용)
-                return Math.random() * 0.1; // 임시 구현
+                
+                try {
+                    // 실제 FFT를 사용한 주기성 계산
+                    const fft = this.simpleFFT(values);
+                    const freqs = Array.from({length: values.length}, (_, i) => i / values.length);
+                    
+                    // 주요 주파수 성분 찾기
+                    let maxPower = 0;
+                    let dominantFreq = 0;
+                    
+                    for (let i = 1; i < fft.length / 2; i++) {
+                        const power = Math.abs(fft[i]) ** 2;
+                        if (power > maxPower) {
+                            maxPower = power;
+                            dominantFreq = freqs[i];
+                        }
+                    }
+                    
+                    return dominantFreq;
+                } catch {
+                    return 0;
+                }
+            }
+
+            simpleFFT(values) {
+                // 간단한 FFT 구현 (실제로는 더 정교한 라이브러리 사용 권장)
+                const N = values.length;
+                const result = new Array(N);
+                
+                for (let k = 0; k < N; k++) {
+                    let real = 0;
+                    let imag = 0;
+                    
+                    for (let n = 0; n < N; n++) {
+                        const angle = -2 * Math.PI * k * n / N;
+                        real += values[n] * Math.cos(angle);
+                        imag += values[n] * Math.sin(angle);
+                    }
+                    
+                    result[k] = real + imag * 1i;
+                }
+                
+                return result;
             }
 
             countCycles(states) {
@@ -3680,70 +3866,206 @@
         // 맥락 기반 학습 시스템 인스턴스
         const contextualLearning = new ContextualLearningSystem();
 
-        // 맥락 기반 학습 함수들
+        // 실제 데이터 기반 학습 함수들
         async function startContextualLearning() {
+            if (contextualLearningActive) {
+                alert('이미 학습이 진행 중입니다.');
+                return;
+            }
+
             contextualLearningActive = true;
-            updateLearningStatus('active', '맥락 기반 학습 진행 중...');
+            learningStatistics.learningStartTime = new Date();
+            updateLearningStatus('active', '실시간 학습 진행 중...');
+            
+            // 설정값 가져오기
+            const learningPeriod = parseInt(document.getElementById('learningPeriod').value);
+            const windowSize = parseInt(document.getElementById('windowSize').value);
+            const minConfidence = parseInt(document.getElementById('minConfidence').value) / 100;
+            
+            contextualLearning.learningPeriod = learningPeriod;
+            contextualLearning.minConfidence = minConfidence;
             
             try {
-                // 센서 데이터 가져오기
-                const response = await fetch('/api/esp32/features/recent?limit=100&hours=24');
+                // 실시간 학습 시작
+                await performInitialLearning(learningPeriod, windowSize);
+                
+                // 주기적 학습 설정 (5분마다)
+                learningInterval = setInterval(async () => {
+                    await performIncrementalLearning(windowSize);
+                }, 300000); // 5분
+                
+                updateLearningStatus('active', `실시간 학습 중 (${learningPeriod}시간 데이터)`);
+                
+            } catch (error) {
+                console.error('학습 시작 오류:', error);
+                updateLearningStatus('error', '학습 시작 실패');
+                contextualLearningActive = false;
+            }
+        }
+
+        async function performInitialLearning(period, windowSize) {
+            try {
+                // 실제 센서 데이터 가져오기
+                const response = await fetch(`/api/esp32/features/recent?limit=1000&hours=${period}`);
                 const data = await response.json();
                 
-                if (!data.success || !data.data) {
-                    throw new Error('센서 데이터를 가져올 수 없습니다.');
+                if (!data.success || !data.data || data.data.length === 0) {
+                    throw new Error('학습할 센서 데이터가 없습니다.');
                 }
 
-                // 시계열 윈도우 생성 및 분석
+                console.log(`[학습] ${data.data.length}개의 실제 센서 데이터로 학습 시작`);
+
+                // 시계열 윈도우 생성
                 const windows = [];
-                for (const windowSize of contextualLearning.windowSizes) {
-                    const window = contextualLearning.createTimeSeriesWindow(windowSize, data.data);
+                const selectedWindowSize = windowSize;
+                
+                // 슬라이딩 윈도우로 여러 윈도우 생성
+                for (let i = selectedWindowSize; i < data.data.length; i += Math.floor(selectedWindowSize / 2)) {
+                    const windowData = data.data.slice(i - selectedWindowSize, i);
+                    const window = contextualLearning.createTimeSeriesWindow(selectedWindowSize, windowData);
                     if (window) {
                         windows.push(window);
                     }
                 }
 
-                // 각 윈도우에 대해 맥락적 분석 수행
+                console.log(`[학습] ${windows.length}개의 윈도우 생성`);
+
+                // 각 윈도우 분석
                 learningData = [];
                 for (let i = 0; i < windows.length; i++) {
                     const window = windows[i];
                     
-                    // 특징 추출
+                    // 실제 특징 추출
                     const features = contextualLearning.extractContextualFeatures(window);
                     
-                    // 패턴 분류
+                    // 실제 패턴 분류
                     const classification = contextualLearning.classifyPattern(features, window.context);
                     
-                    // 학습 데이터 저장
+                    // 신뢰도 필터링
+                    if (classification.confidence >= contextualLearning.minConfidence) {
+                        const learningItem = {
+                            windowId: `${window.startTime.toISOString().split('T')[0]}_${window.windowSize}_${i}`,
+                            timestamp: window.startTime.toISOString(),
+                            patternType: classification.patternType,
+                            failureType: classification.failureType,
+                            confidence: classification.confidence,
+                            features: features,
+                            context: window.context,
+                            windowSize: window.windowSize,
+                            dataCount: window.data.length
+                        };
+                        
+                        learningData.push(learningItem);
+                        
+                        // 통계 업데이트
+                        updateLearningStatistics(learningItem);
+                    }
+                    
+                    // 진행률 업데이트
+                    learningProgress = ((i + 1) / windows.length) * 100;
+                    updateLearningProgress(learningProgress);
+                }
+
+                console.log(`[학습] ${learningData.length}개의 패턴 학습 완료`);
+                
+                // 학습 결과 표시
+                displayLearningResults(learningData);
+                updateLearningStatus('completed', `초기 학습 완료 (${learningData.length}개 패턴)`);
+                
+            } catch (error) {
+                console.error('초기 학습 오류:', error);
+                throw error;
+            }
+        }
+
+        async function performIncrementalLearning(windowSize) {
+            try {
+                // 최근 데이터만 가져오기 (1시간)
+                const response = await fetch('/api/esp32/features/recent?limit=100&hours=1');
+                const data = await response.json();
+                
+                if (!data.success || !data.data || data.data.length === 0) {
+                    return;
+                }
+
+                // 새로운 윈도우 생성
+                const window = contextualLearning.createTimeSeriesWindow(windowSize, data.data);
+                if (!window) return;
+
+                // 특징 추출 및 분류
+                const features = contextualLearning.extractContextualFeatures(window);
+                const classification = contextualLearning.classifyPattern(features, window.context);
+
+                // 신뢰도 필터링
+                if (classification.confidence >= contextualLearning.minConfidence) {
                     const learningItem = {
-                        windowId: `${window.startTime.toISOString().split('T')[0]}_${window.windowSize}_${i}`,
+                        windowId: `incremental_${Date.now()}`,
                         timestamp: window.startTime.toISOString(),
                         patternType: classification.patternType,
                         failureType: classification.failureType,
                         confidence: classification.confidence,
                         features: features,
                         context: window.context,
-                        windowSize: window.windowSize
+                        windowSize: window.windowSize,
+                        dataCount: window.data.length
                     };
                     
-                    learningData.push(learningItem);
+                    learningData.unshift(learningItem); // 최신 데이터를 앞에 추가
                     
-                    // 진행률 업데이트
-                    learningProgress = ((i + 1) / windows.length) * 100;
-                    updateLearningProgress(learningProgress);
+                    // 최대 1000개 유지
+                    if (learningData.length > 1000) {
+                        learningData = learningData.slice(0, 1000);
+                    }
                     
-                    // UI 업데이트를 위한 지연
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    // 통계 업데이트
+                    updateLearningStatistics(learningItem);
+                    
+                    // 실시간 결과 업데이트
+                    displayLearningResults(learningData.slice(0, 50)); // 최근 50개만 표시
+                    
+                    console.log(`[증분학습] 새로운 패턴 학습: ${classification.patternType} (${(classification.confidence * 100).toFixed(1)}%)`);
                 }
-
-                // 학습 완료
-                updateLearningStatus('completed', '맥락 기반 학습 완료');
-                displayLearningResults(learningData);
+                
+                learningStatistics.lastLearningTime = new Date();
                 
             } catch (error) {
-                console.error('맥락 기반 학습 오류:', error);
-                updateLearningStatus('error', '학습 중 오류 발생');
+                console.error('증분 학습 오류:', error);
             }
+        }
+
+        function pauseLearning() {
+            if (learningInterval) {
+                clearInterval(learningInterval);
+                learningInterval = null;
+            }
+            contextualLearningActive = false;
+            updateLearningStatus('paused', '학습 일시정지됨');
+        }
+
+        function updateLearningStatistics(item) {
+            learningStatistics.totalWindows++;
+            
+            // 패턴 유형별 카운트
+            if (!learningStatistics.patternCounts[item.patternType]) {
+                learningStatistics.patternCounts[item.patternType] = 0;
+            }
+            learningStatistics.patternCounts[item.patternType]++;
+            
+            // 고장 유형별 카운트
+            if (!learningStatistics.failureTypeCounts[item.failureType]) {
+                learningStatistics.failureTypeCounts[item.failureType] = 0;
+            }
+            learningStatistics.failureTypeCounts[item.failureType]++;
+            
+            // 평균 신뢰도 계산
+            const totalConfidence = learningData.reduce((sum, item) => sum + item.confidence, 0);
+            learningStatistics.avgConfidence = totalConfidence / learningData.length;
+        }
+
+        function updateConfidenceDisplay() {
+            const slider = document.getElementById('minConfidence');
+            const display = document.getElementById('confidenceDisplay');
+            display.textContent = slider.value + '%';
         }
 
         function updateLearningStatus(status, text) {
@@ -3834,12 +4156,69 @@
             container.innerHTML = html;
         }
 
+        function showLearningStatistics() {
+            const stats = {
+                totalWindows: learningStatistics.totalWindows,
+                patternCounts: learningStatistics.patternCounts,
+                failureTypeCounts: learningStatistics.failureTypeCounts,
+                avgConfidence: learningStatistics.avgConfidence,
+                learningStartTime: learningStatistics.learningStartTime,
+                lastLearningTime: learningStatistics.lastLearningTime,
+                currentDataCount: learningData.length
+            };
+
+            const statsHtml = `
+                <div class="learning-statistics">
+                    <h4>📊 학습 통계</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">총 윈도우 수:</span>
+                            <span class="stat-value">${stats.totalWindows}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">현재 데이터 수:</span>
+                            <span class="stat-value">${stats.currentDataCount}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">평균 신뢰도:</span>
+                            <span class="stat-value">${(stats.avgConfidence * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">학습 시작:</span>
+                            <span class="stat-value">${stats.learningStartTime ? stats.learningStartTime.toLocaleString() : 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="pattern-breakdown">
+                        <h5>패턴 유형별 분포:</h5>
+                        ${Object.entries(stats.patternCounts).map(([pattern, count]) => 
+                            `<div class="pattern-item">${pattern}: ${count}개</div>`
+                        ).join('')}
+                    </div>
+                    <div class="failure-breakdown">
+                        <h5>고장 유형별 분포:</h5>
+                        ${Object.entries(stats.failureTypeCounts).map(([failure, count]) => 
+                            `<div class="failure-item">${failure}: ${count}개</div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('learningResults').innerHTML = statsHtml;
+        }
+
         function filterLearningResults() {
-            const filter = document.getElementById('learningFilter').value;
+            const patternFilter = document.getElementById('learningFilter').value;
+            const failureFilter = document.getElementById('failureTypeFilter').value;
             let filteredData = learningData;
 
-            if (filter !== 'all') {
-                filteredData = learningData.filter(item => item.patternType === filter);
+            // 패턴 유형 필터링
+            if (patternFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.patternType === patternFilter);
+            }
+
+            // 고장 유형 필터링
+            if (failureFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.failureType === failureFilter);
             }
 
             displayLearningResults(filteredData);
