@@ -151,6 +151,11 @@ class SettingsManager {
             // Update internal settings
             this.settings = { ...this.settings, ...settingsData };
             
+            // Apply theme immediately after saving
+            if (typeof window.applyTheme === 'function') {
+                window.applyTheme();
+            }
+            
             return result;
         } catch (error) {
             console.error('Error saving settings:', error);

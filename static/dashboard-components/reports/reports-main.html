@@ -1,69 +1,145 @@
 <style>
+    .section-container {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .section-header h2, .section-header h3 {
+        margin: 0;
+        color: var(--text-primary, #FFFFFF);
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .section-header h2 i, .section-header h3 i {
+        margin-right: 0.75rem;
+        color: var(--accent-primary, #8A5CFE);
+    }
+    
     .reports-main-container {
         display: flex;
         flex-direction: column;
         gap: 2rem;
     }
+    
     .generator-cards-container {
         display: flex;
         gap: 1.5rem;
         margin-bottom: 1.5rem;
     }
+    
     .generator-cards-container > .card {
         flex: 1;
     }
+    
     .reports-dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 1.5rem;
+        margin-top: 1.5rem;
     }
+    
     .report-card {
-        background-color: var(--card-bg-color, #2c2c54);
+        background: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
         padding: 1.5rem;
-        border-radius: 8px;
-        text-align: center; /* 카드 내 텍스트 중앙 정렬 */
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+    
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .report-card h3 {
+        font-size: 1.2rem;
+        color: var(--text-primary, #FFFFFF);
+        margin-top: 0;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .report-card h3 i {
+        margin-right: 0.5rem;
+        color: var(--accent-primary, #8A5CFE);
+    }
+    
+    .report-card p {
+        color: var(--text-secondary, #A0AEC0);
+        margin: 0.5rem 0;
+    }
+    
+    .health-score {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+    
+    .score-good { color: var(--success, #48BB78); }
+    .score-avg { color: var(--warning, #ED8936); }
+    .score-bad { color: var(--danger, #E53E3E); }
+    
     .report-card .top-list {
-        display: inline-block; /* 리스트 블록을 가운데로 옮기기 위함 */
-        text-align: left; /* 리스트 내용 자체는 왼쪽 정렬 */
-        margin-top: 1rem;
+        list-style: none;
         padding: 0;
-    }
-    /* 필터, 지표 선택 영역은 기존 정렬 유지 */
-    .report-controls-card .control-panel,
-    .report-metrics-card .checkbox-group {
+        margin: 1rem 0 0;
         text-align: left;
     }
-    .report-generator h2, .section-spacing h2 {
-        text-align: center;
+    
+    .report-card .top-list li {
+        padding: 0.25rem 0;
+        color: var(--text-primary, #FFFFFF);
+        display: flex;
+        justify-content: space-between;
     }
-    .action-buttons {
-        text-align: center;
+    
+    .report-card .top-list li span {
+        color: var(--text-secondary, #A0AEC0);
+    }
+    
+    .report-card .top-list li strong {
+        color: var(--accent-primary, #8A5CFE);
     }
     
     /* New styles for improved report generator */
     .report-builder-container {
         background: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
         border-radius: 0.5rem;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     .report-builder-header {
         display: flex;
         align-items: center;
         margin-bottom: 1.5rem;
-    }
-    
-    .report-builder-header h2 {
-        margin: 0;
-        color: var(--text-primary, #FFFFFF);
-        font-size: 1.5rem;
-    }
-    
-    .report-builder-header h2 i {
-        margin-right: 0.75rem;
-        color: var(--accent-primary, #8A5CFE);
     }
     
     .builder-steps {
@@ -144,27 +220,6 @@
         background: var(--secondary-bg, #22252A);
         border-radius: 0.5rem;
         padding: 1.25rem;
-    }
-    
-    .section-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-color, #32363C);
-    }
-    
-    .section-header h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        color: var(--text-primary, #FFFFFF);
-        display: flex;
-        align-items: center;
-    }
-    
-    .section-header h3 i {
-        margin-right: 0.5rem;
-        color: var(--accent-primary, #8A5CFE);
     }
     
     .control-group {
@@ -299,6 +354,7 @@
         flex-wrap: wrap;
         gap: 0.5rem;
         margin-top: 1rem;
+        justify-content: center;
     }
     
     .metric-badge {
@@ -314,6 +370,7 @@
         flex-wrap: wrap;
         gap: 0.5rem;
         margin-bottom: 1rem;
+        justify-content: center;
     }
     
     .preset-btn {
@@ -364,7 +421,7 @@
     <!-- 1. 개선된 맞춤형 보고서 생성기 -->
     <div class="report-builder-container">
         <div class="report-builder-header">
-            <h2><i class="fas fa-tools"></i> 맞춤형 보고서 생성기</h2>
+            <h2><i class="fas fa-tools" style="color: var(--accent-primary, #8A5CFE);"></i> 맞춤형 보고서 생성기</h2>
         </div>
         
         <div class="builder-steps">
@@ -389,7 +446,7 @@
         <div class="builder-content">
             <div class="builder-section">
                 <div class="section-header">
-                    <h3><i class="fas fa-filter"></i> 필터 설정</h3>
+                    <h3><i class="fas fa-filter" style="color: var(--accent-primary, #8A5CFE);"></i> 필터 설정</h3>
                 </div>
                 
                 <div class="quick-preset">
@@ -439,7 +496,7 @@
             
             <div class="builder-section">
                 <div class="section-header">
-                    <h3><i class="fas fa-chart-bar"></i> 지표 선택</h3>
+                    <h3><i class="fas fa-chart-bar" style="color: var(--accent-primary, #8A5CFE);"></i> 지표 선택</h3>
                 </div>
                 
                 <div class="control-group">
@@ -480,7 +537,7 @@
         </div>
         
         <div class="section-header">
-            <h3><i class="fas fa-eye"></i> 보고서 미리보기</h3>
+            <h3><i class="fas fa-eye" style="color: var(--accent-primary, #8A5CFE);"></i> 보고서 미리보기</h3>
         </div>
         
         <div class="preview-section">
@@ -515,13 +572,15 @@
 
     <!-- 2. 정기 리포트 대시보드 -->
     <div class="section-spacing">
-        <h2><i class="fas fa-tachometer-alt"></i> 정기 리포트 대시보드 (월간)</h2>
+        <div class="section-header">
+            <h2><i class="fas fa-tachometer-alt" style="color: var(--accent-primary, #8A5CFE);"></i> 정기 리포트 대시보드 (월간)</h2>
+        </div>
         <div class="reports-dashboard-grid">
             <div class="report-card">
-                <h3><i class="fas fa-heartbeat"></i> 자산 건전성 리포트</h3>
-                <p style="color: #a0a0d0;">전체 자산 평균</p>
+                <h3><i class="fas fa-heartbeat" style="color: var(--success, #48BB78);"></i> 자산 건전성 리포트</h3>
+                <p>전체 자산 평균</p>
                 <div class="health-score score-good">88점</div>
-                <p style="color: #a0a0d0; font-weight: bold;">건강 점수 하락 Top 3</p>
+                <p style="font-weight: bold;">건강 점수 하락 Top 3</p>
                 <ul class="top-list">
                     <li><span>압축기 #5</span> <strong>-15점</strong></li>
                     <li><span>냉동고-B2</span> <strong>-8점</strong></li>
@@ -529,8 +588,8 @@
                 </ul>
             </div>
             <div class="report-card">
-                <h3><i class="fas fa-fire"></i> 이상 징후 핫스팟</h3>
-                <p style="color: #a0a0d0; font-weight: bold;">최다 발생 자산 Top 3</p>
+                <h3><i class="fas fa-fire" style="color: var(--warning, #ED8936);"></i> 이상 징후 핫스팟</h3>
+                <p style="font-weight: bold;">최다 발생 자산 Top 3</p>
                  <ul class="top-list">
                     <li><span>압축기 #3</span> <strong>12 건</strong></li>
                     <li><span>냉동고-A1</span> <strong>8 건</strong></li>
@@ -539,10 +598,10 @@
                 <canvas id="anomalyTypeChart"></canvas>
             </div>
              <div class="report-card">
-                <h3><i class="fas fa-tools"></i> 유지보수 효과 분석</h3>
-                <p style="color: #a0a0d0; font-weight: bold;">평균 조치 소요 시간 (MTTR)</p>
+                <h3><i class="fas fa-tools" style="color: var(--accent-secondary, #38B2AC);"></i> 유지보수 효과 분석</h3>
+                <p style="font-weight: bold;">평균 조치 소요 시간 (MTTR)</p>
                 <div class="health-score score-avg">6.5 시간</div>
-                <p style="color: #a0a0d0; font-weight: bold;">유지보수 후 징후 감소율</p>
+                <p style="font-weight: bold;">유지보수 후 징후 감소율</p>
                 <div class="health-score score-good">+ 75%</div>
             </div>
         </div>

@@ -36,8 +36,16 @@ function initializeDashboard() {
     // 초기화
     chartManager.initializeAllCharts();
     sectionManager.setupNavigation();
+    applyTheme(); // 테마 적용 함수 호출
 
     console.log('대시보드 초기화 완료');
+}
+
+function applyTheme() {
+    const savedSettings = JSON.parse(localStorage.getItem('settings'));
+    const theme = savedSettings?.general?.theme || 'dark'; // 기본 테마는 dark로 설정
+    document.body.classList.remove('light-theme', 'dark-theme');
+    document.body.classList.add(`${theme}-theme`);
 }
 
 async function loadDashboardData() {

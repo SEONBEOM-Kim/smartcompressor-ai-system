@@ -18,6 +18,8 @@
         .grid-card {
             position: relative;
             transition: all 0.3s ease;
+            width: 100%; /* Ensure cards don't exceed container width */
+            max-width: 100%; /* Prevent overflow */
         }
         
         .grid-card:hover {
@@ -66,7 +68,7 @@
         /* --- 가독성 향상을 위한 중앙 정렬 스타일 --- */
         .page-header,
         .risk-card {
-            text-align: center;
+            text-align: left; /* 좌측 정렬로 변경 */
         }
 
         .card-header {
@@ -181,11 +183,15 @@
                 transition: margin-left 0.3s ease;
                 position: relative;
                 z-index: 10;
+                width: 100%; /* Ensure main content doesn't exceed screen width */
+                max-width: 100vw; /* Prevent horizontal overflow */
+                overflow-x: hidden; /* Prevent horizontal scrolling */
             }
             
             /* Prevent horizontal scrolling */
             body {
                 overflow-x: hidden;
+                max-width: 100vw; /* Prevent body from exceeding viewport width */
             }
             
             /* Ensure containers don't cause overflow */
@@ -194,30 +200,38 @@
             .grid-card,
             .card-container {
                 overflow: hidden;
+                width: 100%; /* Ensure containers don't exceed their parent */
+                max-width: 100%; /* Prevent overflow */
             }
             
             /* Responsive dashboard grid */
             .dashboard-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+                width: 100%; /* Ensure grid doesn't exceed container */
+                max-width: 100%; /* Prevent grid from causing overflow */
             }
             
             /* Responsive risk cards */
             .current-risk-cards {
                 grid-template-columns: 1fr 1fr;
                 gap: 1rem;
+                width: 100%; /* Ensure cards grid doesn't cause overflow */
+                max-width: 100%;
             }
             
             /* Make charts responsive */
             .chart-container {
                 min-height: 200px;
-                width: 100%;
+                width: 100% !important; /* Force charts to fit container */
+                overflow: hidden; /* Prevent chart overflow */
             }
             
             /* Ensure canvas elements have proper dimensions on mobile */
             .chart-container canvas {
                 width: 100% !important;
                 height: 100% !important;
+                max-width: 100% !important; /* Ensure canvas doesn't cause overflow */
             }
             
             /* Header adjustments */
@@ -225,6 +239,7 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
+                width: 100%; /* Ensure header doesn't cause overflow */
             }
             
             .header-right {
@@ -240,10 +255,12 @@
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                width: 100%; /* Ensure table container fits properly */
+                max-width: 100%; /* Prevent table from causing overflow */
             }
             
             .anomaly-table {
-                min-width: 600px;
+                min-width: 600px; /* Allow horizontal scrolling for tables */
                 font-size: 0.8rem;
             }
             
@@ -255,6 +272,7 @@
             .grid-card {
                 margin-bottom: 1rem;
                 padding: 1rem;
+                box-sizing: border-box; /* Ensure padding doesn't cause overflow */
             }
             
             .card-header {
@@ -277,6 +295,7 @@
             
             .search-bar input {
                 font-size: 0.9rem;
+                width: 100%; /* Ensure search input doesn't cause overflow */
             }
         }
         
@@ -309,6 +328,11 @@
             .risk-card h2 {
                 font-size: 1.5rem;
             }
+        }
+        
+        /* Additional global fix for any potential horizontal overflow */
+        *, *::before, *::after {
+            box-sizing: border-box; /* Include padding and border in element width */
         }
     </style>
 </head>
@@ -1500,5 +1524,6 @@
             }
         }
     </script>
+    <script src="/static/js/dashboard/dashboard.js" type="module"></script>
 </body>
 </html>

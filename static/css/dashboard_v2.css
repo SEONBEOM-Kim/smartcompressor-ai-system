@@ -15,6 +15,22 @@
     --warning: #ED8936;
 }
 
+/* Light Theme */
+body.light-theme {
+    --primary-bg: #F7FAFC;
+    --secondary-bg: #FFFFFF;
+    --sidebar-bg: #FFFFFF;
+    --card-bg: #FFFFFF;
+    --text-primary: #2D3748;
+    --text-secondary: #718096;
+    --accent-primary: #6B46C1;
+    --accent-secondary: #319795;
+    --border-color: #EDF2F7;
+    --danger: #E53E3E;
+    --success: #38A169;
+    --warning: #D69E2E;
+}
+
 body {
     background-color: var(--primary-bg);
     color: var(--text-primary);
@@ -296,6 +312,10 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin: 0;
+}
+
+.card-header h3 i {
+    color: var(--text-primary); /* 아이콘 색상을 테마에 맞게 설정 */
 }
 
 .card-menu button {
