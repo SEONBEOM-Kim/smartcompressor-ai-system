@@ -328,8 +328,7 @@
             </button>
         </div>
         <ul class="mobile-nav-menu">
-            <li><a href="#" class="nav-link active" onclick="closeMobileNav(); return false;"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
-            <li><a href="#" class="nav-link" onclick="loadAnomaliesDetailContent(); closeMobileNav(); return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
+            <li><a href="#" class="nav-link active" onclick="loadMainDashboard(); closeMobileNav(); return false;"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
             <li><a href="#" id="assets-link" class="nav-link" onclick="loadAssetsDetailContent(); closeMobileNav(); return false;"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
             <li><a href="#" class="nav-link" onclick="loadPageContent('reports'); closeMobileNav(); return false;"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
             <li><a href="#settings" id="settings-link" class="nav-link" onclick="loadSettingsContent(); closeMobileNav(); return false;"><i class="fas fa-cog"></i> <span>설정</span></a></li>
@@ -353,15 +352,8 @@
     <script>
         // Function to load the main dashboard content and then initialize charts
         async function loadMainDashboard() {
-            // Load the main dashboard HTML content
-            await loadComponent('/static/dashboard-components/main-dashboard/main-dashboard-content.html', 'main-content');
-            
-            // NOW that the content is loaded, initialize charts and load data
-            // This prevents race conditions on mobile devices
-            destroyAllCharts();
-            initializeCharts();
-            ensureChartVisibility();
-            loadDashboardData();
+            // Load the anomalies page as the new main dashboard
+            await loadAnomaliesDetailContent();
         }
 
         // Function to load dashboard data from API
@@ -525,7 +517,7 @@
                         if(container.offsetWidth > 0 && container.offsetHeight > 0) {
                             initializeChart(canvasId, chartType, chartData, chartOptions);
                         }
-                    }, 100);
+                    }, 300);
                     return null;
                 }
                 
@@ -853,119 +845,8 @@
                 // Destroy all existing charts before loading new content
                 destroyAllCharts();
                 
-                // Recreate the main dashboard content
-                const dashboardContent = `
-                    <header class="page-header">
-                        <div class="header-left">
-                            <h1>안녕하세요, 고객님</h1>
-                            <p>자산 상태를 실시간으로 모니터링하세요.</p>
-                        </div>
-                        <div class="header-right">
-                            <div class="search-bar">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="자산 검색...">
-                            </div>
-                            <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
-                            <button class="icon-button"><i class="fas fa-bell"></i></button>
-                        </div>
-                    </header>
-
-                    <!-- Dashboard Grid -->
-                    <div class="dashboard-grid">
-
-                        <!-- 현황 요약 카드 -->
-                        <div class="current-risk-cards">
-                            <div class="risk-card">
-                                <h5>총 자산</h5>
-                                <h2 id="total-assets">0</h2>
-                            </div>
-                            <div class="risk-card">
-                                <h5>정상 자산</h5>
-                                <h2 id="normal-assets">0</h2>
-                            </div>
-                            <div class="risk-card">
-                                <h5>이상 징후</h5>
-                                <h2 id="anomaly-count">0</h2>
-                            </div>
-                            <div class="risk-card">
-                                <h5>긴급 조치 필요</h5>
-                                <h2 id="urgent-action">0</h2>
-                            </div>
-                            <div class="risk-card">
-                                <h5>오늘 점검 예정</h5>
-                                <h2 id="scheduled-maintenance">0</h2>
-                            </div>
-                        </div>
-
-                        <!-- 이상 징후 요약 -->
-                        <div class="grid-card threat-summary-card">
-                            <div class="card-header">
-                                <h3 class="card-title">이상 징후 요약</h3>
-                                <div class="card-menu">...</div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="threat-summary-chart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- 자산 종합 상태 -->
-                        <div class="grid-card risk-score-card">
-                            <div class="card-header">
-                                <h3 class="card-title">자산 종합 상태</h3>
-                                <div class="card-menu">...</div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="risk-score-chart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- 최근 이상 징후 상세 -->
-                        <div class="grid-card threat-details-card">
-                            <div class="card-header">
-                                <h3 class="card-title">최근 이상 징후 상세</h3>
-                                <div class="card-menu">...</div>
-                            </div>
-                            <table id="anomalies-table">
-                                <thead>
-                                    <tr>
-                                        <th>날짜</th>
-                                        <th>자산 ID</th>
-                                        <th>징후 유형</th>
-                                        <th>상세 내용</th>
-                                        <th>심각도</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Data will be loaded via API -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- 징후 유형별 통계 -->
-                        <div class="grid-card threat-by-virus-card">
-                            <div class="card-header">
-                                <h3 class="card-title">징후 유형별 통계</h3>
-                                <div class="card-menu">...</div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="threats-by-virus-chart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- 자산별 이상 징후 -->
-                        <div class="grid-card threat-by-device-card">
-                            <div class="card-header">
-                                <h3 class="card-title">자산별 이상 징후</h3>
-                                <div class="card-menu">...</div>
-                            </div>
-                            <!-- content here -->
-                        </div>
-
-                    </div>
-                `;
-                
-                // Update the main content area with the dashboard content
-                document.getElementById('main-content').innerHTML = dashboardContent;
+                // Load the main dashboard content using the dedicated function
+                await loadMainDashboard();
                 
                 // Update active state of navigation
                 document.querySelectorAll('.nav-link').forEach(link => {
@@ -979,10 +860,6 @@
                 if (dashboardLink) {
                     dashboardLink.classList.add('active');
                 }
-                
-                // Reinitialize the main dashboard charts and data
-                initializeCharts();
-                loadDashboardData();
             } catch (error) {
                 console.error('Error loading dashboard content:', error);
             }
@@ -1029,7 +906,7 @@
                 const anomaliesContent = `
                     <header class="page-header">
                         <div class="header-left">
-                            <h1>이상 징후</h1>
+                            <h1>대시 보드</h1>
                             <p>실시간 이상 징후 모니터링 및 조치</p>
                         </div>
                         <div class="header-right">
