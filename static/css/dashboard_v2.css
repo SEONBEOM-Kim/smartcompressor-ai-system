@@ -79,21 +79,53 @@ body {
 .nav-menu .nav-link {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
+    padding: 0.85rem 1rem;
+    border-radius: 0.5rem;
+    color: #A0AEC0;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin: 0.15rem 0;
+}
+
+.nav-menu .nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background-color: transparent;
+    transition: all 0.3s ease;
 }
 
 .nav-menu .nav-link:hover {
-    background-color: var(--secondary-bg);
-    color: var(--text-primary);
+    background-color: rgba(138, 92, 254, 0.1);
+    color: #FFFFFF;
+    transform: translateX(5px);
+}
+
+.nav-menu .nav-link:hover::before {
+    background-color: #8A5CFE;
 }
 
 .nav-menu .nav-link.active {
-    background-color: var(--accent-primary);
+    background-color: rgba(138, 92, 254, 0.2);
     color: #FFFFFF;
+    font-weight: 700;
+}
+
+.nav-menu .nav-link.active::before {
+    background-color: #8A5CFE;
+}
+
+.nav-menu .nav-link i {
+    margin-right: 1rem;
+    width: 24px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .nav-menu .nav-link i {
@@ -177,15 +209,16 @@ body {
 }
 
 .header-left h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.8rem;
+    font-weight: 700;
     color: var(--text-primary);
-    margin: 0;
+    margin: 0 0 0.3rem 0;
 }
 .header-left p {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 1rem;
     margin: 0;
+    font-weight: 500;
 }
 
 .header-right {
@@ -235,8 +268,15 @@ body {
 .grid-card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
+    border-radius: 0.75rem;
+    padding: 1.8rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.grid-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .card-header {
@@ -250,9 +290,12 @@ body {
 }
 
 .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
     color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0;
 }
 
 .card-menu button {
@@ -274,6 +317,83 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.risk-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #8A5CFE, #38B2AC);
+}
+
+.risk-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.risk-card h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.risk-card h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Accent colors for different metrics */
+.risk-card:nth-child(1) { /* Total Assets */
+    border-left: 4px solid #8A5CFE;
+}
+
+.risk-card:nth-child(2) { /* Normal Assets */
+    border-left: 4px solid #48BB78;
+}
+
+.risk-card:nth-child(3) { /* Anomalies */
+    border-left: 4px solid #ED8936;
+}
+
+.risk-card:nth-child(4) { /* Urgent Actions */
+    border-left: 4px solid #E53E3E;
+}
+
+.risk-card:nth-child(5) { /* Scheduled Maintenance */
+    border-left: 4px solid #38B2AC;
+}
+
+.risk-card:nth-child(1) h2 { /* Total Assets */
+    color: #8A5CFE;
+}
+
+.risk-card:nth-child(2) h2 { /* Normal Assets */
+    color: #48BB78;
+}
+
+.risk-card:nth-child(3) h2 { /* Anomalies */
+    color: #ED8936;
+}
+
+.risk-card:nth-child(4) h2 { /* Urgent Actions */
+    color: #E53E3E;
+}
+
+.risk-card:nth-child(5) h2 { /* Scheduled Maintenance */
+    color: #38B2AC;
 }
 
 /* Mobile responsive adjustments */
