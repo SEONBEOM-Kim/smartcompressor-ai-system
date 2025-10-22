@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 소리 데이터 라벨링 도구</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #e8f0fe;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .audio-player {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .labeling-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .labeling-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .label-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .label-option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .label-option:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .label-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .label-option h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .label-option p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .confidence-slider {
+            margin: 20px 0;
+        }
+
+        .confidence-slider label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .confidence-slider input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .confidence-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .confidence-value {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .notes-section {
+            margin: 20px 0;
+        }
+
+        .notes-section textarea {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1em;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .progress-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .file-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .file-item {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item.completed {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .file-status {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .export-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .label-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 소리 데이터 라벨링 도구</h1>
+            <p>엔지니어 지식을 활용한 AI 학습 데이터 생성</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 파일 업로드 섹션 -->
+            <div class="upload-section" id="uploadSection">
+                <h3>📁 오디오 파일 업로드</h3>
+                <p>진단할 오디오 파일을 업로드하거나 드래그 앤 드롭하세요</p>
+                <input type="file" id="fileInput" class="file-input" accept="audio/*" multiple>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    📁 파일 선택
+                </button>
+                <p>지원 형식: WAV, MP3, M4A, FLAC</p>
+            </div>
+
+            <!-- 진행 상황 섹션 -->
+            <div class="progress-section">
+                <h3>📊 라벨링 진행 상황</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalFiles">0</div>
+                        <div class="stat-label">전체 파일</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="completedFiles">0</div>
+                        <div class="stat-label">완료된 파일</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="normalFiles">0</div>
+                        <div class="stat-label">정상</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="abnormalFiles">0</div>
+                        <div class="stat-label">이상</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 파일 목록 섹션 -->
+            <div class="file-list" id="fileList" style="display: none;">
+                <h3>📋 업로드된 파일 목록</h3>
+                <div id="fileItems"></div>
+            </div>
+
+            <!-- 오디오 플레이어 섹션 -->
+            <div class="audio-player" id="audioPlayer" style="display: none;">
+                <h3>🎧 오디오 재생</h3>
+                <audio id="audioElement" controls></audio>
+                <div id="currentFileInfo"></div>
+            </div>
+
+            <!-- 라벨링 섹션 -->
+            <div class="labeling-section" id="labelingSection" style="display: none;">
+                <h3>🏷️ 소리 분류</h3>
+                <p>현재 재생 중인 오디오의 소리를 분류해주세요</p>
+                
+                <div class="label-options">
+                    <div class="label-option" data-label="normal_compressor">
+                        <h4>✅ 정상 압축기</h4>
+                        <p>일정한 저주파 소음<br>안정적인 작동음</p>
+                    </div>
+                    <div class="label-option" data-label="normal_fan">
+                        <h4>✅ 정상 팬</h4>
+                        <p>일정한 중주파 소음<br>부드러운 회전음</p>
+                    </div>
+                    <div class="label-option" data-label="normal_motor">
+                        <h4>✅ 정상 모터</h4>
+                        <p>일정한 저주파 소음<br>안정적인 구동음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_bearing">
+                        <h4>⚠️ 베어링 마모</h4>
+                        <p>불규칙한 고주파 진동<br>마찰음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_unbalance">
+                        <h4>⚠️ 언밸런스</h4>
+                        <p>주기적 진동<br>불균형 소음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_friction">
+                        <h4>⚠️ 마찰</h4>
+                        <p>불규칙한 중주파<br>마찰음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_overload">
+                        <h4>🚨 과부하</h4>
+                        <p>매우 강한 소음<br>불규칙한 노이즈</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_other">
+                        <h4>❓ 기타 이상</h4>
+                        <p>다른 종류의 이상음<br>특이한 소음</p>
+                    </div>
+                </div>
+
+                <div class="confidence-slider">
+                    <label for="confidenceSlider">신뢰도: <span id="confidenceValue">80</span>%</label>
+                    <input type="range" id="confidenceSlider" min="0" max="100" value="80">
+                </div>
+
+                <div class="notes-section">
+                    <label for="notes">📝 추가 메모 (선택사항)</label>
+                    <textarea id="notes" placeholder="소리의 특징, 환경 조건, 특이사항 등을 기록해주세요..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveLabel()">💾 라벨 저장</button>
+                    <button class="btn btn-secondary" onclick="skipFile()">⏭️ 건너뛰기</button>
+                    <button class="btn btn-success" onclick="nextFile()">➡️ 다음 파일</button>
+                </div>
+            </div>
+
+            <!-- 내보내기 섹션 -->
+            <div class="export-section">
+                <h3>📤 라벨링 데이터 내보내기</h3>
+                <p>라벨링이 완료된 데이터를 AI 학습용으로 내보낼 수 있습니다</p>
+                <button class="btn btn-primary" onclick="exportData()">📥 데이터 내보내기</button>
+                <button class="btn btn-secondary" onclick="downloadReport()">📊 보고서 다운로드</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let uploadedFiles = [];
+        let currentFileIndex = 0;
+        let labelingData = {};
+
+        // 파일 업로드 처리
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        document.getElementById('uploadSection').addEventListener('dragover', handleDragOver);
+        document.getElementById('uploadSection').addEventListener('drop', handleDrop);
+
+        // 라벨 옵션 클릭 처리
+        document.querySelectorAll('.label-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.label-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // 신뢰도 슬라이더 처리
+        document.getElementById('confidenceSlider').addEventListener('input', function() {
+            document.getElementById('confidenceValue').textContent = this.value;
+        });
+
+        function handleFileUpload(event) {
+            const files = Array.from(event.target.files);
+            processFiles(files);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const files = Array.from(event.dataTransfer.files);
+            processFiles(files);
+        }
+
+        function processFiles(files) {
+            const audioFiles = files.filter(file => file.type.startsWith('audio/'));
+            
+            if (audioFiles.length === 0) {
+                alert('오디오 파일만 업로드할 수 있습니다.');
+                return;
+            }
+
+            uploadedFiles = [...uploadedFiles, ...audioFiles];
+            updateFileList();
+            updateProgress();
+            
+            if (uploadedFiles.length > 0) {
+                document.getElementById('fileList').style.display = 'block';
+                startLabeling();
+            }
+        }
+
+        function updateFileList() {
+            const fileItems = document.getElementById('fileItems');
+            fileItems.innerHTML = '';
+
+            uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const isCompleted = labelingData[file.name];
+                if (isCompleted) {
+                    fileItem.classList.add('completed');
+                }
+
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-status">${isCompleted ? '✅ 라벨링 완료' : '⏳ 대기 중'}</div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-small btn-primary" onclick="playFile(${index})">재생</button>
+                        <button class="btn btn-small btn-secondary" onclick="editLabel('${file.name}')">편집</button>
+                    </div>
+                `;
+                
+                fileItems.appendChild(fileItem);
+            });
+        }
+
+        function startLabeling() {
+            if (uploadedFiles.length === 0) return;
+            
+            currentFileIndex = 0;
+            playCurrentFile();
+            showLabelingInterface();
+        }
+
+        function playCurrentFile() {
+            if (currentFileIndex >= uploadedFiles.length) {
+                alert('모든 파일의 라벨링이 완료되었습니다!');
+                return;
+            }
+
+            const file = uploadedFiles[currentFileIndex];
+            const audioElement = document.getElementById('audioElement');
+            const fileInfo = document.getElementById('currentFileInfo');
+            
+            audioElement.src = URL.createObjectURL(file);
+            fileInfo.innerHTML = `
+                <strong>현재 파일:</strong> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                <br><strong>진행:</strong> ${currentFileIndex + 1} / ${uploadedFiles.length}
+            `;
+            
+            // 기존 라벨이 있으면 복원
+            if (labelingData[file.name]) {
+                const data = labelingData[file.name];
+                document.querySelector(`[data-label="${data.label}"]`).classList.add('selected');
+                document.getElementById('confidenceSlider').value = data.confidence;
+                document.getElementById('confidenceValue').textContent = data.confidence;
+                document.getElementById('notes').value = data.notes || '';
+            } else {
+                // 초기화
+                document.querySelectorAll('.label-option').forEach(opt => opt.classList.remove('selected'));
+                document.getElementById('confidenceSlider').value = 80;
+                document.getElementById('confidenceValue').textContent = 80;
+                document.getElementById('notes').value = '';
+            }
+        }
+
+        function showLabelingInterface() {
+            document.getElementById('audioPlayer').style.display = 'block';
+            document.getElementById('labelingSection').style.display = 'block';
+        }
+
+        function saveLabel() {
+            const selectedLabel = document.querySelector('.label-option.selected');
+            if (!selectedLabel) {
+                alert('소리 분류를 선택해주세요.');
+                return;
+            }
+
+            const file = uploadedFiles[currentFileIndex];
+            const label = selectedLabel.dataset.label;
+            const confidence = parseInt(document.getElementById('confidenceSlider').value);
+            const notes = document.getElementById('notes').value;
+
+            labelingData[file.name] = {
+                label: label,
+                confidence: confidence,
+                notes: notes,
+                timestamp: new Date().toISOString(),
+                fileSize: file.size,
+                fileType: file.type
+            };
+
+            updateFileList();
+            updateProgress();
+            
+            alert('라벨이 저장되었습니다!');
+        }
+
+        function skipFile() {
+            nextFile();
+        }
+
+        function nextFile() {
+            currentFileIndex++;
+            if (currentFileIndex < uploadedFiles.length) {
+                playCurrentFile();
+            } else {
+                alert('모든 파일의 라벨링이 완료되었습니다!');
+                document.getElementById('labelingSection').style.display = 'none';
+            }
+        }
+
+        function playFile(index) {
+            currentFileIndex = index;
+            playCurrentFile();
+            showLabelingInterface();
+        }
+
+        function editLabel(fileName) {
+            const fileIndex = uploadedFiles.findIndex(f => f.name === fileName);
+            if (fileIndex !== -1) {
+                playFile(fileIndex);
+            }
+        }
+
+        function updateProgress() {
+            const totalFiles = uploadedFiles.length;
+            const completedFiles = Object.keys(labelingData).length;
+            const progress = totalFiles > 0 ? (completedFiles / totalFiles) * 100 : 0;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('totalFiles').textContent = totalFiles;
+            document.getElementById('completedFiles').textContent = completedFiles;
+
+            // 라벨별 통계
+            const normalCount = Object.values(labelingData).filter(data => data.label.startsWith('normal')).length;
+            const abnormalCount = Object.values(labelingData).filter(data => data.label.startsWith('abnormal')).length;
+
+            document.getElementById('normalFiles').textContent = normalCount;
+            document.getElementById('abnormalFiles').textContent = abnormalCount;
+        }
+
+        async function exportData() {
+            if (Object.keys(labelingData).length === 0) {
+                alert('라벨링된 데이터가 없습니다.');
+                return;
+            }
+
+            // 고급 데이터 관리 시스템으로 전송
+            const sessionData = {
+                files: Object.entries(labelingData).map(([filename, data]) => ({
+                    filename: filename,
+                    label: data.label,
+                    confidence: data.confidence,
+                    notes: data.notes,
+                    timestamp: data.timestamp,
+                    features: extractFeaturesFromLabel(data.label) // 간단한 특징 추출
+                })),
+                duration: calculateSessionDuration(),
+                engineer_info: {
+                    name: prompt('엔지니어 이름을 입력하세요:', '김기술') || '김기술',
+                    experience_years: parseInt(prompt('경력을 입력하세요 (년):', '5')) || 5,
+                    specialization: prompt('전문 분야를 입력하세요:', '산업용 압축기') || '산업용 압축기',
+                    company: prompt('회사명을 입력하세요:', '스마트압축기') || '스마트압축기'
+                }
+            };
+
+            try {
+                // 서버로 데이터 전송
+                const response = await fetch('/api/save-labeling-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(sessionData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`라벨링 데이터가 저장되었습니다!\n파일: ${result.filename}`);
+                    
+                    // AI 훈련용 데이터도 자동 생성
+                    await generateAITrainingData();
+                } else {
+                    throw new Error('서버 저장 실패');
+                }
+            } catch (error) {
+                console.error('데이터 저장 오류:', error);
+                
+                // 로컬 백업 생성
+                const exportData = {
+                    metadata: {
+                        exportDate: new Date().toISOString(),
+                        totalFiles: uploadedFiles.length,
+                        labeledFiles: Object.keys(labelingData).length,
+                        toolVersion: '2.0.0',
+                        engineer_info: sessionData.engineer_info
+                    },
+                    session: sessionData,
+                    files: uploadedFiles.map(file => ({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        labeling: labelingData[file.name] || null
+                    })),
+                    statistics: {
+                        normal: Object.values(labelingData).filter(data => data.label.startsWith('normal')).length,
+                        abnormal: Object.values(labelingData).filter(data => data.label.startsWith('abnormal')).length,
+                        averageConfidence: Object.values(labelingData).reduce((sum, data) => sum + data.confidence, 0) / Object.keys(labelingData).length
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sound_labeling_data_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('로컬 백업 파일이 생성되었습니다.');
+            }
+        }
+
+        function extractFeaturesFromLabel(label) {
+            // 간단한 특징 추출 (실제로는 더 복잡한 특징 사용)
+            const features = {
+                is_normal: label.startsWith('normal'),
+                is_abnormal: label.startsWith('abnormal'),
+                category: label,
+                frequency_band: getFrequencyBand(label),
+                expected_amplitude: getExpectedAmplitude(label)
+            };
+            return features;
+        }
+
+        function getFrequencyBand(label) {
+            const bands = {
+                'normal_compressor': 'low',
+                'normal_fan': 'medium',
+                'normal_motor': 'low',
+                'abnormal_bearing': 'high',
+                'abnormal_unbalance': 'low',
+                'abnormal_friction': 'medium',
+                'abnormal_overload': 'all'
+            };
+            return bands[label] || 'unknown';
+        }
+
+        function getExpectedAmplitude(label) {
+            const amplitudes = {
+                'normal_compressor': 'low',
+                'normal_fan': 'medium',
+                'normal_motor': 'low',
+                'abnormal_bearing': 'high',
+                'abnormal_unbalance': 'medium',
+                'abnormal_friction': 'medium',
+                'abnormal_overload': 'very_high'
+            };
+            return amplitudes[label] || 'unknown';
+        }
+
+        function calculateSessionDuration() {
+            // 세션 시작 시간이 저장되어 있다면 계산
+            const startTime = localStorage.getItem('sessionStartTime');
+            if (startTime) {
+                return Math.floor((Date.now() - parseInt(startTime)) / 60000); // 분 단위
+            }
+            return 0;
+        }
+
+        async function generateAITrainingData() {
+            try {
+                const response = await fetch('/api/generate-ai-training-data', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`AI 훈련용 데이터가 생성되었습니다!\n파일: ${result.filename}`);
+                }
+            } catch (error) {
+                console.error('AI 훈련 데이터 생성 오류:', error);
+            }
+        }
+
+        function downloadReport() {
+            const report = generateReport();
+            const blob = new Blob([report], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sound_labeling_report_${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateReport() {
+            const totalFiles = uploadedFiles.length;
+            const labeledFiles = Object.keys(labelingData).length;
+            const normalCount = Object.values(labelingData).filter(data => data.label.startsWith('normal')).length;
+            const abnormalCount = Object.values(labelingData).filter(data => data.label.startsWith('abnormal')).length;
+            const averageConfidence = Object.values(labelingData).reduce((sum, data) => sum + data.confidence, 0) / labeledFiles;
+
+            return `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소리 데이터 라벨링 보고서</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-item { background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #667eea; }
+        .stat-label { color: #6c757d; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 소리 데이터 라벨링 보고서</h1>
+        <p>생성일: ${new Date().toLocaleDateString('ko-KR')}</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-number">${totalFiles}</div>
+            <div class="stat-label">전체 파일</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">${labeledFiles}</div>
+            <div class="stat-label">라벨링 완료</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">${normalCount}</div>
+            <div class="stat-label">정상</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">${abnormalCount}</div>
+            <div class="stat-label">이상</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">${averageConfidence.toFixed(1)}%</div>
+            <div class="stat-label">평균 신뢰도</div>
+        </div>
+    </div>
+
+    <h2>📋 라벨링 상세 내역</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>파일명</th>
+                <th>라벨</th>
+                <th>신뢰도</th>
+                <th>메모</th>
+                <th>라벨링 시간</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${Object.entries(labelingData).map(([fileName, data]) => `
+                <tr>
+                    <td>${fileName}</td>
+                    <td>${data.label}</td>
+                    <td>${data.confidence}%</td>
+                    <td>${data.notes || '-'}</td>
+                    <td>${new Date(data.timestamp).toLocaleString('ko-KR')}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+</body>
+</html>`;
+        }
+    </script>
+</body>
+</html>

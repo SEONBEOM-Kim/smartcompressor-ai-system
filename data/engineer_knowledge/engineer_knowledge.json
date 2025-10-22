@@ -1,0 +1,119 @@
+{
+  "engineer_info": {
+    "name": "김기술",
+    "experience_years": 5,
+    "specialization": "산업용 압축기",
+    "company": "스마트압축기",
+    "interview_date": "2025-09-27T12:50:41.531Z"
+  },
+  "sound_classification": {
+    "정상_압축기": {
+      "description": "일정한 저주파 소음, 안정적인 작동음",
+      "frequency_range": "20-200Hz",
+      "amplitude_range": "0.1-0.3",
+      "temporal_pattern": "일정한 리듬",
+      "stability": "높음",
+      "confidence": 0.9
+    },
+    "정상_팬": {
+      "description": "일정한 중주파 소음, 부드러운 회전음",
+      "frequency_range": "200-1000Hz",
+      "amplitude_range": "0.2-0.4",
+      "temporal_pattern": "일정한 리듬",
+      "stability": "높음",
+      "confidence": 0.9
+    },
+    "정상_모터": {
+      "description": "일정한 저주파 소음, 안정적인 구동음",
+      "frequency_range": "50-500Hz",
+      "amplitude_range": "0.15-0.35",
+      "temporal_pattern": "일정한 리듬",
+      "stability": "높음",
+      "confidence": 0.9
+    },
+    "베어링_마모": {
+      "description": "불규칙한 고주파 진동, 마찰음",
+      "frequency_range": "2000-8000Hz",
+      "amplitude_range": "0.6-1.0",
+      "temporal_pattern": "불규칙한 진동",
+      "stability": "낮음",
+      "confidence": 0.85
+    },
+    "언밸런스": {
+      "description": "주기적 진동, 불균형 소음",
+      "frequency_range": "50-500Hz",
+      "amplitude_range": "0.3-0.8",
+      "temporal_pattern": "주기적 진동",
+      "stability": "중간",
+      "confidence": 0.8
+    },
+    "마찰": {
+      "description": "불규칙한 중주파, 마찰음",
+      "frequency_range": "500-3000Hz",
+      "amplitude_range": "0.25-0.7",
+      "temporal_pattern": "불규칙한 패턴",
+      "stability": "낮음",
+      "confidence": 0.75
+    },
+    "과부하": {
+      "description": "매우 강한 소음, 불규칙한 노이즈",
+      "frequency_range": "20-8000Hz",
+      "amplitude_range": "0.5-1.0",
+      "temporal_pattern": "불규칙한 노이즈",
+      "stability": "매우 낮음",
+      "confidence": 0.9
+    }
+  },
+  "diagnostic_methods": {
+    "안정성_평가": {
+      "method": "RMS와 ZCR의 변동계수 계산",
+      "criteria": "시간에 따른 변화율",
+      "threshold": "0.8 이상이면 안정적",
+      "confidence": 0.9
+    },
+    "주파수_일관성": {
+      "method": "스펙트럼 센트로이드의 안정성",
+      "criteria": "시간에 따른 주파수 분포 변화",
+      "threshold": "0.7 이상이면 일관적",
+      "confidence": 0.8
+    },
+    "패턴_규칙성": {
+      "method": "자기상관 함수를 이용한 주기성",
+      "criteria": "주기적 패턴의 일관성",
+      "threshold": "0.7 이상이면 규칙적",
+      "confidence": 0.8
+    }
+  },
+  "experience_cases": [
+    {
+      "situation": "베어링 마모 초기 단계",
+      "symptoms": [
+        "고주파 진동",
+        "불규칙한 소음",
+        "진동 증가"
+      ],
+      "diagnosis": "베어링 마모",
+      "solution": "베어링 교체",
+      "prevention": "정기 윤활 및 모니터링",
+      "confidence": 0.9
+    },
+    {
+      "situation": "언밸런스로 인한 진동",
+      "symptoms": [
+        "주기적 진동",
+        "불균형 소음",
+        "진동 증가"
+      ],
+      "diagnosis": "언밸런스",
+      "solution": "밸런싱 작업",
+      "prevention": "정기 밸런싱 점검",
+      "confidence": 0.8
+    }
+  ],
+  "heuristic_knowledge": {
+    "abnormal_feeling": "소음이 갑자기 증가하면 이상 징후",
+    "quick_judgment": "RMS 변화율과 주파수 일관성 확인",
+    "noise_level": "정상: 0.1-0.4, 주의: 0.4-0.7, 위험: 0.7 이상",
+    "environment": "온도, 습도, 부하에 따라 임계값 조정 필요"
+  }
+}

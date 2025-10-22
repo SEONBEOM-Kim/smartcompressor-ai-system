@@ -1,0 +1,150 @@
+{
+  "if_then_rules": [
+    {
+      "rule_id": "R_001",
+      "description": "정상_압축기 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '20-200Hz'",
+        "amplitude_range == '0.1-0.3'",
+        "temporal_pattern == '일정한 리듬'",
+        "stability == '높음'"
+      ],
+      "then_action": "classify_as_정상_압축기",
+      "confidence": 0.9,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "R_002",
+      "description": "정상_팬 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '200-1000Hz'",
+        "amplitude_range == '0.2-0.4'",
+        "temporal_pattern == '일정한 리듬'",
+        "stability == '높음'"
+      ],
+      "then_action": "classify_as_정상_팬",
+      "confidence": 0.9,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "R_003",
+      "description": "정상_모터 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '50-500Hz'",
+        "amplitude_range == '0.15-0.35'",
+        "temporal_pattern == '일정한 리듬'",
+        "stability == '높음'"
+      ],
+      "then_action": "classify_as_정상_모터",
+      "confidence": 0.9,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "R_004",
+      "description": "베어링_마모 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '2000-8000Hz'",
+        "amplitude_range == '0.6-1.0'",
+        "temporal_pattern == '불규칙한 진동'",
+        "stability == '낮음'"
+      ],
+      "then_action": "classify_as_베어링_마모",
+      "confidence": 0.85,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "R_005",
+      "description": "언밸런스 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '50-500Hz'",
+        "amplitude_range == '0.3-0.8'",
+        "temporal_pattern == '주기적 진동'",
+        "stability == '중간'"
+      ],
+      "then_action": "classify_as_언밸런스",
+      "confidence": 0.8,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "R_006",
+      "description": "마찰 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '500-3000Hz'",
+        "amplitude_range == '0.25-0.7'",
+        "temporal_pattern == '불규칙한 패턴'",
+        "stability == '낮음'"
+      ],
+      "then_action": "classify_as_마찰",
+      "confidence": 0.75,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "R_007",
+      "description": "과부하 판단 규칙",
+      "if_conditions": [
+        "frequency_range == '20-8000Hz'",
+        "amplitude_range == '0.5-1.0'",
+        "temporal_pattern == '불규칙한 노이즈'",
+        "stability == '매우 낮음'"
+      ],
+      "then_action": "classify_as_과부하",
+      "confidence": 0.9,
+      "source": "engineer_experience"
+    }
+  ],
+  "fuzzy_rules": [
+    {
+      "rule_id": "F001",
+      "description": "소음 레벨 퍼지 판단",
+      "input_variables": {
+        "noise_level": {
+          "low": [
+            0,
+            0.3
+          ],
+          "medium": [
+            0.2,
+            0.7
+          ],
+          "high": [
+            0.6,
+            1
+          ]
+        }
+      },
+      "output_variable": "noise_severity",
+      "rules": [
+        "IF noise_level IS low THEN noise_severity IS normal",
+        "IF noise_level IS medium THEN noise_severity IS warning",
+        "IF noise_level IS high THEN noise_severity IS critical"
+      ]
+    }
+  ],
+  "threshold_rules": [
+    {
+      "rule_id": "T_001",
+      "description": "안정성_평가 임계값 규칙",
+      "method": "RMS와 ZCR의 변동계수 계산",
+      "threshold": "0.8 이상이면 안정적",
+      "confidence": 0.9,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "T_002",
+      "description": "주파수_일관성 임계값 규칙",
+      "method": "스펙트럼 센트로이드의 안정성",
+      "threshold": "0.7 이상이면 일관적",
+      "confidence": 0.8,
+      "source": "engineer_experience"
+    },
+    {
+      "rule_id": "T_003",
+      "description": "패턴_규칙성 임계값 규칙",
+      "method": "자기상관 함수를 이용한 주기성",
+      "threshold": "0.7 이상이면 규칙적",
+      "confidence": 0.8,
+      "source": "engineer_experience"
+    }
+  ],
+  "confidence_rules": []
+}

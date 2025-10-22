@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 고품질 압축기 소리 라벨링 도구</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .progress-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .sound-player {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .sound-info {
+            margin-bottom: 20px;
+        }
+
+        .sound-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .sound-details {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .audio-player {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .labeling-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .labeling-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .label-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .label-option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .label-option:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .label-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .label-option h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .label-option p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .confidence-slider {
+            margin: 20px 0;
+        }
+
+        .confidence-slider label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .confidence-slider input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .confidence-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .confidence-value {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .notes-section {
+            margin: 20px 0;
+        }
+
+        .notes-section textarea {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1em;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .badge-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-abnormal {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-labeled {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .quality-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .quality-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .label-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 고품질 압축기 소리 라벨링 도구</h1>
+            <p>실제 압축기와 유사한 고품질 합성음으로 정확한 분류를 수행하세요</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 라벨링 가이드 -->
+            <div class="instructions">
+                <h3>📋 고품질 압축기 소리 라벨링 가이드</h3>
+                <ol>
+                    <li><strong>고품질 합성음을 재생하여 들어보세요</strong> - 실제 압축기와 유사한 소리를 자세히 분석하세요</li>
+                    <li><strong>실제 압축기 경험을 바탕으로 분류하세요</strong> - 5년 경력으로 정상/이상을 정확하게 판단하세요</li>
+                    <li><strong>신뢰도 점수를 설정하세요</strong> - 얼마나 확신하는지 0-100%로 표시하세요</li>
+                    <li><strong>소리의 특징과 품질을 메모에 기록하세요</strong> - 소리의 특징, 환경 조건, 품질 등을 기록하세요</li>
+                </ol>
+            </div>
+
+            <!-- 진행 상황 -->
+            <div class="progress-section">
+                <h3>📊 라벨링 진행 상황</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalFiles">0</div>
+                        <div class="stat-label">전체 파일</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="labeledFiles">0</div>
+                        <div class="stat-label">라벨링 완료</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="normalFiles">0</div>
+                        <div class="stat-label">정상</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="abnormalFiles">0</div>
+                        <div class="stat-label">이상</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 로딩 상태 -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>고품질 합성음 데이터를 로드하는 중...</p>
+            </div>
+
+            <!-- 소리 플레이어 -->
+            <div class="sound-player" id="soundPlayer" style="display: none;">
+                <h3>🎧 고품질 소리 재생</h3>
+                <div class="sound-info">
+                    <div class="sound-name" id="currentFileName">파일명</div>
+                    <div class="sound-details" id="currentFileDetails">상세 정보</div>
+                </div>
+                <audio id="audioElement" class="audio-player" controls>
+                    <source src="" type="audio/wav">
+                </audio>
+                <div id="currentFileStatus"></div>
+            </div>
+
+            <!-- 라벨링 섹션 -->
+            <div class="labeling-section" id="labelingSection" style="display: none;">
+                <h3>🏷️ 소리 분류</h3>
+                <p>현재 재생 중인 고품질 합성음을 5년 경력을 바탕으로 분류해주세요</p>
+                
+                <div class="label-options">
+                    <div class="label-option" data-label="normal_compressor">
+                        <h4>✅ 정상 압축기</h4>
+                        <p>일정한 저주파 소음<br>안정적인 고조파</p>
+                    </div>
+                    <div class="label-option" data-label="normal_fan">
+                        <h4>✅ 정상 팬</h4>
+                        <p>부드러운 중주파 소음<br>일정한 회전음</p>
+                    </div>
+                    <div class="label-option" data-label="normal_motor">
+                        <h4>✅ 정상 모터</h4>
+                        <p>안정적인 저주파 소음<br>일정한 구동음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_bearing">
+                        <h4>⚠️ 베어링 마모</h4>
+                        <p>불규칙한 고주파 진동<br>마찰음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_unbalance">
+                        <h4>⚠️ 언밸런스</h4>
+                        <p>주기적 진동<br>불균형 소음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_friction">
+                        <h4>⚠️ 마찰</h4>
+                        <p>불규칙한 중주파<br>마찰음</p>
+                    </div>
+                    <div class="label-option" data-label="abnormal_overload">
+                        <h4>🚨 과부하</h4>
+                        <p>매우 강한 소음<br>불규칙한 노이즈</p>
+                    </div>
+                </div>
+
+                <div class="confidence-slider">
+                    <label for="confidenceSlider">신뢰도: <span id="confidenceValue">80</span>%</label>
+                    <input type="range" id="confidenceSlider" min="0" max="100" value="80">
+                </div>
+
+                <div class="notes-section">
+                    <label for="notes">📝 엔지니어 메모 (소리의 특징, 품질, 환경 조건, 특이사항 등)</label>
+                    <textarea id="notes" placeholder="예: 고품질 합성음으로 실제 압축기와 매우 유사함, 저주파 소음이 일정하게 들림, 진동이 거의 없음, 정상적인 압축기 작동음으로 판단됨..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveLabel()">💾 라벨 저장</button>
+                    <button class="btn btn-secondary" onclick="skipFile()">⏭️ 건너뛰기</button>
+                    <button class="btn btn-success" onclick="nextFile()">➡️ 다음 파일</button>
+                </div>
+            </div>
+
+            <!-- 완료 메시지 -->
+            <div id="completionMessage" style="display: none; text-align: center; padding: 40px;">
+                <h2>🎉 라벨링 완료!</h2>
+                <p>모든 고품질 합성음의 라벨링이 완료되었습니다.</p>
+                <button class="btn btn-primary" onclick="exportData()">📤 데이터 내보내기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let soundFiles = [];
+        let currentFileIndex = 0;
+        let labelingData = {};
+
+        // 페이지 로드 시 데이터 로드
+        window.addEventListener('load', loadSoundData);
+
+        async function loadSoundData() {
+            try {
+                const response = await fetch('/api/get-high-quality-sound-data');
+                if (response.ok) {
+                    const data = await response.json();
+                    soundFiles = data.high_quality_sounds || [];
+                } else {
+                    // 로컬 데이터 사용
+                    soundFiles = [
+                        {
+                            filename: 'normal_compressor_hq_1.wav',
+                            category: 'normal_compressor',
+                            category_name: '정상적인 압축기 작동음',
+                            type: 'high_quality_synthetic',
+                            size: 441000,
+                            duration: 5,
+                            quality: 'high',
+                            status: 'pending'
+                        },
+                        {
+                            filename: 'abnormal_bearing_hq_1.wav',
+                            category: 'abnormal_bearing',
+                            category_name: '베어링 마모로 인한 이상 소음',
+                            type: 'high_quality_synthetic',
+                            size: 441000,
+                            duration: 5,
+                            quality: 'high',
+                            status: 'pending'
+                        }
+                    ];
+                }
+                
+                displaySoundData();
+            } catch (error) {
+                console.error('데이터 로드 오류:', error);
+                displaySoundData();
+            }
+        }
+
+        function displaySoundData() {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('soundPlayer').style.display = 'block';
+            document.getElementById('labelingSection').style.display = 'block';
+
+            updateStats();
+            playCurrentFile();
+        }
+
+        function playCurrentFile() {
+            if (currentFileIndex >= soundFiles.length) {
+                showCompletionMessage();
+                return;
+            }
+
+            const file = soundFiles[currentFileIndex];
+            const audioElement = document.getElementById('audioElement');
+            
+            // 고품질 합성음 파일 재생
+            audioElement.src = `/api/high-quality-sound-file/${file.filename}`;
+            
+            document.getElementById('currentFileName').textContent = file.filename;
+            document.getElementById('currentFileDetails').innerHTML = `
+                <span class="category-badge ${file.category.startsWith('normal') ? 'badge-normal' : 'badge-abnormal'}">
+                    ${file.category_name}
+                </span>
+                <span class="quality-indicator quality-high">고품질</span>
+                크기: ${(file.size / 1024).toFixed(1)} KB | 길이: ${file.duration}초 | 샘플레이트: 44.1kHz
+            `;
+            
+            // 기존 라벨이 있으면 복원
+            if (labelingData[file.filename]) {
+                const data = labelingData[file.filename];
+                document.querySelector(`[data-label="${data.label}"]`).classList.add('selected');
+                document.getElementById('confidenceSlider').value = data.confidence;
+                document.getElementById('confidenceValue').textContent = data.confidence;
+                document.getElementById('notes').value = data.notes || '';
+            } else {
+                // 초기화
+                document.querySelectorAll('.label-option').forEach(opt => opt.classList.remove('selected'));
+                document.getElementById('confidenceSlider').value = 80;
+                document.getElementById('confidenceValue').textContent = 80;
+                document.getElementById('notes').value = '';
+            }
+        }
+
+        function saveLabel() {
+            const selectedLabel = document.querySelector('.label-option.selected');
+            if (!selectedLabel) {
+                alert('소리 분류를 선택해주세요.');
+                return;
+            }
+
+            const file = soundFiles[currentFileIndex];
+            const label = selectedLabel.dataset.label;
+            const confidence = parseInt(document.getElementById('confidenceSlider').value);
+            const notes = document.getElementById('notes').value;
+
+            labelingData[file.filename] = {
+                label: label,
+                confidence: confidence,
+                notes: notes,
+                timestamp: new Date().toISOString(),
+                engineer_name: '김기술', // 실제로는 입력받기
+                experience_years: 5,
+                quality: 'high_quality_synthetic'
+            };
+
+            // 파일 상태 업데이트
+            file.status = 'labeled';
+            file.engineer_label = label;
+            file.engineer_confidence = confidence;
+            file.engineer_notes = notes;
+            file.labeled_at = new Date().toISOString();
+
+            updateStats();
+            alert('라벨이 저장되었습니다!');
+        }
+
+        function skipFile() {
+            nextFile();
+        }
+
+        function nextFile() {
+            currentFileIndex++;
+            if (currentFileIndex < soundFiles.length) {
+                playCurrentFile();
+            } else {
+                showCompletionMessage();
+            }
+        }
+
+        function showCompletionMessage() {
+            document.getElementById('soundPlayer').style.display = 'none';
+            document.getElementById('labelingSection').style.display = 'none';
+            document.getElementById('completionMessage').style.display = 'block';
+        }
+
+        function updateStats() {
+            const totalFiles = soundFiles.length;
+            const labeledFiles = Object.keys(labelingData).length;
+            const progress = totalFiles > 0 ? (labeledFiles / totalFiles) * 100 : 0;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('totalFiles').textContent = totalFiles;
+            document.getElementById('labeledFiles').textContent = labeledFiles;
+
+            // 라벨별 통계
+            const normalCount = Object.values(labelingData).filter(data => data.label.startsWith('normal')).length;
+            const abnormalCount = Object.values(labelingData).filter(data => data.label.startsWith('abnormal')).length;
+
+            document.getElementById('normalFiles').textContent = normalCount;
+            document.getElementById('abnormalFiles').textContent = abnormalCount;
+        }
+
+        // 라벨 옵션 클릭 처리
+        document.querySelectorAll('.label-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.label-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // 신뢰도 슬라이더 처리
+        document.getElementById('confidenceSlider').addEventListener('input', function() {
+            document.getElementById('confidenceValue').textContent = this.value;
+        });
+
+        async function exportData() {
+            if (Object.keys(labelingData).length === 0) {
+                alert('라벨링된 데이터가 없습니다.');
+                return;
+            }
+
+            // 엔지니어 정보 수집
+            const engineerInfo = {
+                name: prompt('엔지니어 이름을 입력하세요:', '김기술') || '김기술',
+                experience_years: parseInt(prompt('경력을 입력하세요 (년):', '5')) || 5,
+                specialization: prompt('전문 분야를 입력하세요:', '산업용 압축기') || '산업용 압축기',
+                company: prompt('회사명을 입력하세요:', '스마트압축기') || '스마트압축기'
+            };
+
+            const exportData = {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    totalFiles: soundFiles.length,
+                    labeledFiles: Object.keys(labelingData).length,
+                    toolVersion: '3.0.0',
+                    quality: 'high_quality_synthetic',
+                    engineer_info: engineerInfo
+                },
+                files: soundFiles.map(file => ({
+                    filename: file.filename,
+                    category: file.category,
+                    category_name: file.category_name,
+                    size: file.size,
+                    duration: file.duration,
+                    quality: file.quality,
+                    labeling: labelingData[file.filename] || null
+                })),
+                statistics: {
+                    normal: Object.values(labelingData).filter(data => data.label.startsWith('normal')).length,
+                    abnormal: Object.values(labelingData).filter(data => data.label.startsWith('abnormal')).length,
+                    averageConfidence: Object.values(labelingData).reduce((sum, data) => sum + data.confidence, 0) / Object.keys(labelingData).length
+                }
+            };
+
+            // 서버로 전송
+            try {
+                const response = await fetch('/api/save-high-quality-labeling', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(exportData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`고품질 라벨링 데이터가 저장되었습니다!\n파일: ${result.filename}`);
+                } else {
+                    throw new Error('서버 저장 실패');
+                }
+            } catch (error) {
+                console.error('데이터 저장 오류:', error);
+                
+                // 로컬 백업 생성
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `high_quality_labeling_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('로컬 백업 파일이 생성되었습니다.');
+            }
+        }
+    </script>
+</body>
+</html>

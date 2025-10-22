@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지능형 AI 데이터 라벨링 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E86AB 0%, #A23B72 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #2E86AB;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2E86AB;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 25px;
+        }
+
+        .section h2 {
+            color: #2E86AB;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .file-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: #f0f4ff;
+        }
+
+        .file-item.selected {
+            background: #e8f4f8;
+            border-left: 4px solid #2E86AB;
+        }
+
+        .file-item.processed {
+            opacity: 0.6;
+            background: #f5f5f5;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .file-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-ready {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .ai-suggestion {
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
+            border: 2px solid #2E86AB;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ai-suggestion h3 {
+            color: #2E86AB;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestion-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2E86AB;
+        }
+
+        .suggestion-item h4 {
+            color: #2E86AB;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .confidence-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #2E86AB 0%, #A23B72 100%);
+            transition: width 0.3s ease;
+        }
+
+        .uncertainty-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .uncertainty-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .uncertainty-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .uncertainty-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .reasoning-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin-top: 15px;
+        }
+
+        .reasoning-box h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .reasoning-text {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .audio-player {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .audio-player h3 {
+            color: #2E86AB;
+            margin-bottom: 15px;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #2E86AB 0%, #A23B72 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .play-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #2E86AB 0%, #A23B72 100%);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .time-display {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .labeling-form {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .label-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .label-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .label-btn:hover {
+            border-color: #2E86AB;
+            background: #f0f4ff;
+        }
+
+        .label-btn.selected {
+            border-color: #2E86AB;
+            background: #e8f4f8;
+            color: #2E86AB;
+        }
+
+        .label-btn.ai-suggested {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .label-btn.ai-suggested::after {
+            content: "🤖 AI 제안";
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #28a745;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .label-btn.normal {
+            border-color: #28a745;
+        }
+
+        .label-btn.normal.selected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .label-btn.warning {
+            border-color: #ffc107;
+        }
+
+        .label-btn.warning.selected {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .label-btn.critical {
+            border-color: #dc3545;
+        }
+
+        .label-btn.critical.selected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .label-btn.unknown {
+            border-color: #6c757d;
+        }
+
+        .label-btn.unknown.selected {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .confidence-slider {
+            margin: 15px 0;
+        }
+
+        .confidence-value {
+            text-align: center;
+            font-weight: bold;
+            color: #2E86AB;
+            margin-top: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2E86AB 0%, #A23B72 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-accept-ai {
+            background: #28a745;
+        }
+
+        .no-files {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            color: #2E86AB;
+            padding: 20px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .indicator-ready { background: #ffc107; }
+        .indicator-processed { background: #28a745; }
+        .indicator-pending { background: #dc3545; }
+
+        .ai-accuracy {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2E86AB;
+        }
+
+        .ai-accuracy h4 {
+            color: #2E86AB;
+            margin-bottom: 10px;
+        }
+
+        .accuracy-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .accuracy-item {
+            text-align: center;
+        }
+
+        .accuracy-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2E86AB;
+        }
+
+        .accuracy-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .label-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .suggestion-content {
+                grid-template-columns: 1fr;
+            }
+
+            .accuracy-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 지능형 AI 데이터 라벨링 시스템</h1>
+            <p>AI가 라벨을 제안하고 전문가가 검증하는 시스템</p>
+        </div>
+
+        <div class="content">
+            <!-- 통계 바 -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalFiles">0</div>
+                    <div class="stat-label">전체 파일</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="readyFiles">0</div>
+                    <div class="stat-label">라벨링 대기</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="processedFiles">0</div>
+                    <div class="stat-label">라벨링 완료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="aiAccuracy">0%</div>
+                    <div class="stat-label">AI 정확도</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <!-- 파일 목록 -->
+                <div class="section">
+                    <h2>📁 라벨링 파일 목록</h2>
+                    <div class="file-list" id="fileList">
+                        <div class="loading">파일 목록을 불러오는 중...</div>
+                    </div>
+                </div>
+
+                <!-- 라벨링 인터페이스 -->
+                <div class="section">
+                    <h2>🎵 지능형 오디오 라벨링</h2>
+                    
+                    <!-- AI 정확도 표시 -->
+                    <div class="ai-accuracy" id="aiAccuracyBox" style="display: none;">
+                        <h4>🤖 AI 성능 지표</h4>
+                        <div class="accuracy-stats">
+                            <div class="accuracy-item">
+                                <div class="accuracy-value" id="agreementRate">0%</div>
+                                <div class="accuracy-label">일치율</div>
+                            </div>
+                            <div class="accuracy-item">
+                                <div class="accuracy-value" id="avgConfidence">0%</div>
+                                <div class="accuracy-label">평균 신뢰도</div>
+                            </div>
+                            <div class="accuracy-item">
+                                <div class="accuracy-value" id="totalDecisions">0</div>
+                                <div class="accuracy-label">총 결정 수</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI 제안 -->
+                    <div class="ai-suggestion" id="aiSuggestion" style="display: none;">
+                        <h3>🤖 AI 라벨 제안</h3>
+                        <div class="suggestion-content">
+                            <div class="suggestion-item">
+                                <h4>제안 라벨</h4>
+                                <div class="value" id="suggestedLabel">-</div>
+                            </div>
+                            <div class="suggestion-item">
+                                <h4>신뢰도</h4>
+                                <div class="value" id="suggestedConfidence">-</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" id="confidenceBar"></div>
+                                </div>
+                            </div>
+                            <div class="suggestion-item">
+                                <h4>불확실성</h4>
+                                <div class="value" id="uncertainty">-</div>
+                                <div class="uncertainty-indicator" id="uncertaintyIndicator">-</div>
+                            </div>
+                            <div class="suggestion-item">
+                                <h4>제안 타입</h4>
+                                <div class="value" id="suggestionType">-</div>
+                            </div>
+                        </div>
+                        <div class="reasoning-box">
+                            <h4>🧠 AI 추론 과정</h4>
+                            <div class="reasoning-text" id="reasoningText">-</div>
+                        </div>
+                    </div>
+
+                    <!-- 오디오 플레이어 -->
+                    <div class="audio-player" id="audioPlayer" style="display: none;">
+                        <h3 id="currentFileName">파일을 선택하세요</h3>
+                        <div class="audio-controls">
+                            <button class="play-btn" id="playBtn" onclick="togglePlay()">▶️ 재생</button>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
+                        </div>
+                        <audio id="audioElement" preload="metadata"></audio>
+                    </div>
+
+                    <!-- 라벨링 폼 -->
+                    <div class="labeling-form" id="labelingForm" style="display: none;">
+                        <div class="form-group">
+                            <label>라벨 선택</label>
+                            <div class="label-buttons">
+                                <button class="label-btn normal" data-label="normal" onclick="selectLabel('normal')">
+                                    ✅ 정상
+                                </button>
+                                <button class="label-btn warning" data-label="warning" onclick="selectLabel('warning')">
+                                    ⚠️ 경고
+                                </button>
+                                <button class="label-btn critical" data-label="critical" onclick="selectLabel('critical')">
+                                    🚨 위험
+                                </button>
+                                <button class="label-btn unknown" data-label="unknown" onclick="selectLabel('unknown')">
+                                    ❓ 미분류
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>신뢰도: <span id="confidenceValue">50</span>%</label>
+                            <input type="range" id="confidenceSlider" min="0" max="100" value="50" 
+                                   class="confidence-slider" oninput="updateConfidence(this.value)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>메모 (선택사항)</label>
+                            <textarea id="notesInput" placeholder="특이사항이나 추가 정보를 입력하세요..."></textarea>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-accept-ai" onclick="acceptAISuggestion()" id="acceptAIBtn" style="display: none;">
+                                🤖 AI 제안 수락
+                            </button>
+                            <button class="btn btn-secondary" onclick="skipFile()">건너뛰기</button>
+                            <button class="btn" onclick="saveLabel()" id="saveBtn">라벨 저장</button>
+                        </div>
+                    </div>
+
+                    <div id="noFileSelected" class="no-files">
+                        라벨링할 파일을 선택하세요
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let currentFile = null;
+        let currentAudio = null;
+        let isPlaying = false;
+        let selectedLabel = null;
+        let labelingData = [];
+        let aiSuggestion = null;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLabelingData();
+            loadStats();
+            loadAIPerformance();
+            
+            // 30초마다 데이터 새로고침
+            setInterval(() => {
+                loadLabelingData();
+                loadStats();
+                loadAIPerformance();
+            }, 30000);
+        });
+
+        // 라벨링 데이터 로드
+        async function loadLabelingData() {
+            try {
+                const response = await fetch('/api/labeling/data');
+                const result = await response.json();
+
+                if (result.success) {
+                    labelingData = result.data || [];
+                    displayFileList();
+                }
+            } catch (error) {
+                console.error('라벨링 데이터 로드 실패:', error);
+            }
+        }
+
+        // 통계 로드
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/labeling/stats');
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.stats;
+                    document.getElementById('totalFiles').textContent = stats.total;
+                    document.getElementById('readyFiles').textContent = stats.ready;
+                    document.getElementById('processedFiles').textContent = stats.labeled;
+                    
+                    const progress = stats.total > 0 ? Math.round((stats.labeled / stats.total) * 100) : 0;
+                    document.getElementById('aiAccuracy').textContent = progress + '%';
+                }
+            } catch (error) {
+                console.error('통계 로드 실패:', error);
+            }
+        }
+
+        // AI 성능 로드
+        async function loadAIPerformance() {
+            try {
+                const response = await fetch('/api/labeling/ai-performance');
+                const result = await response.json();
+
+                if (result.success) {
+                    const performance = result.performance;
+                    document.getElementById('agreementRate').textContent = Math.round(performance.agreement_rate * 100) + '%';
+                    document.getElementById('avgConfidence').textContent = Math.round(performance.average_confidence * 100) + '%';
+                    document.getElementById('totalDecisions').textContent = performance.total_decisions;
+                    
+                    document.getElementById('aiAccuracyBox').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('AI 성능 로드 실패:', error);
+            }
+        }
+
+        // 파일 목록 표시
+        function displayFileList() {
+            const container = document.getElementById('fileList');
+            
+            if (labelingData.length === 0) {
+                container.innerHTML = '<div class="no-files">라벨링할 파일이 없습니다.<br>데이터 업로드 페이지에서 증강을 실행하세요.</div>';
+                return;
+            }
+
+            // 상태별로 정렬 (미처리 우선)
+            const sortedData = labelingData.sort((a, b) => {
+                if (a.status === 'ready_for_labeling' && b.status !== 'ready_for_labeling') return -1;
+                if (a.status !== 'ready_for_labeling' && b.status === 'ready_for_labeling') return 1;
+                return new Date(b.createdTime || b.timestamp) - new Date(a.createdTime || a.timestamp);
+            });
+
+            container.innerHTML = sortedData.map(item => {
+                const statusClass = item.status === 'labeled' ? 'processed' : 'ready';
+                const statusText = item.status === 'labeled' ? '완료' : '대기';
+                const statusIndicator = item.status === 'labeled' ? 'indicator-processed' : 'indicator-ready';
+                
+                return `
+                    <div class="file-item ${statusClass} ${currentFile && currentFile.id === item.id ? 'selected' : ''}" 
+                         onclick="selectFile(${item.id})">
+                        <div class="file-info">
+                            <div class="file-name">${item.fileName}</div>
+                            <div class="file-meta">
+                                <span class="status-indicator ${statusIndicator}"></span>
+                                ${statusText} • 
+                                ${formatFileSize(item.fileSize)} • 
+                                ${formatDate(item.createdTime || item.timestamp)}
+                                ${item.label ? `• 라벨: ${item.label}` : ''}
+                            </div>
+                        </div>
+                        <div class="file-status status-${statusClass}">${statusText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 파일 선택
+        async function selectFile(fileId) {
+            const file = labelingData.find(item => item.id === fileId);
+            if (!file) return;
+
+            currentFile = file;
+            displayFileList(); // 선택 상태 업데이트
+
+            // 오디오 플레이어 표시
+            document.getElementById('audioPlayer').style.display = 'block';
+            document.getElementById('labelingForm').style.display = 'block';
+            document.getElementById('noFileSelected').style.display = 'none';
+
+            // 파일 정보 업데이트
+            document.getElementById('currentFileName').textContent = file.fileName;
+            
+            // 오디오 설정
+            const audioElement = document.getElementById('audioElement');
+            audioElement.src = `/api/audio/${encodeURIComponent(file.fileName)}`;
+            
+            // AI 제안 요청
+            await requestAISuggestion(file.fileName);
+            
+            // 기존 라벨 정보 표시
+            if (file.label) {
+                selectLabel(file.label);
+                document.getElementById('confidenceSlider').value = file.confidence || 50;
+                updateConfidence(file.confidence || 50);
+                document.getElementById('notesInput').value = file.notes || '';
+            } else {
+                // 초기화
+                document.querySelectorAll('.label-btn').forEach(btn => btn.classList.remove('selected'));
+                selectedLabel = null;
+                document.getElementById('confidenceSlider').value = 50;
+                updateConfidence(50);
+                document.getElementById('notesInput').value = '';
+            }
+        }
+
+        // AI 제안 요청
+        async function requestAISuggestion(fileName) {
+            try {
+                const response = await fetch('/api/labeling/ai-suggestion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fileName: fileName
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    aiSuggestion = result.suggestion;
+                    displayAISuggestion(aiSuggestion);
+                } else {
+                    console.error('AI 제안 요청 실패:', result.message);
+                }
+            } catch (error) {
+                console.error('AI 제안 요청 오류:', error);
+            }
+        }
+
+        // AI 제안 표시
+        function displayAISuggestion(suggestion) {
+            document.getElementById('aiSuggestion').style.display = 'block';
+            
+            // 제안 정보 표시
+            document.getElementById('suggestedLabel').textContent = suggestion.suggested_label;
+            document.getElementById('suggestedConfidence').textContent = Math.round(suggestion.confidence * 100) + '%';
+            document.getElementById('uncertainty').textContent = Math.round(suggestion.uncertainty * 100) + '%';
+            document.getElementById('suggestionType').textContent = suggestion.suggestion_type;
+            document.getElementById('reasoningText').textContent = suggestion.reasoning;
+            
+            // 신뢰도 바 업데이트
+            const confidenceBar = document.getElementById('confidenceBar');
+            confidenceBar.style.width = (suggestion.confidence * 100) + '%';
+            
+            // 불확실성 표시기 업데이트
+            const uncertaintyIndicator = document.getElementById('uncertaintyIndicator');
+            if (suggestion.uncertainty < 0.3) {
+                uncertaintyIndicator.className = 'uncertainty-indicator uncertainty-low';
+                uncertaintyIndicator.textContent = '낮음';
+            } else if (suggestion.uncertainty < 0.7) {
+                uncertaintyIndicator.className = 'uncertainty-indicator uncertainty-medium';
+                uncertaintyIndicator.textContent = '보통';
+            } else {
+                uncertaintyIndicator.className = 'uncertainty-indicator uncertainty-high';
+                uncertaintyIndicator.textContent = '높음';
+            }
+            
+            // AI 제안 수락 버튼 표시
+            if (suggestion.requires_human_review) {
+                document.getElementById('acceptAIBtn').style.display = 'none';
+            } else {
+                document.getElementById('acceptAIBtn').style.display = 'block';
+            }
+        }
+
+        // AI 제안 수락
+        function acceptAISuggestion() {
+            if (!aiSuggestion) return;
+            
+            // AI 제안을 기반으로 라벨 설정
+            const suggestedLabel = aiSuggestion.suggested_label;
+            const suggestedConfidence = Math.round(aiSuggestion.confidence * 100);
+            
+            // 라벨 매핑
+            const labelMapping = {
+                'normal_compressor': 'normal',
+                'normal_fan': 'normal',
+                'normal_motor': 'normal',
+                'abnormal_bearing': 'critical',
+                'abnormal_unbalance': 'warning',
+                'abnormal_friction': 'warning',
+                'abnormal_overload': 'critical'
+            };
+            
+            const mappedLabel = labelMapping[suggestedLabel] || 'unknown';
+            
+            // 라벨 선택
+            selectLabel(mappedLabel);
+            
+            // 신뢰도 설정
+            document.getElementById('confidenceSlider').value = suggestedConfidence;
+            updateConfidence(suggestedConfidence);
+            
+            // AI 제안 수락 표시
+            const selectedBtn = document.querySelector(`[data-label="${mappedLabel}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('ai-suggested');
+            }
+            
+            alert('AI 제안이 수락되었습니다. 필요시 수정 후 저장하세요.');
+        }
+
+        // 라벨 선택
+        function selectLabel(label) {
+            selectedLabel = label;
+            document.querySelectorAll('.label-btn').forEach(btn => {
+                btn.classList.remove('selected', 'ai-suggested');
+                if (btn.dataset.label === label) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        // 신뢰도 업데이트
+        function updateConfidence(value) {
+            document.getElementById('confidenceValue').textContent = value;
+        }
+
+        // 오디오 재생/일시정지
+        function togglePlay() {
+            const audio = document.getElementById('audioElement');
+            const playBtn = document.getElementById('playBtn');
+            
+            if (isPlaying) {
+                audio.pause();
+                playBtn.textContent = '▶️ 재생';
+                isPlaying = false;
+            } else {
+                audio.play();
+                playBtn.textContent = '⏸️ 일시정지';
+                isPlaying = true;
+            }
+        }
+
+        // 오디오 진행률 업데이트
+        document.getElementById('audioElement').addEventListener('timeupdate', function() {
+            const audio = this;
+            const progress = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            const currentTime = formatTime(audio.currentTime);
+            const duration = formatTime(audio.duration);
+            document.getElementById('timeDisplay').textContent = `${currentTime} / ${duration}`;
+        });
+
+        // 오디오 종료 시
+        document.getElementById('audioElement').addEventListener('ended', function() {
+            document.getElementById('playBtn').textContent = '▶️ 재생';
+            isPlaying = false;
+        });
+
+        // 오디오 오류 처리
+        document.getElementById('audioElement').addEventListener('error', function(e) {
+            console.error('오디오 재생 오류:', e);
+            document.getElementById('playBtn').textContent = '❌ 재생 불가';
+            document.getElementById('playBtn').disabled = true;
+            alert('오디오 파일을 재생할 수 없습니다. 파일이 손상되었거나 지원되지 않는 형식일 수 있습니다.');
+        });
+
+        // 오디오 로드 완료 시
+        document.getElementById('audioElement').addEventListener('loadeddata', function() {
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('playBtn').textContent = '▶️ 재생';
+        });
+
+        // 라벨 저장
+        async function saveLabel() {
+            if (!currentFile || !selectedLabel) {
+                alert('라벨을 선택해주세요.');
+                return;
+            }
+
+            const confidence = parseInt(document.getElementById('confidenceSlider').value);
+            const notes = document.getElementById('notesInput').value;
+
+            try {
+                const response = await fetch('/api/labeling/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fileName: currentFile.fileName,
+                        label: selectedLabel,
+                        confidence: confidence,
+                        notes: notes,
+                        labelerId: 'user_' + Date.now(),
+                        aiSuggestion: aiSuggestion
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 로컬 데이터 업데이트
+                    const index = labelingData.findIndex(item => item.id === currentFile.id);
+                    if (index >= 0) {
+                        labelingData[index] = { ...labelingData[index], ...result.data };
+                    }
+                    
+                    displayFileList();
+                    loadStats();
+                    loadAIPerformance();
+                    
+                    alert('라벨이 저장되었습니다.');
+                    
+                    // 다음 파일으로 자동 이동
+                    const nextFile = labelingData.find(item => item.status === 'ready_for_labeling');
+                    if (nextFile) {
+                        selectFile(nextFile.id);
+                    }
+                } else {
+                    alert('저장 실패: ' + result.message);
+                }
+            } catch (error) {
+                console.error('저장 오류:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 파일 건너뛰기
+        function skipFile() {
+            if (currentFile) {
+                const nextFile = labelingData.find(item => 
+                    item.id !== currentFile.id && item.status === 'ready_for_labeling'
+                );
+                if (nextFile) {
+                    selectFile(nextFile.id);
+                } else {
+                    alert('더 이상 라벨링할 파일이 없습니다.');
+                }
+            }
+        }
+
+        // 유틸리티 함수들
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('ko-KR');
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

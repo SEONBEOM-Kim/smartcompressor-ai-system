@@ -1,0 +1,752 @@
+{
+  "synthetic_sounds": [
+    {
+      "filename": "normal_compressor_synthetic_6.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_2.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_10.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_1.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_5.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_4.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_3.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_7.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_9.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_synthetic_8.wav",
+      "category": "normal_compressor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_compressor\\normal_compressor_synthetic_8.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_2.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_1.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_9.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_8.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_8.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_3.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_5.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_10.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_4.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_7.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_synthetic_6.wav",
+      "category": "normal_fan",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_fan\\normal_fan_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_9.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_7.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_6.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_8.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_8.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_3.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_10.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_1.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_4.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_5.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_synthetic_2.wav",
+      "category": "normal_motor",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\normal_motor\\normal_motor_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_2.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_9.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_4.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_7.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_5.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_10.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_3.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_8.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_8.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_1.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_synthetic_6.wav",
+      "category": "abnormal_bearing",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_bearing\\abnormal_bearing_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_7.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_2.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_10.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_6.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_8.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_8.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_5.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_9.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_1.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_4.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_synthetic_3.wav",
+      "category": "abnormal_unbalance",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_unbalance\\abnormal_unbalance_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_7.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_5.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_10.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_2.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_8.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_8.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_9.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_4.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_1.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_6.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_synthetic_3.wav",
+      "category": "abnormal_friction",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_friction\\abnormal_friction_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_9.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_9.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_10.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_10.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_3.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_5.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_6.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_6.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_2.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_7.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_7.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_1.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_4.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_synthetic_8.wav",
+      "category": "abnormal_overload",
+      "type": "synthetic",
+      "path": "data\\synthetic_sounds\\abnormal_overload\\abnormal_overload_synthetic_8.wav",
+      "size": 220544
+    }
+  ],
+  "downloaded_sounds": [
+    {
+      "filename": "normal_compressor_downloaded_1.wav",
+      "category": "normal_compressor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_compressor\\normal_compressor_downloaded_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_downloaded_3.wav",
+      "category": "normal_compressor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_compressor\\normal_compressor_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_downloaded_2.wav",
+      "category": "normal_compressor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_compressor\\normal_compressor_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_downloaded_4.wav",
+      "category": "normal_compressor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_compressor\\normal_compressor_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_compressor_downloaded_5.wav",
+      "category": "normal_compressor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_compressor\\normal_compressor_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_downloaded_3.wav",
+      "category": "normal_fan",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_fan\\normal_fan_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_downloaded_2.wav",
+      "category": "normal_fan",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_fan\\normal_fan_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_downloaded_4.wav",
+      "category": "normal_fan",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_fan\\normal_fan_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_downloaded_5.wav",
+      "category": "normal_fan",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_fan\\normal_fan_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_fan_downloaded_1.wav",
+      "category": "normal_fan",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_fan\\normal_fan_downloaded_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_downloaded_2.wav",
+      "category": "normal_motor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_motor\\normal_motor_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_downloaded_3.wav",
+      "category": "normal_motor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_motor\\normal_motor_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_downloaded_5.wav",
+      "category": "normal_motor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_motor\\normal_motor_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_downloaded_1.wav",
+      "category": "normal_motor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_motor\\normal_motor_downloaded_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "normal_motor_downloaded_4.wav",
+      "category": "normal_motor",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\normal_motor\\normal_motor_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_downloaded_1.wav",
+      "category": "abnormal_bearing",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_bearing\\abnormal_bearing_downloaded_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_downloaded_5.wav",
+      "category": "abnormal_bearing",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_bearing\\abnormal_bearing_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_downloaded_3.wav",
+      "category": "abnormal_bearing",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_bearing\\abnormal_bearing_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_downloaded_2.wav",
+      "category": "abnormal_bearing",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_bearing\\abnormal_bearing_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_bearing_downloaded_4.wav",
+      "category": "abnormal_bearing",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_bearing\\abnormal_bearing_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_downloaded_4.wav",
+      "category": "abnormal_unbalance",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_unbalance\\abnormal_unbalance_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_downloaded_3.wav",
+      "category": "abnormal_unbalance",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_unbalance\\abnormal_unbalance_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_downloaded_1.wav",
+      "category": "abnormal_unbalance",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_unbalance\\abnormal_unbalance_downloaded_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_downloaded_5.wav",
+      "category": "abnormal_unbalance",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_unbalance\\abnormal_unbalance_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_unbalance_downloaded_2.wav",
+      "category": "abnormal_unbalance",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_unbalance\\abnormal_unbalance_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_downloaded_1.wav",
+      "category": "abnormal_friction",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_friction\\abnormal_friction_downloaded_1.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_downloaded_2.wav",
+      "category": "abnormal_friction",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_friction\\abnormal_friction_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_downloaded_5.wav",
+      "category": "abnormal_friction",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_friction\\abnormal_friction_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_downloaded_4.wav",
+      "category": "abnormal_friction",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_friction\\abnormal_friction_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_friction_downloaded_3.wav",
+      "category": "abnormal_friction",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_friction\\abnormal_friction_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_downloaded_4.wav",
+      "category": "abnormal_overload",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_overload\\abnormal_overload_downloaded_4.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_downloaded_2.wav",
+      "category": "abnormal_overload",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_overload\\abnormal_overload_downloaded_2.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_downloaded_5.wav",
+      "category": "abnormal_overload",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_overload\\abnormal_overload_downloaded_5.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_downloaded_3.wav",
+      "category": "abnormal_overload",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_overload\\abnormal_overload_downloaded_3.wav",
+      "size": 220544
+    },
+    {
+      "filename": "abnormal_overload_downloaded_1.wav",
+      "category": "abnormal_overload",
+      "type": "downloaded",
+      "path": "data\\downloaded_sounds\\abnormal_overload\\abnormal_overload_downloaded_1.wav",
+      "size": 220544
+    }
+  ],
+  "total_files": 105,
+  "categories": [
+    "normal_compressor",
+    "normal_fan",
+    "normal_motor",
+    "abnormal_bearing",
+    "abnormal_unbalance",
+    "abnormal_friction",
+    "abnormal_overload"
+  ],
+  "created_at": "2025-09-27T13:09:24.195Z"
+}

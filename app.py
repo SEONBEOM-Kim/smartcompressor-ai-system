@@ -111,33 +111,40 @@ def create_app():
     app.register_blueprint(analytics_bp)
     
     # IoT 센서 서비스 초기화
-    sensor_monitoring_service.start_monitoring()
+sensor_monitoring_service.start_monitoring()
     
     # API 라우트 추가 (프론트엔드 호환성)
-    @app.route('/api/auth/login', methods=['POST'])
-    def api_login():
-        from routes.auth_routes import login
-        return login()
+@app.route('/api/auth/login', methods=['POST'])
+def api_login():
+    from routes.auth_routes import login
+    return login()
     
-    @app.route('/api/auth/register', methods=['POST'])
-    def api_register():
-        from routes.auth_routes import register
-        return register()
+@app.route('/api/auth/register', methods=['POST'])
+def api_register():
+    from routes.auth_routes import register
+    return register()
     
-    @app.route('/api/auth/logout', methods=['POST'])
-    def api_logout():
-        from routes.auth_routes import logout
-        return logout()
+@app.route('/api/auth/logout', methods=['POST'])
+def api_logout():
+    from routes.auth_routes import logout
+    return logout()
     
-    @app.route('/api/auth/verify', methods=['GET'])
-    def api_verify():
-        from routes.auth_routes import auth_status
-        return auth_status()
+@app.route('/api/auth/verify', methods=['GET'])
+def api_verify():
+    from routes.auth_routes import auth_status
+    return auth_status()
     
-    @app.route('/api/lightweight-analyze', methods=['POST'])
-    def api_lightweight_analyze():
-        from routes.ai_routes import lightweight_analyze
-        return lightweight_analyze()
+customer-dashboard
+@app.route('/api/lightweight-analyze', methods=['POST'])
+def api_lightweight_analyze():
+    from routes.ai_routes import lightweight_analyze
+    return lightweight_analyze()
+
+@app.route('/dashboard')
+def dashboard():
+    """대시보드 페이지"""
+    from flask import render_template
+    return render_template('dashboard.html')
 
     @app.route('/mobile_app')
     def mobile_app():
@@ -175,27 +182,26 @@ def create_app():
         from flask import render_template
         return render_template('admin_dashboard.html')
 
-    return app
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+@app.route('/admin')
+def admin_dashboard():
+    """관리자 대시보드 페이지"""
+    from flask import render_template
+    return render_template('admin_dashboard.html')
 
 if __name__ == '__main__':
     import os
-
+    
     app = create_app()
-    @app.after_request
-    def after_request(response):
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return response
-
+    
     port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-
-    @app.route('/admin')
-    def admin_dashboard():
-        """관리자 대시보드 페이지"""
-        from flask import render_template
-        return render_template('admin_dashboard.html')
 
     print("=== 🚀 모듈화된 Flask 서버 시작 ===")
     print(f"포트: {port}, 디버그: {debug}")

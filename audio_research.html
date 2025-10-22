@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 오디오 데이터 연구 시스템</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/waveform-data@4.3.0/dist/waveform-data.min.js"></script>
+    <style>
+        .audio-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .audio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .waveform-container {
+            height: 100px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .file-info {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .analysis-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .status-normal { color: #28a745; }
+        .status-warning { color: #ffc107; }
+        .status-danger { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                            <i class="fas fa-microphone"></i> ESP32 오디오 연구 시스템
+                        </a>
+                        <button class="btn btn-outline-light" onclick="loadData()">
+                            <i class="fas fa-sync-alt"></i> 새로고침
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 센서 데이터 목록 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-microphone"></i> 최근 센서 데이터</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 센서 선택 및 데이터 제어 -->
+                        <div class="mb-3">
+                            <label for="sensorSelect" class="form-label">센서 선택:</label>
+                            <select id="sensorSelect" class="form-select" onchange="loadData()">
+                                <option value="">전체 센서</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dataLimit" class="form-label">데이터 개수:</label>
+                            <select id="dataLimit" class="form-select" onchange="loadData()">
+                                <option value="50">50개</option>
+                                <option value="100" selected>100개</option>
+                                <option value="200">200개</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="timeRange" class="form-label">시간 범위:</label>
+                            <select id="timeRange" class="form-select" onchange="loadData()">
+                                <option value="6">최근 6시간</option>
+                                <option value="12">최근 12시간</option>
+                                <option value="24" selected>최근 24시간</option>
+                                <option value="72">최근 3일</option>
+                            </select>
+                        </div>
+                        <div id="dataContainer" class="list-group">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">로딩 중...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 센서 데이터 분석 -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-play-circle"></i> 오디오 분석</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="noDataSelected" class="text-center text-muted">
+                            <i class="fas fa-microphone fa-3x mb-3"></i>
+                            <p>분석할 센서 데이터를 선택하세요</p>
+                        </div>
+                        
+                        <div id="selectedData" style="display: none;">
+                            <!-- 선택된 데이터의 상세 분석이 여기에 표시됩니다 -->
+                        </div>
+                        
+                        <div id="audioPlayer" style="display: none;">
+                            <div class="mb-3">
+                                <audio id="audioElement" controls class="w-100">
+                                    <source id="audioSource" src="" type="audio/wav">
+                                    브라우저가 오디오를 지원하지 않습니다.
+                                </audio>
+                            </div>
+                            
+                            <div class="waveform-container" id="waveformContainer">
+                                <canvas id="waveformCanvas" width="800" height="100"></canvas>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>파일 정보</h6>
+                                    <div id="fileInfo" class="file-info"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>분석 결과</h6>
+                                    <div id="analysisResult" class="analysis-result">
+                                        <div class="text-center">
+                                            <i class="fas fa-cog fa-spin"></i> 분석 중...
+                                        </div>
+                                        
+                                        <!-- 고급 분석 결과 (숨김 상태로 시작) -->
+                                        <div id="advancedAnalysis" style="display: none;">
+                                            <!-- 기본 특징 -->
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <h6 class="text-warning">기본 특징</h6>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>RMS 에너지:</strong> <span id="rmsValue">-</span></p>
+                                                    <p><strong>스펙트럼 중심:</strong> <span id="spectralCentroid">-</span></p>
+                                                    <p><strong>제로 크로싱 비율:</strong> <span id="zeroCrossingRate">-</span></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>압축기 상태:</strong> <span id="compressorState">-</span></p>
+                                                    <p><strong>이상 점수:</strong> <span id="anomalyScore">-</span></p>
+                                                    <p><strong>온도 추정:</strong> <span id="temperatureEstimate">-</span></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>효율성 점수:</strong> <span id="efficiencyScore">-</span></p>
+                                                    <p><strong>스펙트럼 롤오프:</strong> <span id="spectralRolloff">-</span></p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 고급 스펙트럼 특징 -->
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <h6 class="text-info">고급 스펙트럼 특징</h6>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>스펙트럼 대역폭:</strong> <span id="spectralBandwidth">-</span></p>
+                                                    <p><strong>스펙트럼 대비:</strong> <span id="spectralContrast">-</span></p>
+                                                    <p><strong>스펙트럼 평탄도:</strong> <span id="spectralFlatness">-</span></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>스펙트럼 왜도:</strong> <span id="spectralSkewness">-</span></p>
+                                                    <p><strong>스펙트럼 첨도:</strong> <span id="spectralKurtosis">-</span></p>
+                                                    <p><strong>하모닉 비율:</strong> <span id="harmonicRatio">-</span></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>비하모닉성:</strong> <span id="inharmonicity">-</span></p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- ADSR 특징 -->
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <h6 class="text-success">ADSR 특징</h6>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <p><strong>Attack Time:</strong> <span id="attackTime">-</span></p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <p><strong>Decay Time:</strong> <span id="decayTime">-</span></p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <p><strong>Sustain Level:</strong> <span id="sustainLevel">-</span></p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <p><strong>Release Time:</strong> <span id="releaseTime">-</span></p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 소리 분류 -->
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <h6 class="text-danger">소리 분류</h6>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>소리 유형:</strong> <span id="soundType">-</span></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>강도 레벨:</strong> <span id="intensityLevel">-</span></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <p><strong>주파수 지배도:</strong> <span id="frequencyDominance">-</span></p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- MFCC 계수 -->
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <h6 class="text-primary">MFCC 계수 (0-12)</h6>
+                                                    <div id="mfccCoefficients" class="row">
+                                                        <!-- MFCC 계수들이 여기에 동적으로 추가됩니다 -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 통계 차트 -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> 통계 분석</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="statisticsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioFiles = [];
+        let currentFile = null;
+        let statisticsChart = null;
+
+        // 페이지 로드 시 데이터 가져오기
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            initChart();
+        });
+
+        // 데이터 새로고침
+        async function refreshData() {
+            try {
+                const response = await fetch('/api/esp32/files');
+                audioFiles = await response.json();
+                displayFileList();
+            } catch (error) {
+                console.error('파일 목록 로드 실패:', error);
+                document.getElementById('fileList').innerHTML = 
+                    '<div class="alert alert-danger">파일 목록을 불러올 수 없습니다.</div>';
+            }
+        }
+
+        // 파일 목록 표시
+        function displayFileList() {
+            const fileList = document.getElementById('fileList');
+            
+            if (audioFiles.length === 0) {
+                fileList.innerHTML = '<div class="text-center text-muted">업로드된 파일이 없습니다.</div>';
+                return;
+            }
+
+            fileList.innerHTML = audioFiles.map(file => `
+                <div class="list-group-item audio-card" onclick="selectFile('${file.name}')">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${file.name}</h6>
+                        <small>${formatFileSize(file.size)}</small>
+                    </div>
+                    <p class="mb-1 file-info">
+                        <i class="fas fa-clock"></i> ${formatDate(file.modified)}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Device: ${file.deviceId || 'Unknown'}</small>
+                        <span class="badge ${getStatusBadgeClass(file.analysis)}">
+                            ${file.analysis?.is_overload ? '이상' : '정상'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 파일 선택
+        function selectFile(fileName) {
+            currentFile = audioFiles.find(f => f.name === fileName);
+            if (!currentFile) return;
+
+            // 오디오 플레이어 표시
+            document.getElementById('noFileSelected').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'block';
+
+            // 오디오 소스 설정
+            const audioElement = document.getElementById('audioElement');
+            const audioSource = document.getElementById('audioSource');
+            audioSource.src = `/uploads/esp32/${fileName}`;
+            audioElement.load();
+
+            // 파일 정보 표시
+            displayFileInfo();
+            
+            // 분석 결과 표시
+            displayAnalysisResult();
+
+            // 웨이브폼 생성
+            generateWaveform();
+        }
+
+        // 파일 정보 표시
+        function displayFileInfo() {
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.innerHTML = `
+                <p><strong>파일명:</strong> ${currentFile.name}</p>
+                <p><strong>크기:</strong> ${formatFileSize(currentFile.size)}</p>
+                <p><strong>수정일:</strong> ${formatDate(currentFile.modified)}</p>
+                <p><strong>디바이스:</strong> ${currentFile.deviceId || 'Unknown'}</p>
+                <p><strong>샘플레이트:</strong> ${currentFile.sampleRate || 'Unknown'} Hz</p>
+            `;
+        }
+
+        // 분석 결과 표시 (고급 버전)
+        function displayAnalysisResult() {
+            const analysisResult = document.getElementById('analysisResult');
+            const analysis = currentFile.analysis || {};
+            
+            // 기본 분석 결과 표시
+            analysisResult.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-cog fa-spin"></i> 분석 중...
+                </div>
+            `;
+            
+            // 고급 분석 결과 표시
+            setTimeout(() => {
+                const advancedAnalysis = document.getElementById('advancedAnalysis');
+                if (advancedAnalysis) {
+                    advancedAnalysis.style.display = 'block';
+                    
+                    // 기본 특징 업데이트
+                    updateBasicFeatures(analysis);
+                    
+                    // 고급 특징 업데이트
+                    updateAdvancedFeatures(analysis);
+                    
+                    // ADSR 특징 업데이트
+                    updateADSRFeatures(analysis);
+                    
+                    // 소리 분류 업데이트
+                    updateSoundClassification(analysis);
+                    
+                    // MFCC 계수 업데이트
+                    updateMFCCCoefficients(analysis);
+                }
+            }, 1000);
+        }
+        
+        // 기본 특징 업데이트
+        function updateBasicFeatures(analysis) {
+            document.getElementById('rmsValue').textContent = (analysis.rms_energy || 0).toFixed(2);
+            document.getElementById('spectralCentroid').textContent = (analysis.spectral_centroid || 0).toFixed(4);
+            document.getElementById('zeroCrossingRate').textContent = (analysis.zero_crossing_rate || 0).toFixed(4);
+            document.getElementById('compressorState').textContent = (analysis.compressor_state > 0.5) ? 'ON' : 'OFF';
+            document.getElementById('anomalyScore').textContent = (analysis.anomaly_score || 0).toFixed(3);
+            document.getElementById('temperatureEstimate').textContent = (analysis.temperature_estimate || 0).toFixed(1) + '°C';
+            document.getElementById('efficiencyScore').textContent = (analysis.efficiency_score || 0).toFixed(3);
+            document.getElementById('spectralRolloff').textContent = (analysis.spectral_rolloff || 0).toFixed(2);
+        }
+        
+        // 고급 특징 업데이트
+        function updateAdvancedFeatures(analysis) {
+            document.getElementById('spectralBandwidth').textContent = (analysis.spectral_bandwidth || 0).toFixed(2);
+            document.getElementById('spectralContrast').textContent = (analysis.spectral_contrast || 0).toFixed(4);
+            document.getElementById('spectralFlatness').textContent = (analysis.spectral_flatness || 0).toFixed(4);
+            document.getElementById('spectralSkewness').textContent = (analysis.spectral_skewness || 0).toFixed(4);
+            document.getElementById('spectralKurtosis').textContent = (analysis.spectral_kurtosis || 0).toFixed(4);
+            document.getElementById('harmonicRatio').textContent = (analysis.harmonic_ratio || 0).toFixed(4);
+            document.getElementById('inharmonicity').textContent = (analysis.inharmonicity || 0).toFixed(4);
+        }
+        
+        // ADSR 특징 업데이트
+        function updateADSRFeatures(analysis) {
+            document.getElementById('attackTime').textContent = (analysis.attack_time || 0).toFixed(4);
+            document.getElementById('decayTime').textContent = (analysis.decay_time || 0).toFixed(4);
+            document.getElementById('sustainLevel').textContent = (analysis.sustain_level || 0).toFixed(4);
+            document.getElementById('releaseTime').textContent = (analysis.release_time || 0).toFixed(4);
+        }
+        
+        // 소리 분류 업데이트
+        function updateSoundClassification(analysis) {
+            const soundType = analysis.sound_type || 0;
+            const soundTypeNames = ['정적', '압축기', '팬', '이상음', '기타'];
+            const soundTypeName = soundTypeNames[Math.round(soundType)] || '알 수 없음';
+            
+            document.getElementById('soundType').textContent = soundTypeName + ` (${soundType.toFixed(1)})`;
+            document.getElementById('intensityLevel').textContent = ((analysis.intensity_level || 0) * 100).toFixed(1) + '%';
+            document.getElementById('frequencyDominance').textContent = ((analysis.frequency_dominance || 0) * 100).toFixed(1) + '%';
+        }
+        
+        // MFCC 계수 업데이트
+        function updateMFCCCoefficients(analysis) {
+            const mfccContainer = document.getElementById('mfccCoefficients');
+            const mfcc = analysis.mfcc || [];
+            
+            mfccContainer.innerHTML = '';
+            for (let i = 0; i < 13; i++) {
+                const value = mfcc[i] || 0;
+                mfccContainer.innerHTML += `
+                    <div class="col-md-1 mb-2">
+                        <div class="text-center">
+                            <small class="text-muted">C${i}</small><br>
+                            <span class="badge bg-primary">${value.toFixed(3)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 웨이브폼 생성
+        function generateWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 간단한 웨이브폼 시뮬레이션
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const y = canvas.height / 2 + Math.sin(x * 0.02) * 20 + Math.random() * 10 - 5;
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+        }
+
+        // 통계 차트 초기화
+        function initChart() {
+            const ctx = document.getElementById('statisticsChart').getContext('2d');
+            statisticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'dB 레벨',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 유틸리티 함수들
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('ko-KR');
+        }
+
+        function getStatusBadgeClass(analysis) {
+            if (!analysis) return 'bg-secondary';
+            return analysis.is_overload ? 'bg-danger' : 'bg-success';
+        }
+
+        // 데이터 로드 함수
+        async function loadData() {
+            try {
+                console.log('데이터 로드 시작...');
+                
+                const sensorId = document.getElementById('sensorSelect')?.value || '';
+                const limit = document.getElementById('dataLimit')?.value || '100';
+                const hours = document.getElementById('timeRange')?.value || '24';
+                
+                let url = `/api/esp32/data/recent?limit=${limit}&hours=${hours}`;
+                if (sensorId) {
+                    url += `&sensor_id=${encodeURIComponent(sensorId)}`;
+                }
+                
+                console.log('요청 URL:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    console.log('로드된 데이터 수:', data.data.length);
+                    displayData(data.data);
+                    updateSensorList(data.data);
+                } else {
+                    showMessage('데이터가 없습니다.', 'warning');
+                }
+            } catch (error) {
+                console.error('데이터 로드 오류:', error);
+                showMessage('데이터 로드 실패: ' + error.message, 'danger');
+            }
+        }
+
+        // 센서 목록 업데이트
+        function updateSensorList(data) {
+            const sensors = [...new Set(data.map(item => item.device_id))];
+            const sensorSelect = document.getElementById('sensorSelect');
+            
+            if (sensorSelect) {
+                // 기존 옵션 제거 (전체 센서 제외)
+                while (sensorSelect.children.length > 1) {
+                    sensorSelect.removeChild(sensorSelect.lastChild);
+                }
+                
+                // 센서 옵션 추가
+                sensors.forEach(sensor => {
+                    const option = document.createElement('option');
+                    option.value = sensor;
+                    option.textContent = sensor;
+                    sensorSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 데이터 표시 함수
+        function displayData(data) {
+            const container = document.getElementById('dataContainer');
+            if (!container) return;
+
+            // 전역 변수에 데이터 저장 (클릭 시 사용)
+            window.currentData = data;
+
+            container.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-group-item list-group-item-action audio-card';
+                listItem.onclick = () => showDetailAnalysis(index);
+                listItem.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${item.device_id || 'Unknown'}</h6>
+                            <small class="text-muted">센서: ${item.sensor_number || '-'} | ${formatDate(new Date(item.server_timestamp))}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge ${getStatusBadgeClass(item)} mb-1">${item.compressor_state > 0.5 ? 'ON' : 'OFF'}</span>
+                            <br>
+                            <small class="text-muted">RMS: ${item.rms_energy?.toFixed(2) || '-'}</small><br>
+                            <small class="text-muted">dB: ${item.decibel_level?.toFixed(1) || '-'}</small>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(listItem);
+            });
+        }
+
+        // 상세 분석 표시
+        function showDetailAnalysis(index) {
+            const data = window.currentData || [];
+            const item = data[index];
+            
+            if (!item) return;
+
+            // 선택된 데이터 영역 표시
+            document.getElementById('noDataSelected').style.display = 'none';
+            document.getElementById('selectedData').style.display = 'block';
+
+            // 상세 분석 결과 표시
+            document.getElementById('selectedData').innerHTML = `
+                <div class="analysis-result">
+                    <h5><i class="fas fa-chart-line"></i> 상세 분석 결과</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle"></i> 기본 정보</h6>
+                            <p><strong>디바이스:</strong> ${item.device_id || '-'}</p>
+                            <p><strong>센서 번호:</strong> ${item.sensor_number || '-'}</p>
+                            <p><strong>시간:</strong> ${formatDate(new Date(item.server_timestamp))}</p>
+                            <p><strong>위치:</strong> ${item.location || '-'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-wave-square"></i> 오디오 특징</h6>
+                            <p><strong>RMS 에너지:</strong> ${item.rms_energy?.toFixed(3) || '-'}</p>
+                            <p><strong>데시벨:</strong> ${item.decibel_level?.toFixed(1) || '-'} dB</p>
+                            <p><strong>스펙트럼 중심:</strong> ${item.spectral_centroid?.toFixed(1) || '-'} Hz</p>
+                            <p><strong>제로 크로싱:</strong> ${item.zero_crossing_rate?.toFixed(3) || '-'}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cog"></i> 압축기 상태</h6>
+                            <p><strong>상태:</strong> <span class="badge ${item.compressor_state > 0.5 ? 'bg-success' : 'bg-secondary'}">${item.compressor_state > 0.5 ? 'ON' : 'OFF'}</span></p>
+                            <p><strong>이상 점수:</strong> ${item.anomaly_score?.toFixed(3) || '-'}</p>
+                            <p><strong>효율성:</strong> ${item.efficiency_score?.toFixed(3) || '-'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-volume-up"></i> 소리 분류</h6>
+                            <p><strong>소리 유형:</strong> <span class="badge bg-info">${getSoundTypeName(item.sound_type)}</span></p>
+                            <p><strong>강도 레벨:</strong> ${item.intensity_level?.toFixed(1) || '-'}%</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 고급 특징들 -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6><i class="fas fa-chart-bar"></i> 고급 스펙트럼 특징</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>스펙트럼 대역폭:</strong> ${item.spectral_bandwidth?.toFixed(1) || '-'}</p>
+                            <p><strong>스펙트럼 대비:</strong> ${item.spectral_contrast?.toFixed(3) || '-'}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>스펙트럼 평탄도:</strong> ${item.spectral_flatness?.toFixed(3) || '-'}</p>
+                            <p><strong>스펙트럼 왜도:</strong> ${item.spectral_skewness?.toFixed(3) || '-'}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>스펙트럼 첨도:</strong> ${item.spectral_kurtosis?.toFixed(3) || '-'}</p>
+                            <p><strong>하모닉 비율:</strong> ${item.harmonic_ratio?.toFixed(3) || '-'}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>비하모닉성:</strong> ${item.inharmonicity?.toFixed(3) || '-'}</p>
+                            <p><strong>스펙트럼 롤오프:</strong> ${item.spectral_rolloff?.toFixed(1) || '-'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 소리 유형 이름 변환
+        function getSoundTypeName(type) {
+            const types = {
+                0: '정적',
+                1: '압축기',
+                2: '팬',
+                3: '이상음',
+                4: '기타'
+            };
+            return types[type] || '알 수 없음';
+        }
+
+        // 메시지 표시
+        function showMessage(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.insertBefore(alertDiv, document.body.firstChild);
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('오디오 연구 페이지 로드 완료');
+            loadData();
+            setInterval(loadData, 30000); // 30초마다 업데이트
+        });
+    </script>
+</body>
+</html>

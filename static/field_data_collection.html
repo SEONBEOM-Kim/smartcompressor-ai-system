@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>현장 데이터 수집 - Signalcraft</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .prediction-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .prediction-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .confidence-bar {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+            transition: width 0.3s ease;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 현장 데이터 수집</h1>
+            <p>AI 정확도 향상을 위한 현장 데이터 수집 및 검증 시스템</p>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('collect')">데이터 수집</div>
+                <div class="tab" onclick="switchTab('verify')">데이터 검증</div>
+                <div class="tab" onclick="switchTab('stats')">성능 통계</div>
+            </div>
+
+            <!-- 데이터 수집 탭 -->
+            <div id="collect" class="tab-content active">
+                <h2>📊 새로운 데이터 수집</h2>
+                
+                <div class="alert alert-info">
+                    <strong>💡 팁:</strong> 불확실한 AI 예측이나 특이한 상황의 오디오를 수집하여 AI 정확도를 향상시킵니다.
+                </div>
+
+                <form id="dataCollectionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="storeId">매장 ID</label>
+                            <input type="text" id="storeId" name="storeId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="deviceId">디바이스 ID</label>
+                            <input type="text" id="deviceId" name="deviceId" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="audioFile">오디오 파일</label>
+                        <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+                        <audio id="audioPlayer" class="audio-player" controls style="display: none;"></audio>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="temperature">온도 (°C)</label>
+                            <input type="number" id="temperature" name="temperature" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="humidity">습도 (%)</label>
+                            <input type="number" id="humidity" name="humidity" min="0" max="100">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noiseLevel">주변 소음 레벨</label>
+                            <select id="noiseLevel" name="noiseLevel">
+                                <option value="">선택하세요</option>
+                                <option value="low">낮음 (조용함)</option>
+                                <option value="medium">보통</option>
+                                <option value="high">높음 (시끄러움)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vibrationLevel">진동 레벨</label>
+                            <select id="vibrationLevel" name="vibrationLevel">
+                                <option value="">선택하세요</option>
+                                <option value="low">낮음</option>
+                                <option value="medium">보통</option>
+                                <option value="high">높음</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operatorNotes">운영자 메모</label>
+                        <textarea id="operatorNotes" name="operatorNotes" rows="3" 
+                                placeholder="특이사항이나 관찰한 내용을 기록해주세요..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">데이터 수집 시작</button>
+                </form>
+            </div>
+
+            <!-- 데이터 검증 탭 -->
+            <div id="verify" class="tab-content">
+                <h2>✅ 데이터 검증</h2>
+                
+                <div class="alert alert-warning">
+                    <strong>⚠️ 주의:</strong> 검증되지 않은 데이터를 확인하고 정확한 라벨을 제공해주세요.
+                </div>
+
+                <div id="verificationList">
+                    <p>검증 대기 중인 데이터를 불러오는 중...</p>
+                </div>
+            </div>
+
+            <!-- 성능 통계 탭 -->
+            <div id="stats" class="tab-content">
+                <h2>📈 AI 성능 통계</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSamples">-</div>
+                        <div class="stat-label">총 샘플 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="accuracy">-</div>
+                        <div class="stat-label">현재 정확도</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingVerification">-</div>
+                        <div class="stat-label">검증 대기</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="verifiedToday">-</div>
+                        <div class="stat-label">오늘 검증</div>
+                    </div>
+                </div>
+
+                <div id="confusionMatrix">
+                    <h3>혼동 행렬</h3>
+                    <p>혼동 행렬을 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 탭 전환
+        function switchTab(tabName) {
+            // 모든 탭과 콘텐츠 비활성화
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 선택된 탭과 콘텐츠 활성화
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // 탭별 데이터 로드
+            if (tabName === 'verify') {
+                loadVerificationData();
+            } else if (tabName === 'stats') {
+                loadPerformanceStats();
+            }
+        }
+
+        // 오디오 파일 미리보기
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audioPlayer = document.getElementById('audioPlayer');
+                const url = URL.createObjectURL(file);
+                audioPlayer.src = url;
+                audioPlayer.style.display = 'block';
+            }
+        });
+
+        // 데이터 수집 폼 제출
+        document.getElementById('dataCollectionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/api/field-data/collect', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('데이터 수집이 완료되었습니다!');
+                    this.reset();
+                    document.getElementById('audioPlayer').style.display = 'none';
+                } else {
+                    alert('데이터 수집 실패: ' + result.message);
+                }
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        // 검증 데이터 로드
+        async function loadVerificationData() {
+            try {
+                const response = await fetch('/api/field-data/pending');
+                const data = await response.json();
+                
+                const container = document.getElementById('verificationList');
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p>검증 대기 중인 데이터가 없습니다.</p>';
+                    return;
+                }
+                
+                let html = '<table class="data-table"><thead><tr><th>시간</th><th>매장</th><th>AI 예측</th><th>신뢰도</th><th>오디오</th><th>액션</th></tr></thead><tbody>';
+                
+                data.forEach(item => {
+                    html += `
+                        <tr>
+                            <td>${new Date(item.timestamp).toLocaleString()}</td>
+                            <td>${item.store_id}</td>
+                            <td>${item.ai_prediction}</td>
+                            <td>${(item.ai_confidence * 100).toFixed(1)}%</td>
+                            <td><audio controls src="${item.audio_file_path}" style="width: 200px;"></audio></td>
+                            <td>
+                                <button onclick="verifyData(${item.id}, 'normal')" class="btn btn-secondary" style="padding: 5px 10px; margin: 2px;">정상</button>
+                                <button onclick="verifyData(${item.id}, 'leak')" class="btn btn-secondary" style="padding: 5px 10px; margin: 2px;">누설</button>
+                                <button onclick="verifyData(${item.id}, 'overload')" class="btn btn-secondary" style="padding: 5px 10px; margin: 2px;">과부하</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('verificationList').innerHTML = '<p>데이터를 불러오는 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        // 데이터 검증
+        async function verifyData(dataId, groundTruth) {
+            try {
+                const response = await fetch('/api/field-data/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data_id: dataId,
+                        ground_truth_label: groundTruth,
+                        confidence_score: 1.0
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('데이터가 검증되었습니다!');
+                    loadVerificationData(); // 목록 새로고침
+                } else {
+                    alert('검증 실패: ' + result.message);
+                }
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        // 성능 통계 로드
+        async function loadPerformanceStats() {
+            try {
+                const response = await fetch('/api/field-data/stats');
+                const stats = await response.json();
+                
+                document.getElementById('totalSamples').textContent = stats.total_samples || 0;
+                document.getElementById('accuracy').textContent = ((stats.accuracy || 0) * 100).toFixed(1) + '%';
+                document.getElementById('pendingVerification').textContent = stats.pending_verification || 0;
+                document.getElementById('verifiedToday').textContent = stats.verified_today || 0;
+                
+                // 혼동 행렬 표시
+                const confusionMatrix = document.getElementById('confusionMatrix');
+                if (stats.confusion_matrix) {
+                    let matrixHtml = '<h3>혼동 행렬</h3><table class="data-table"><thead><tr><th>실제/예측</th>';
+                    
+                    const labels = Object.keys(stats.confusion_matrix);
+                    labels.forEach(label => {
+                        matrixHtml += `<th>${label}</th>`;
+                    });
+                    matrixHtml += '</tr></thead><tbody>';
+                    
+                    labels.forEach(trueLabel => {
+                        matrixHtml += `<tr><th>${trueLabel}</th>`;
+                        labels.forEach(predLabel => {
+                            const count = stats.confusion_matrix[trueLabel][predLabel] || 0;
+                            matrixHtml += `<td>${count}</td>`;
+                        });
+                        matrixHtml += '</tr>';
+                    });
+                    
+                    matrixHtml += '</tbody></table>';
+                    confusionMatrix.innerHTML = matrixHtml;
+                }
+                
+            } catch (error) {
+                console.error('성능 통계 로드 실패:', error);
+            }
+        }
+
+        // 페이지 로드 시 초기 데이터 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVerificationData();
+            loadPerformanceStats();
+        });
+    </script>
+</body>
+</html>
