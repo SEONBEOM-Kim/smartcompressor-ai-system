@@ -24,8 +24,8 @@ router.get('/current', async (req, res) => {
             });
         }
 
-        // OpenWeatherMap API 호출
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=37.5665&lon=126.9780&appid=${OPENWEATHER_API_KEY}&units=metric`);
+        // OpenWeatherMap API 호출 (인천 위치)
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=37.4563&lon=126.7052&appid=${OPENWEATHER_API_KEY}&units=metric`);
         
         if (!response.ok) {
             throw new Error(`OpenWeatherMap API 오류: ${response.status}`);
