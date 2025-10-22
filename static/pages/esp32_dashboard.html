@@ -914,15 +914,15 @@
                 document.getElementById('connectionStatus').textContent = '연결 중...';
                 document.getElementById('connectionStatus').className = 'status-value status-warning';
 
-                console.log('[DEBUG] API 호출 시작: /api/esp32/data/recent');
+                console.log('[DEBUG] API 호출 시작: /api/esp32/features/recent');
                 
                 const sensorId = document.getElementById('sensorSelect').value;
                 const limit = document.getElementById('dataLimit').value;
                 const hours = document.getElementById('timeRange').value;
                 
-                let url = `/api/esp32/data/recent?limit=${limit}&hours=${hours}`;
+                let url = `/api/esp32/features/recent?limit=${limit}&hours=${hours}`;
                 if (sensorId) {
-                    url += `&sensor_id=${encodeURIComponent(sensorId)}`;
+                    url += `&device_id=${encodeURIComponent(sensorId)}`;
                 }
                 
                 console.log('[DEBUG] 요청 URL:', url);
