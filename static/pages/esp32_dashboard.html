@@ -1059,6 +1059,17 @@
                 const response = await fetch(url);
                 console.log('[DEBUG] API 응답 상태:', response.status);
                 
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('[ERROR] 응답이 JSON이 아닙니다:', text.substring(0, 200));
+                    throw new Error('서버가 JSON이 아닌 응답을 반환했습니다.');
+                }
+                
                 const data = await response.json();
                 console.log('[DEBUG] API 응답 데이터:', data);
 
@@ -1727,6 +1738,11 @@
             try {
                 // 실제 센서 데이터 가져오기
                 const sensorResponse = await fetch('/api/sensor/correlation?hours=24');
+                
+                if (!sensorResponse.ok) {
+                    throw new Error(`센서 데이터 API 오류: ${sensorResponse.status}`);
+                }
+                
                 const sensorData = await sensorResponse.json();
                 
                 if (!sensorData.success || !sensorData.data || sensorData.data.length === 0) {
