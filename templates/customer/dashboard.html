@@ -211,6 +211,13 @@
             /* Make charts responsive */
             .chart-container {
                 min-height: 200px;
+                width: 100%;
+            }
+            
+            /* Ensure canvas elements have proper dimensions on mobile */
+            .chart-container canvas {
+                width: 100% !important;
+                height: 100% !important;
             }
             
             /* Header adjustments */
@@ -338,119 +345,25 @@
 
     <!-- Main Content -->
     <main id="main-content">
-        <!-- Page Header -->
-        <header class="page-header">
-            <div class="header-left">
-                <h1>안녕하세요, 고객님</h1>
-                <p>자산 상태를 실시간으로 모니터링하세요.</p>
-            </div>
-            <div class="header-right">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="자산 검색...">
-                </div>
-                <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
-                <button class="icon-button"><i class="fas fa-bell"></i></button>
-            </div>
-        </header>
-
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-
-            <!-- 현황 요약 카드 -->
-            <div class="current-risk-cards">
-                <div class="risk-card">
-                    <h5>총 자산</h5>
-                    <h2 id="total-assets">0</h2>
-                </div>
-                <div class="risk-card">
-                    <h5>정상 자산</h5>
-                    <h2 id="normal-assets">0</h2>
-                </div>
-                <div class="risk-card">
-                    <h5>이상 징후</h5>
-                    <h2 id="anomaly-count">0</h2>
-                </div>
-                <div class="risk-card">
-                    <h5>긴급 조치 필요</h5>
-                    <h2 id="urgent-action">0</h2>
-                </div>
-                <div class="risk-card">
-                    <h5>오늘 점검 예정</h5>
-                    <h2 id="scheduled-maintenance">0</h2>
-                </div>
-            </div>
-
-            <!-- 이상 징후 요약 -->
-            <div class="grid-card threat-summary-card">
-                <div class="card-header">
-                    <h3 class="card-title">이상 징후 요약</h3>
-                    <div class="card-menu">...</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="threat-summary-chart"></canvas>
-                </div>
-            </div>
-
-            <!-- 자산 종합 상태 -->
-            <div class="grid-card risk-score-card">
-                <div class="card-header">
-                    <h3 class="card-title">자산 종합 상태</h3>
-                    <div class="card-menu">...</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="risk-score-chart"></canvas>
-                </div>
-            </div>
-
-            <!-- 최근 이상 징후 상세 -->
-            <div class="grid-card threat-details-card">
-                <div class="card-header">
-                    <h3 class="card-title">최근 이상 징후 상세</h3>
-                    <div class="card-menu">...</div>
-                </div>
-                <table id="anomalies-table">
-                    <thead>
-                        <tr>
-                            <th>날짜</th>
-                            <th>자산 ID</th>
-                            <th>징후 유형</th>
-                            <th>상세 내용</th>
-                            <th>심각도</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded via API -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 징후 유형별 통계 -->
-            <div class="grid-card threat-by-virus-card">
-                <div class="card-header">
-                    <h3 class="card-title">징후 유형별 통계</h3>
-                    <div class="card-menu">...</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="threats-by-virus-chart"></canvas>
-                </div>
-            </div>
-
-            <!-- 자산별 이상 징후 -->
-            <div class="grid-card threat-by-device-card">
-                <div class="card-header">
-                    <h3 class="card-title">자산별 이상 징후</h3>
-                    <div class="card-menu">...</div>
-                </div>
-                <!-- content here -->
-            </div>
-
-        </div>
+        <!-- Initial content will be loaded dynamically -->
     </main>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Function to load the main dashboard content and then initialize charts
+        async function loadMainDashboard() {
+            // Load the main dashboard HTML content
+            await loadComponent('/static/dashboard-components/main-dashboard/main-dashboard-content.html', 'main-content');
+            
+            // NOW that the content is loaded, initialize charts and load data
+            // This prevents race conditions on mobile devices
+            destroyAllCharts();
+            initializeCharts();
+            ensureChartVisibility();
+            loadDashboardData();
+        }
+
         // Function to load dashboard data from API
         async function loadDashboardData() {
             try {
@@ -496,6 +409,10 @@
                             result.device_status.error
                         ]);
                     }
+                    
+                    if (result.threats_by_type) {
+                        updateThreatsByVirusChart(result.threats_by_type.labels, result.threats_by_type.values);
+                    }
                 }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
@@ -520,12 +437,18 @@
                 );
                 
                 updateRiskScoreChart([10, 1, 0, 1]); // [normal, offline, maintenance, error]
+                
+                updateThreatsByVirusChart(
+                    ['베어링 마모', '과도한 진동', '온도 급상승'],
+                    [4, 3, 2]
+                );
             }
         }
         
         // Function to update the anomalies table
         function updateAnomaliesTable(anomalies) {
             const tbody = document.querySelector('#anomalies-table tbody');
+            if (!tbody) return; // Guard against element not being present
             tbody.innerHTML = ''; // Clear existing rows
             
             if (anomalies.length === 0) {
@@ -572,126 +495,161 @@
             }
         }
         
-        // Chart Initializations
-        function initializeCharts() {
-            // Threat Summary Chart
-            const threatSummaryCanvas = document.getElementById('threat-summary-chart');
-            if (threatSummaryCanvas) {
-                try {
-                    const existingChart = Chart.getChart(threatSummaryCanvas);
-                    if (existingChart) {
-                        existingChart.destroy();
-                    }
-                    new Chart(threatSummaryCanvas, { 
-                        type: 'line', 
-                        data: { 
-                            labels: [], 
-                            datasets: [{
-                                label: '이상 징후',
-                                data: [],
-                                borderColor: 'rgb(75, 192, 192)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                                tension: 0.1
-                            }] 
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false, // Allow charts to fit container
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing threat summary chart:', error);
-                }
-            }
-
-            // Risk Score Chart
-            const riskScoreCanvas = document.getElementById('risk-score-chart');
-            if (riskScoreCanvas) {
-                try {
-                    const existingChart = Chart.getChart(riskScoreCanvas);
-                    if (existingChart) {
-                        existingChart.destroy();
-                    }
-                    new Chart(riskScoreCanvas, { 
-                        type: 'doughnut', 
-                        data: { 
-                            labels: ['정상', '오프라인', '점검중', '오류'],
-                            datasets: [{
-                                data: [],
-                                backgroundColor: [
-                                    'rgb(72, 187, 120)',    // normal color
-                                    'rgb(160, 174, 192)',   // offline color
-                                    'rgb(255, 193, 7)',     // maintenance/warning color
-                                    'rgb(220, 53, 69)'      // error/danger color
-                                ]
-                            }] 
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false, // Allow charts to fit container
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
-                            }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing risk score chart:', error);
-                }
-            }
-
-            // Threats by Virus Chart
-            const threatsByVirusCanvas = document.getElementById('threats-by-virus-chart');
-            if (threatsByVirusCanvas) {
-                try {
-                    const existingChart = Chart.getChart(threatsByVirusCanvas);
-                    if (existingChart) {
-                        existingChart.destroy();
-                    }
-                    new Chart(threatsByVirusCanvas, { 
-                        type: 'doughnut', 
-                        data: { 
-                            labels: ['베어링 마모', '과도한 진동', '온도 급상승'],
-                            datasets: [{
-                                data: [],
-                                backgroundColor: [
-                                    'rgb(255, 99, 132)',
-                                    'rgb(54, 162, 235)',
-                                    'rgb(255, 205, 86)'
-                                ]
-                            }] 
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false, // Allow charts to fit container
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
-                            }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing threats by virus chart:', error);
+        // Function to update the threats by virus chart
+        function updateThreatsByVirusChart(labels, data) {
+            const canvas = document.getElementById('threats-by-virus-chart');
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) {
+                    chart.data.labels = labels || [];
+                    chart.data.datasets[0].data = data || [];
+                    chart.update();
                 }
             }
         }
         
-        // Initialize charts and load data when page loads
+        // Chart Initializations with improved mobile compatibility
+        function initializeCharts() {
+            const initializeChart = (canvasId, chartType, chartData, chartOptions) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.warn(`Canvas with id ${canvasId} not found`);
+                    return null;
+                }
+                
+                // Ensure canvas is visible and has dimensions before chart initialization
+                const container = canvas.parentElement;
+                if(container && (container.offsetWidth === 0 || container.offsetHeight === 0)) {
+                    // Wait a bit and try again if container has no dimensions yet
+                    setTimeout(() => {
+                        if(container.offsetWidth > 0 && container.offsetHeight > 0) {
+                            initializeChart(canvasId, chartType, chartData, chartOptions);
+                        }
+                    }, 100);
+                    return null;
+                }
+                
+                try {
+                    const existingChart = Chart.getChart(canvas);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                    
+                    // Set initial dimensions to ensure chart canvas is not 0x0
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                    
+                    return new Chart(canvas, {
+                        type: chartType,
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false, // Allow charts to fit container
+                            animation: {
+                                duration: 200 // Animation duration for better mobile performance
+                            },
+                            // Improved mobile responsiveness
+                            ...chartOptions
+                        }
+                    });
+                } catch (error) {
+                    console.error(`Error initializing chart for canvas ${canvasId}:`, error);
+                    return null;
+                }
+            };
+
+            // Initialize threat summary chart
+            initializeChart('threat-summary-chart', 'line', {
+                labels: [],
+                datasets: [{
+                    label: '이상 징후',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1
+                }]
+            }, {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+
+            // Initialize risk score chart
+            initializeChart('risk-score-chart', 'doughnut', {
+                labels: ['정상', '오프라인', '점검중', '오류'],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        'rgb(72, 187, 120)',    // normal color
+                        'rgb(160, 174, 192)',   // offline color
+                        'rgb(255, 193, 7)',     // maintenance/warning color
+                        'rgb(220, 53, 69)'      // error/danger color
+                    ]
+                }]
+            }, {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            });
+
+            // Initialize threats by virus chart
+            initializeChart('threats-by-virus-chart', 'doughnut', {
+                labels: ['베어링 마모', '과도한 진동', '온도 급상승'],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            }, {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            });
+        }
+        
+        // Function to ensure charts are properly rendered on mobile
+        function ensureChartVisibility() {
+            // Small delay to ensure DOM has fully rendered
+            setTimeout(() => {
+                const chartCanvases = document.querySelectorAll('canvas');
+                chartCanvases.forEach(canvas => {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        // Update chart dimensions if needed
+                        const container = canvas.parentElement;
+                        if (container && 
+                            (canvas.width !== container.offsetWidth || canvas.height !== container.offsetHeight)) {
+                            canvas.width = container.offsetWidth;
+                            canvas.height = container.offsetHeight;
+                            chart.resize();
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        // Initialize everything when the page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Destroy any existing charts first (though there shouldn't be any at this point)
-            destroyAllCharts();
-            initializeCharts();
-            loadDashboardData(); // Load the actual data from the API
+            // Load the main dashboard by default
+            loadMainDashboard();
             
             // Refresh data every 30 seconds
             setInterval(loadDashboardData, 30000);
+            
+            // Additional check for mobile rendering
+            window.addEventListener('resize', ensureChartVisibility);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(ensureChartVisibility, 300); // Delay to allow orientation change to complete
+            });
         });
     </script>
     
