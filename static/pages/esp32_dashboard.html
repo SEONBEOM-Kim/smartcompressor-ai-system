@@ -458,6 +458,251 @@
             flex-wrap: wrap;
         }
 
+        /* 고장 감지 시스템 스타일 */
+        .failure-detection {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: 2px solid #e74c3c;
+        }
+
+        .failure-detection h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .failure-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f39c12;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: #27ae60;
+        }
+
+        .status-dot.failure {
+            background: #e74c3c;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .adaptive-threshold {
+            text-align: right;
+        }
+
+        .threshold-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .threshold-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .failure-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .failure-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .failure-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .failure-controls select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .failure-controls select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .failure-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .failure-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            transition: all 0.3s ease;
+        }
+
+        .failure-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .failure-item.compressor-failure {
+            border-left-color: #e74c3c;
+        }
+
+        .failure-item.motor-failure {
+            border-left-color: #3498db;
+        }
+
+        .failure-item.bearing-failure {
+            border-left-color: #9b59b6;
+        }
+
+        .failure-item.electrical-failure {
+            border-left-color: #f39c12;
+        }
+
+        .failure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .failure-time {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .failure-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .failure-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .failure-detail {
+            text-align: center;
+        }
+
+        .failure-detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .failure-detail-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
+            transition: width 0.3s ease;
+        }
+
+        /* 고장 알림 스타일 */
+        .failure-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            z-index: 10000;
+            animation: slideIn 0.5s ease-out;
+            max-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-content h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .alert-content p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
         .pattern-stats {
             display: flex;
             justify-content: space-around;
@@ -778,9 +1023,39 @@
             </div>
         </div>
 
+        <!-- 24시간 고장 신호 자동 감지 -->
+        <div class="card failure-detection">
+            <h3>🚨 24시간 고장 신호 자동 감지</h3>
+            <div class="failure-status">
+                <div class="status-indicator" id="failureStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">모니터링 중...</span>
+                </div>
+                <div class="adaptive-threshold">
+                    <span class="threshold-label">적응형 임계값:</span>
+                    <span class="threshold-value" id="adaptiveThreshold">45.0 dB</span>
+                </div>
+            </div>
+            <div class="failure-controls">
+                <button class="btn" onclick="startFailureMonitoring()">고장 감지 시작</button>
+                <button class="btn" onclick="showFailureDetails()">고장 기록 조회</button>
+                <button class="btn" onclick="exportFailureReport()">고장 보고서</button>
+                <select id="failureFilter" onchange="filterFailures()">
+                    <option value="all">전체 고장</option>
+                    <option value="compressor_failure">압축기 고장</option>
+                    <option value="motor_failure">모터 고장</option>
+                    <option value="bearing_failure">베어링 고장</option>
+                    <option value="electrical_failure">전기 고장</option>
+                </select>
+            </div>
+            <div class="failure-list" id="failureList">
+                <p>고장 감지를 시작하려면 버튼을 클릭하세요.</p>
+            </div>
+        </div>
+
         <!-- 이상 데이터 상세 분석 -->
         <div class="card anomaly-analysis">
-            <h3>🚨 이상 데이터 상세 분석</h3>
+            <h3>📊 이상 데이터 상세 분석</h3>
             <div class="anomaly-controls">
                 <button class="btn" onclick="showAnomalyDetails()">이상 데이터 조회</button>
                 <button class="btn" onclick="clearAnomalyDetails()">목록 초기화</button>
@@ -2464,6 +2739,122 @@
 
         // 이상 데이터 분석 함수들
         let anomalyData = [];
+        
+        // 적응형 임계값 시스템
+        class AdaptiveThresholdSystem {
+            constructor() {
+                this.baseThreshold = 45.0;
+                this.temperatureFactor = 0.1;
+                this.timeFactor = 0.05;
+                this.seasonalFactor = 0.15;
+                this.failureHistory = [];
+            }
+            
+            calculateAdaptiveThreshold(temperature, timeOfDay, season, vibrationLevel = 0, powerConsumption = 0) {
+                let threshold = this.baseThreshold;
+                
+                // 온도 보정
+                if (temperature < 0) threshold -= 5.0;
+                else if (temperature < 10) threshold -= 3.0;
+                else if (temperature < 20) threshold += 0.0;
+                else if (temperature < 30) threshold += 2.0;
+                else threshold += 5.0;
+                
+                // 시간대 보정
+                if (timeOfDay >= 22 || timeOfDay <= 6) threshold -= 2.0;  // 밤시간
+                else if (timeOfDay >= 7 && timeOfDay <= 9) threshold += 1.0;  // 아침 출근시간
+                else if (timeOfDay >= 18 && timeOfDay <= 21) threshold += 0.5;  // 저녁 시간
+                
+                // 계절 보정
+                if (season === 'winter') threshold -= 3.0;
+                else if (season === 'summer') threshold += 2.0;
+                
+                // 진동 보정
+                if (vibrationLevel > 0.8) threshold += 3.0;
+                else if (vibrationLevel > 0.5) threshold += 1.0;
+                
+                // 전력 보정
+                if (powerConsumption > 150) threshold += 2.0;
+                else if (powerConsumption < 50) threshold -= 1.0;
+                
+                // 임계값 범위 제한 (30dB ~ 70dB)
+                return Math.max(30.0, Math.min(70.0, threshold));
+            }
+            
+            detectFailure(decibelLevel, temperature, timeOfDay, season, vibrationLevel = 0, powerConsumption = 0, duration = 0) {
+                const adaptiveThreshold = this.calculateAdaptiveThreshold(
+                    temperature, timeOfDay, season, vibrationLevel, powerConsumption
+                );
+                
+                const failureTypes = {
+                    'compressor_failure': { minDb: 60, maxDb: 80, minDuration: 300 },
+                    'motor_failure': { minDb: 55, maxDb: 75, minDuration: 180 },
+                    'bearing_failure': { minDb: 50, maxDb: 70, minDuration: 600 },
+                    'electrical_failure': { minDb: 40, maxDb: 60, minDuration: 60 }
+                };
+                
+                for (const [type, criteria] of Object.entries(failureTypes)) {
+                    if (decibelLevel >= criteria.minDb && 
+                        decibelLevel <= criteria.maxDb && 
+                        duration >= criteria.minDuration) {
+                        
+                        const confidence = Math.min(1.0, (decibelLevel - adaptiveThreshold) / 20.0);
+                        
+                        this.failureHistory.push({
+                            timestamp: new Date().toISOString(),
+                            type: type,
+                            confidence: confidence,
+                            decibelLevel: decibelLevel,
+                            adaptiveThreshold: adaptiveThreshold,
+                            temperature: temperature
+                        });
+                        
+                        return {
+                            detected: true,
+                            type: type,
+                            confidence: confidence,
+                            adaptiveThreshold: adaptiveThreshold
+                        };
+                    }
+                }
+                
+                return {
+                    detected: false,
+                    adaptiveThreshold: adaptiveThreshold
+                };
+            }
+            
+            getCurrentSeason() {
+                const month = new Date().getMonth() + 1;
+                if (month >= 12 || month <= 2) return 'winter';
+                if (month >= 3 && month <= 5) return 'spring';
+                if (month >= 6 && month <= 8) return 'summer';
+                return 'autumn';
+            }
+            
+            getFailureStatistics(hours = 24) {
+                const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+                const recentFailures = this.failureHistory.filter(
+                    f => new Date(f.timestamp) >= cutoffTime
+                );
+                
+                const failureTypes = {};
+                recentFailures.forEach(f => {
+                    failureTypes[f.type] = (failureTypes[f.type] || 0) + 1;
+                });
+                
+                return {
+                    totalFailures: recentFailures.length,
+                    failureTypes: failureTypes,
+                    avgConfidence: recentFailures.length > 0 ? 
+                        recentFailures.reduce((sum, f) => sum + f.confidence, 0) / recentFailures.length : 0,
+                    recentFailures: recentFailures.slice(-10)
+                };
+            }
+        }
+        
+        // 적응형 임계값 시스템 인스턴스
+        const adaptiveThreshold = new AdaptiveThresholdSystem();
 
         async function showAnomalyDetails() {
             try {
@@ -2624,6 +3015,220 @@
             }
 
             displayAnomalies(filteredData);
+        }
+
+        // 고장 감지 시스템 함수들
+        let failureMonitoringActive = false;
+        let failureData = [];
+
+        function startFailureMonitoring() {
+            failureMonitoringActive = true;
+            updateFailureStatus('active', '고장 감지 활성화');
+            
+            // 실시간 모니터링 시작
+            setInterval(monitorFailures, 5000); // 5초마다 체크
+            
+            document.getElementById('failureList').innerHTML = '<p>고장 감지가 시작되었습니다. 실시간 모니터링 중...</p>';
+        }
+
+        function updateFailureStatus(status, text) {
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.querySelector('.status-text');
+            
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+        }
+
+        async function monitorFailures() {
+            if (!failureMonitoringActive) return;
+
+            try {
+                // 최근 센서 데이터 가져오기
+                const response = await fetch('/api/esp32/features/recent?limit=10&hours=1');
+                const data = await response.json();
+                
+                if (!data.success || !data.data) return;
+
+                // 각 데이터에 대해 고장 감지
+                for (const sensorData of data.data) {
+                    const currentTime = new Date();
+                    const timeOfDay = currentTime.getHours();
+                    const season = adaptiveThreshold.getCurrentSeason();
+                    
+                    const failureResult = adaptiveThreshold.detectFailure(
+                        sensorData.decibel_level || 0,
+                        sensorData.temperature || 20,
+                        timeOfDay,
+                        season,
+                        sensorData.vibration_level || 0,
+                        sensorData.power_consumption || 0,
+                        sensorData.duration || 0
+                    );
+
+                    if (failureResult.detected) {
+                        failureData.push({
+                            ...failureResult,
+                            sensorData: sensorData,
+                            timestamp: currentTime.toISOString()
+                        });
+                        
+                        // 고장 상태 업데이트
+                        updateFailureStatus('failure', `고장 감지: ${failureResult.type}`);
+                        
+                        // 알림 표시
+                        showFailureAlert(failureResult);
+                    }
+                }
+
+                // 적응형 임계값 업데이트
+                if (data.data.length > 0) {
+                    const latestData = data.data[0];
+                    const currentTime = new Date();
+                    const timeOfDay = currentTime.getHours();
+                    const season = adaptiveThreshold.getCurrentSeason();
+                    
+                    const adaptiveThresholdValue = adaptiveThreshold.calculateAdaptiveThreshold(
+                        latestData.temperature || 20,
+                        timeOfDay,
+                        season,
+                        latestData.vibration_level || 0,
+                        latestData.power_consumption || 0
+                    );
+                    
+                    document.getElementById('adaptiveThreshold').textContent = `${adaptiveThresholdValue.toFixed(1)} dB`;
+                }
+
+            } catch (error) {
+                console.error('고장 감지 모니터링 오류:', error);
+            }
+        }
+
+        function showFailureAlert(failureResult) {
+            // 브라우저 알림
+            if (Notification.permission === 'granted') {
+                new Notification('고장 감지!', {
+                    body: `${failureResult.type} 감지됨 (신뢰도: ${(failureResult.confidence * 100).toFixed(1)}%)`,
+                    icon: '/favicon.ico'
+                });
+            }
+            
+            // 화면 알림
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'failure-alert';
+            alertDiv.innerHTML = `
+                <div class="alert-content">
+                    <h4>🚨 고장 감지!</h4>
+                    <p>유형: ${failureResult.type}</p>
+                    <p>신뢰도: ${(failureResult.confidence * 100).toFixed(1)}%</p>
+                    <p>적응형 임계값: ${failureResult.adaptiveThreshold.toFixed(1)} dB</p>
+                </div>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        function showFailureDetails() {
+            const stats = adaptiveThreshold.getFailureStatistics(24);
+            displayFailures(stats.recentFailures);
+        }
+
+        function displayFailures(failures) {
+            const container = document.getElementById('failureList');
+            
+            if (failures.length === 0) {
+                container.innerHTML = '<p>최근 24시간 동안 감지된 고장이 없습니다.</p>';
+                return;
+            }
+
+            const typeLabels = {
+                'compressor_failure': '압축기 고장',
+                'motor_failure': '모터 고장',
+                'bearing_failure': '베어링 고장',
+                'electrical_failure': '전기 고장'
+            };
+
+            const html = failures.map(failure => {
+                const failureTime = new Date(failure.timestamp);
+                const typeClass = failure.type.replace('_', '-');
+                
+                return `
+                    <div class="failure-item ${typeClass}">
+                        <div class="failure-header">
+                            <span class="failure-time">${failureTime.toLocaleString()}</span>
+                            <span class="failure-type">${typeLabels[failure.type] || failure.type}</span>
+                        </div>
+                        <div class="failure-details">
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">데시벨</span>
+                                <span class="failure-detail-value">${failure.decibelLevel.toFixed(1)} dB</span>
+                            </div>
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">임계값</span>
+                                <span class="failure-detail-value">${failure.adaptiveThreshold.toFixed(1)} dB</span>
+                            </div>
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">온도</span>
+                                <span class="failure-detail-value">${failure.temperature.toFixed(1)}°C</span>
+                            </div>
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">신뢰도</span>
+                                <span class="failure-detail-value">${(failure.confidence * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${failure.confidence * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function filterFailures() {
+            const filter = document.getElementById('failureFilter').value;
+            const stats = adaptiveThreshold.getFailureStatistics(24);
+            let filteredFailures = stats.recentFailures;
+
+            if (filter !== 'all') {
+                filteredFailures = stats.recentFailures.filter(failure => failure.type === filter);
+            }
+
+            displayFailures(filteredFailures);
+        }
+
+        function exportFailureReport() {
+            const stats = adaptiveThreshold.getFailureStatistics(24);
+            const report = {
+                generated_at: new Date().toISOString(),
+                failure_statistics: stats,
+                adaptive_threshold_config: {
+                    base_threshold: adaptiveThreshold.baseThreshold,
+                    temperature_factor: adaptiveThreshold.temperatureFactor,
+                    time_factor: adaptiveThreshold.timeFactor,
+                    seasonal_factor: adaptiveThreshold.seasonalFactor
+                }
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `failure_report_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // 알림 권한 요청
+        if (Notification.permission === 'default') {
+            Notification.requestPermission();
         }
 
         // 차트 업데이트
