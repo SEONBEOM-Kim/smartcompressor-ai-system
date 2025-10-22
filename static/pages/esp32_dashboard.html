@@ -320,6 +320,144 @@
             border-left-color: #27ae60;
         }
 
+        /* 이상 데이터 분석 스타일 */
+        .anomaly-analysis {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .anomaly-analysis h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .anomaly-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .anomaly-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .anomaly-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .anomaly-controls select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .anomaly-controls select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .anomaly-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .anomaly-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            transition: all 0.3s ease;
+        }
+
+        .anomaly-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .anomaly-item.high-db {
+            border-left-color: #e74c3c;
+        }
+
+        .anomaly-item.temp-anomaly {
+            border-left-color: #3498db;
+        }
+
+        .anomaly-item.power-anomaly {
+            border-left-color: #9b59b6;
+        }
+
+        .anomaly-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .anomaly-time {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .anomaly-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .anomaly-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .anomaly-detail {
+            text-align: center;
+        }
+
+        .anomaly-detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .anomaly-detail-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .correlation-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
         .pattern-stats {
             display: flex;
             justify-content: space-around;
@@ -640,20 +778,32 @@
             </div>
         </div>
 
-        <!-- 온도-압축기 상관관계 분석 -->
-        <div class="card">
-            <h3>🌡️ 온도-압축기 상관관계 분석</h3>
-            <div class="chart-container">
-                <canvas id="temperatureCorrelationChart"></canvas>
+        <!-- 이상 데이터 상세 분석 -->
+        <div class="card anomaly-analysis">
+            <h3>🚨 이상 데이터 상세 분석</h3>
+            <div class="anomaly-controls">
+                <button class="btn" onclick="showAnomalyDetails()">이상 데이터 조회</button>
+                <button class="btn" onclick="clearAnomalyDetails()">목록 초기화</button>
+                <select id="anomalyFilter" onchange="filterAnomalies()">
+                    <option value="all">전체</option>
+                    <option value="high_db">고데시벨 (≥60dB)</option>
+                    <option value="low_temp">저온 (≤5°C)</option>
+                    <option value="high_temp">고온 (≥25°C)</option>
+                    <option value="power_anomaly">전력 이상</option>
+                </select>
             </div>
-            <div class="correlation-stats">
+            <div class="anomaly-list" id="anomalyList">
+                <p>이상 데이터를 조회하려면 버튼을 클릭하세요.</p>
+            </div>
+        </div>
+
+        <!-- 온도-압축기 상관관계 분석 (간소화) -->
+        <div class="card">
+            <h3>🌡️ 온도-압축기 상관관계</h3>
+            <div class="correlation-summary">
                 <div class="stat-item">
                     <span class="stat-label">상관계수:</span>
                     <span class="stat-value" id="correlationCoeff">-</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">온도 민감도:</span>
-                    <span class="stat-value" id="tempSensitivity">-</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">예측 정확도:</span>
@@ -664,30 +814,8 @@
                     <span class="stat-value" id="energyEfficiency">-</span>
                 </div>
             </div>
-        </div>
-
-        <!-- 관리자용 추세 분석 대시보드 -->
-        <div class="card admin-dashboard">
-            <h3>📊 관리자 추세 분석 대시보드</h3>
-            <div class="trend-controls">
-                <button class="btn" onclick="showTrendAnalysis('daily')">일간 분석</button>
-                <button class="btn" onclick="showTrendAnalysis('weekly')">주간 분석</button>
-                <button class="btn" onclick="showTrendAnalysis('monthly')">월간 분석</button>
-                <button class="btn" onclick="exportTrendData()">데이터 내보내기</button>
-            </div>
-            <div class="trend-charts">
-                <div class="chart-container">
-                    <canvas id="temperatureTrendChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="efficiencyTrendChart"></canvas>
-                </div>
-            </div>
-            <div class="trend-insights">
-                <h4>🔍 인사이트</h4>
-                <div id="trendInsights" class="insights-container">
-                    <p>데이터를 분석 중입니다...</p>
-                </div>
+            <div class="chart-container">
+                <canvas id="temperatureCorrelationChart"></canvas>
             </div>
         </div>
 
@@ -2316,6 +2444,170 @@
             link.href = URL.createObjectURL(dataBlob);
             link.download = `trend_analysis_${currentTrendPeriod}_${new Date().toISOString().split('T')[0]}.json`;
             link.click();
+        }
+
+        // 이상 데이터 분석 함수들
+        let anomalyData = [];
+
+        async function showAnomalyDetails() {
+            try {
+                // 센서 데이터 가져오기
+                const response = await fetch('/api/sensor/correlation?hours=24');
+                const data = await response.json();
+                
+                if (!data.success || !data.data) {
+                    document.getElementById('anomalyList').innerHTML = '<p>이상 데이터를 가져올 수 없습니다.</p>';
+                    return;
+                }
+
+                // 이상 데이터 분석
+                anomalyData = analyzeAnomalies(data.data);
+                
+                // UI 업데이트
+                displayAnomalies(anomalyData);
+                
+            } catch (error) {
+                console.error('이상 데이터 조회 오류:', error);
+                document.getElementById('anomalyList').innerHTML = '<p>이상 데이터 조회 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        function analyzeAnomalies(sensorData) {
+            const anomalies = [];
+            
+            sensorData.forEach(item => {
+                const anomaly = {
+                    timestamp: new Date(item.timestamp),
+                    device_id: item.device_id,
+                    temperature: item.temperature,
+                    decibel_level: item.decibel_level,
+                    compressor_state: item.compressor_state,
+                    power_consumption: item.power_consumption,
+                    rms_energy: item.rms_energy,
+                    types: []
+                };
+
+                // 고데시벨 이상 (≥60dB)
+                if (item.decibel_level >= 60) {
+                    anomaly.types.push('high_db');
+                    anomaly.severity = 'high';
+                }
+                
+                // 저온 이상 (≤5°C)
+                if (item.temperature <= 5) {
+                    anomaly.types.push('low_temp');
+                    anomaly.severity = anomaly.severity || 'medium';
+                }
+                
+                // 고온 이상 (≥25°C)
+                if (item.temperature >= 25) {
+                    anomaly.types.push('high_temp');
+                    anomaly.severity = anomaly.severity || 'medium';
+                }
+                
+                // 전력 이상 (평균 대비 ±30% 이상)
+                const avgPower = sensorData.reduce((sum, d) => sum + (d.power_consumption || 0), 0) / sensorData.length;
+                if (item.power_consumption && Math.abs(item.power_consumption - avgPower) / avgPower > 0.3) {
+                    anomaly.types.push('power_anomaly');
+                    anomaly.severity = anomaly.severity || 'low';
+                }
+
+                // 이상이 있는 경우만 추가
+                if (anomaly.types.length > 0) {
+                    anomalies.push(anomaly);
+                }
+            });
+
+            // 시간순 정렬 (최신순)
+            return anomalies.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function displayAnomalies(anomalies) {
+            const container = document.getElementById('anomalyList');
+            
+            if (anomalies.length === 0) {
+                container.innerHTML = '<p>이상 데이터가 없습니다.</p>';
+                return;
+            }
+
+            const html = anomalies.map(anomaly => {
+                const typeLabels = {
+                    'high_db': '고데시벨',
+                    'low_temp': '저온',
+                    'high_temp': '고온',
+                    'power_anomaly': '전력이상'
+                };
+
+                const severityColors = {
+                    'high': '#e74c3c',
+                    'medium': '#f39c12',
+                    'low': '#3498db'
+                };
+
+                const typeClass = anomaly.types.includes('high_db') ? 'high-db' : 
+                                anomaly.types.includes('low_temp') || anomaly.types.includes('high_temp') ? 'temp-anomaly' :
+                                anomaly.types.includes('power_anomaly') ? 'power-anomaly' : '';
+
+                return `
+                    <div class="anomaly-item ${typeClass}">
+                        <div class="anomaly-header">
+                            <span class="anomaly-time">${anomaly.timestamp.toLocaleString()}</span>
+                            <span class="anomaly-type" style="background-color: ${severityColors[anomaly.severity]}">
+                                ${anomaly.types.map(type => typeLabels[type]).join(', ')}
+                            </span>
+                        </div>
+                        <div class="anomaly-details">
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">온도</span>
+                                <span class="anomaly-detail-value">${anomaly.temperature?.toFixed(1) || 'N/A'}°C</span>
+                            </div>
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">데시벨</span>
+                                <span class="anomaly-detail-value">${anomaly.decibel_level?.toFixed(1) || 'N/A'}dB</span>
+                            </div>
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">압축기</span>
+                                <span class="anomaly-detail-value">${anomaly.compressor_state ? 'ON' : 'OFF'}</span>
+                            </div>
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">전력</span>
+                                <span class="anomaly-detail-value">${anomaly.power_consumption?.toFixed(1) || 'N/A'}W</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function clearAnomalyDetails() {
+            document.getElementById('anomalyList').innerHTML = '<p>이상 데이터를 조회하려면 버튼을 클릭하세요.</p>';
+            anomalyData = [];
+        }
+
+        function filterAnomalies() {
+            const filter = document.getElementById('anomalyFilter').value;
+            let filteredData = anomalyData;
+
+            if (filter !== 'all') {
+                filteredData = anomalyData.filter(anomaly => {
+                    switch(filter) {
+                        case 'high_db':
+                            return anomaly.types.includes('high_db');
+                        case 'low_temp':
+                            return anomaly.types.includes('low_temp');
+                        case 'high_temp':
+                            return anomaly.types.includes('high_temp');
+                        case 'power_anomaly':
+                            return anomaly.types.includes('power_anomaly');
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            displayAnomalies(filteredData);
         }
 
         // 차트 업데이트
