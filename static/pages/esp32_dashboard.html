@@ -1594,8 +1594,45 @@
             charts.cyclePattern.update();
         }
 
-        // 온도-압축기 상관관계 분석
-        function analyzeTemperatureCorrelation(cycles, anomalyAnalysis) {
+        // 온도-압축기 상관관계 분석 (실제 센서 데이터 사용)
+        async function analyzeTemperatureCorrelation(cycles, anomalyAnalysis) {
+            try {
+                // 실제 센서 데이터 가져오기
+                const sensorResponse = await fetch('/api/sensor/correlation?hours=24');
+                const sensorData = await sensorResponse.json();
+                
+                if (!sensorData.success || !sensorData.data || sensorData.data.length === 0) {
+                    console.log('센서 데이터가 없습니다. 모의 데이터를 사용합니다.');
+                    return analyzeTemperatureCorrelationMock(cycles, anomalyAnalysis);
+                }
+
+                const correlationData = sensorData.correlation_data;
+                const summary = sensorData.summary;
+
+                // 실제 센서 데이터로 분석
+                const correlation = calculateRealCorrelation(correlationData);
+                const tempSensitivity = calculateRealTempSensitivity(correlationData);
+                const predictionAccuracy = calculateRealPredictionAccuracy(correlationData, anomalyAnalysis.normalRange);
+                const energyEfficiency = calculateRealEnergyEfficiency(correlationData);
+
+                // UI 업데이트
+                document.getElementById('correlationCoeff').textContent = correlation.toFixed(3);
+                document.getElementById('tempSensitivity').textContent = `${tempSensitivity.toFixed(1)}%`;
+                document.getElementById('predictionAccuracy').textContent = `${predictionAccuracy.toFixed(1)}%`;
+                document.getElementById('energyEfficiency').textContent = `${energyEfficiency.toFixed(1)}%`;
+
+                // 실제 센서 데이터로 차트 업데이트
+                updateRealTemperatureCorrelationChart(correlationData, summary);
+
+            } catch (error) {
+                console.error('센서 데이터 분석 오류:', error);
+                // 오류 시 모의 데이터 사용
+                analyzeTemperatureCorrelationMock(cycles, anomalyAnalysis);
+            }
+        }
+
+        // 모의 데이터를 사용한 분석 (기존 로직)
+        function analyzeTemperatureCorrelationMock(cycles, anomalyAnalysis) {
             if (!anomalyAnalysis.weatherData || cycles.length < 3) return;
 
             const temperature = anomalyAnalysis.weatherData.temperature;
@@ -1754,6 +1791,171 @@
             charts.temperatureCorrelation.update();
         }
 
+        // 실제 센서 데이터를 사용한 분석 함수들
+        function calculateRealCorrelation(correlationData) {
+            if (correlationData.length < 2) return 0;
+            
+            // 온도와 작동 비율의 상관계수 계산
+            const temps = correlationData.map(d => d.temperature);
+            const ratios = correlationData.map(d => d.on_ratio);
+            
+            const avgTemp = temps.reduce((sum, temp) => sum + temp, 0) / temps.length;
+            const avgRatio = ratios.reduce((sum, ratio) => sum + ratio, 0) / ratios.length;
+            
+            let numerator = 0;
+            let tempSumSq = 0;
+            let ratioSumSq = 0;
+            
+            for (let i = 0; i < temps.length; i++) {
+                const tempDiff = temps[i] - avgTemp;
+                const ratioDiff = ratios[i] - avgRatio;
+                
+                numerator += tempDiff * ratioDiff;
+                tempSumSq += tempDiff * tempDiff;
+                ratioSumSq += ratioDiff * ratioDiff;
+            }
+            
+            const denominator = Math.sqrt(tempSumSq * ratioSumSq);
+            return denominator === 0 ? 0 : numerator / denominator;
+        }
+
+        function calculateRealTempSensitivity(correlationData) {
+            if (correlationData.length < 2) return 0;
+            
+            // 온도 변화에 따른 작동 비율 변화의 표준편차
+            const ratios = correlationData.map(d => d.on_ratio);
+            const avgRatio = ratios.reduce((sum, ratio) => sum + ratio, 0) / ratios.length;
+            const variance = ratios.reduce((sum, ratio) => sum + Math.pow(ratio - avgRatio, 2), 0) / ratios.length;
+            const stdDev = Math.sqrt(variance);
+            
+            return Math.min(100, stdDev * 200);
+        }
+
+        function calculateRealPredictionAccuracy(correlationData, normalRange) {
+            if (!normalRange || correlationData.length === 0) return 0;
+            
+            let correctPredictions = 0;
+            correlationData.forEach(data => {
+                const isWithinRange = data.on_ratio >= normalRange.min && data.on_ratio <= normalRange.max;
+                if (isWithinRange) correctPredictions++;
+            });
+            
+            return (correctPredictions / correlationData.length) * 100;
+        }
+
+        function calculateRealEnergyEfficiency(correlationData) {
+            if (correlationData.length === 0) return 0;
+            
+            let totalEfficiency = 0;
+            correlationData.forEach(data => {
+                // 온도별 최적 작동 비율
+                let optimalRatio;
+                if (data.temperature < 0) optimalRatio = 0.8;
+                else if (data.temperature < 10) optimalRatio = 0.7;
+                else if (data.temperature < 20) optimalRatio = 0.5;
+                else if (data.temperature < 30) optimalRatio = 0.3;
+                else optimalRatio = 0.2;
+                
+                const efficiency = Math.max(0, 100 - Math.abs(data.on_ratio - optimalRatio) * 200);
+                totalEfficiency += efficiency;
+            });
+            
+            return totalEfficiency / correlationData.length;
+        }
+
+        // 실제 센서 데이터를 사용한 차트 업데이트
+        function updateRealTemperatureCorrelationChart(correlationData, summary) {
+            if (!charts.temperatureCorrelation) {
+                const ctx = document.getElementById('temperatureCorrelationChart').getContext('2d');
+                charts.temperatureCorrelation = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: '실제 센서 데이터',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            borderColor: '#3498db',
+                            borderWidth: 2
+                        }, {
+                            label: '예측 범위',
+                            data: [],
+                            type: 'line',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderColor: '#e74c3c',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '온도 (°C)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '작동 비율 (%)'
+                                },
+                                min: 0,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const dataIndex = context.dataIndex;
+                                        if (dataIndex < correlationData.length) {
+                                            const data = correlationData[dataIndex];
+                                            return [
+                                                `데이터 포인트: ${data.total_count}개`,
+                                                `평균 데시벨: ${data.avg_decibel.toFixed(1)}dB`,
+                                                `평균 전력: ${data.avg_power.toFixed(1)}W`
+                                            ];
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 실제 센서 데이터 포인트
+            const dataPoints = correlationData.map(data => ({
+                x: data.temperature,
+                y: data.on_ratio * 100
+            }));
+
+            // 예측 범위 데이터 (온도 범위에 맞춰 생성)
+            const predictionData = [];
+            const minTemp = Math.min(...correlationData.map(d => d.temperature));
+            const maxTemp = Math.max(...correlationData.map(d => d.temperature));
+            
+            for (let temp = minTemp - 5; temp <= maxTemp + 5; temp += 2) {
+                const range = predictNormalOperationRange(temp, new Date().getHours());
+                predictionData.push({
+                    x: temp,
+                    y: range.predicted * 100
+                });
+            }
+
+            charts.temperatureCorrelation.data.datasets[0].data = dataPoints;
+            charts.temperatureCorrelation.data.datasets[1].data = predictionData;
+            charts.temperatureCorrelation.update();
+        }
+
         // 관리자용 추세 분석 함수들
         let currentTrendPeriod = 'daily';
 
@@ -1791,8 +1993,91 @@
         }
 
         async function fetchTrendData(period) {
-            // 실제로는 서버에서 기간별 데이터를 가져와야 함
-            // 현재는 모의 데이터 생성
+            try {
+                // 실제 센서 데이터 가져오기
+                let hours;
+                switch(period) {
+                    case 'daily': hours = 24; break;
+                    case 'weekly': hours = 168; break;
+                    case 'monthly': hours = 720; break;
+                    default: hours = 24;
+                }
+
+                const response = await fetch(`/api/sensor/correlation?hours=${hours}`);
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    // 실제 센서 데이터를 시간별로 그룹화
+                    const groupedData = groupDataByTime(data.data, period);
+                    return groupedData;
+                } else {
+                    console.log('센서 데이터가 없습니다. 모의 데이터를 생성합니다.');
+                    return generateMockTrendData(period);
+                }
+            } catch (error) {
+                console.error('추세 데이터 가져오기 오류:', error);
+                return generateMockTrendData(period);
+            }
+        }
+
+        // 실제 센서 데이터를 시간별로 그룹화
+        function groupDataByTime(sensorData, period) {
+            const groupedData = {};
+            const interval = period === 'daily' ? 1 : period === 'weekly' ? 6 : 24; // 시간 간격 (시간)
+            
+            sensorData.forEach(data => {
+                const timestamp = new Date(data.timestamp);
+                const hour = Math.floor(timestamp.getHours() / interval) * interval;
+                const key = `${timestamp.getFullYear()}-${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')} ${String(hour).padStart(2, '0')}:00`;
+                
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        timestamp: new Date(timestamp.getFullYear(), timestamp.getMonth(), timestamp.getDate(), hour),
+                        temperatures: [],
+                        onRatios: [],
+                        decibels: [],
+                        powerConsumptions: []
+                    };
+                }
+                
+                if (data.temperature !== null) {
+                    groupedData[key].temperatures.push(data.temperature);
+                }
+                if (data.compressor_state !== null) {
+                    groupedData[key].onRatios.push(data.compressor_state);
+                }
+                if (data.decibel_level !== null) {
+                    groupedData[key].decibels.push(data.decibel_level);
+                }
+                if (data.power_consumption !== null) {
+                    groupedData[key].powerConsumptions.push(data.power_consumption);
+                }
+            });
+
+            // 평균값 계산
+            return Object.values(groupedData).map(group => {
+                const avgTemp = group.temperatures.length > 0 ? 
+                    group.temperatures.reduce((sum, temp) => sum + temp, 0) / group.temperatures.length : 15;
+                const avgOnRatio = group.onRatios.length > 0 ? 
+                    group.onRatios.reduce((sum, ratio) => sum + ratio, 0) / group.onRatios.length : 0.5;
+                const avgDecibel = group.decibels.length > 0 ? 
+                    group.decibels.reduce((sum, db) => sum + db, 0) / group.decibels.length : 45;
+                const avgPower = group.powerConsumptions.length > 0 ? 
+                    group.powerConsumptions.reduce((sum, power) => sum + power, 0) / group.powerConsumptions.length : 100;
+
+                return {
+                    timestamp: group.timestamp,
+                    temperature: avgTemp,
+                    onRatio: avgOnRatio,
+                    decibel: avgDecibel,
+                    powerConsumption: avgPower,
+                    efficiency: Math.max(0, 100 - Math.abs(avgOnRatio - (0.5 + (15 - avgTemp) * 0.02)) * 200)
+                };
+            }).sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        // 모의 데이터 생성 (기존 로직)
+        function generateMockTrendData(period) {
             const now = new Date();
             const dataPoints = [];
             

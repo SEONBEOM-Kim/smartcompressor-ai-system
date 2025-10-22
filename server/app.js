@@ -17,6 +17,7 @@ const kakaoRoutes = require('./routes/kakaoRoutes');
 const monitoringRoutes = require('./routes/monitoringRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const weatherRoutes = require('./routes/weatherApi');
+const sensorDataRoutes = require('./routes/sensorDataApi');
 
 const app = express();
 
@@ -145,6 +146,7 @@ app.use('/api/kakao', kakaoRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/api/sensor', sensorDataRoutes);
 
 // ESP32 API 라우트
 const esp32DashboardApi = require('./routes/esp32DashboardApi');
