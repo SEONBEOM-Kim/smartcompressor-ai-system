@@ -100,6 +100,19 @@ app.get('/audio_recorder_client', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/audio_recorder_client.html'));
 });
 
+// 오디오 연구 페이지들
+app.get('/audio-research', (req, res) => {
+    res.sendFile(path.join(__dirname, '../audio_research.html'));
+});
+
+app.get('/audio-research-features', (req, res) => {
+    res.sendFile(path.join(__dirname, '../audio_research_features.html'));
+});
+
+app.get('/audio-research-fixed', (req, res) => {
+    res.sendFile(path.join(__dirname, '../audio_research_fixed.html'));
+});
+
 app.get('/terms', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/legal.html'));
 });
