@@ -2,7 +2,7 @@
 
 
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from routes.kakao_auth_routes import kakao_auth_bp
@@ -109,6 +109,11 @@ def create_app():
     app.register_blueprint(mobile_app_bp)
     # 분석 시스템 라우트 등록 # NEW
     app.register_blueprint(analytics_bp)
+
+    # 정적 파일 서빙을 위한 라우트 추가 (dashboard-components)
+    @app.route('/static/dashboard-components/<path:filename>')
+    def serve_dashboard_components(filename):
+        return send_from_directory(os.path.join(app.root_path, 'static', 'dashboard-components'), filename)
     
     # IoT 센서 서비스 초기화
 sensor_monitoring_service.start_monitoring()

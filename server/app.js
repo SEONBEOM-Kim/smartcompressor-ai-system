@@ -81,6 +81,7 @@ app.get('/static/js/enhanced-registration.js', [verifySession, ensureAdmin], (re
 // 정적 파일 서빙
 app.use('/static', express.static(path.join(__dirname, '../static')));
 app.use(express.static(path.join(__dirname, '../static')));
+app.use('/static/dashboard-components', express.static(path.join(__dirname, '../static/dashboard-components')));
 
 // 메인 페이지 (쇼윈도 - 로그인 화면)
 app.get('/', (req, res) => {
@@ -137,11 +138,24 @@ app.get('/testing/noise_cancellation', (req, res) => {
 });
 
 // Storage-related routes
+
 app.get('/storage/dashboard', (req, res) => {
+
     res.sendFile(path.join(__dirname, '../static/pages/storage/dashboard.html'));
+
 });
 
-customer-dashboard
+
+
+// Customer Dashboard Route
+
+app.get('/dashboard', (req, res) => {
+
+    res.sendFile(path.join(__dirname, '../templates/customer/dashboard.html'));
+
+});
+
+
 
 // ESP32 센서 대시보드 페이지
 app.get('/esp32-dashboard', (req, res) => {
