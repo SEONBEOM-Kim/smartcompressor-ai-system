@@ -40,7 +40,16 @@ router.post('/data', (req, res) => {
             rms_energy,
             vibration,
             power_consumption,
-            timestamp = new Date().toISOString()
+            timestamp = new Date().toISOString(),
+            // ESP32 특징 데이터 필드들 추가
+            decibel_level,
+            compressor_state,
+            anomaly_score,
+            efficiency_score,
+            sound_type,
+            intensity_level,
+            spectral_centroid,
+            zero_crossing_rate
         } = req.body;
 
         if (!device_id) {
@@ -50,11 +59,13 @@ router.post('/data', (req, res) => {
             });
         }
 
-        // RMS 에너지를 데시벨로 변환
-        const decibel_level = rms_energy ? 20 * Math.log10(rms_energy) : 0;
+        // ESP32에서 decibel_level이 제공되면 사용, 아니면 rms_energy에서 계산
+        const final_decibel_level = decibel_level || (rms_energy ? 20 * Math.log10(rms_energy) : 0);
         
-        // 45dB 기준으로 압축기 상태 결정
-        const compressor_state = decibel_level >= 45 ? 1 : 0;
+        // ESP32에서 compressor_state가 제공되면 사용, 아니면 45dB 기준으로 계산
+        const final_compressor_state = compressor_state !== undefined ? 
+            (decibel_level >= 45 ? 1 : 0) : 
+            (final_decibel_level >= 45 ? 1 : 0);
 
         // 데이터베이스에 저장
         const stmt = db.prepare(`
@@ -68,10 +79,10 @@ router.post('/data', (req, res) => {
             device_id,
             timestamp,
             temperature || null,
-            audio_level || null,
+            final_decibel_level, // audio_level 대신 decibel_level 사용
             rms_energy || null,
-            decibel_level,
-            compressor_state,
+            final_decibel_level,
+            final_compressor_state,
             vibration?.x || null,
             vibration?.y || null,
             vibration?.z || null,

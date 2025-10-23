@@ -6,6 +6,10 @@ const path = require('path');
 // ESP32 특징 데이터 저장
 router.post('/features', (req, res) => {
     try {
+        console.log('ESP32 Features API 호출됨');
+        console.log('Request body:', req.body);
+        console.log('Request headers:', req.headers);
+        
         const features = req.body;
         const deviceId = req.headers['x-device-id'] || 'unknown';
         
@@ -14,7 +18,7 @@ router.post('/features', (req, res) => {
         console.log(`Anomaly: ${features.anomaly_score}, Efficiency: ${features.efficiency_score}`);
         
         // 특징 데이터를 파일로 저장
-        const featuresDir = path.join(__dirname, '../../data/features');
+        const featuresDir = path.join(__dirname, '../../data/esp32_features');
         if (!fs.existsSync(featuresDir)) {
             fs.mkdirSync(featuresDir, { recursive: true });
         }
@@ -30,200 +34,105 @@ router.post('/features', (req, res) => {
             store_type: req.headers['x-store-type'] || 'unknown'
         };
         
+        // 파일로 저장
         fs.writeFileSync(filepath, JSON.stringify(dataWithMeta, null, 2));
         
-        // 압축기 상태 변화 감지
-        detectCompressorStateChange(features, deviceId);
-        
-        // 이상 패턴 감지
-        detectAnomaly(features, deviceId);
+        console.log(`✅ ESP32 데이터 저장 완료 - ${filename}`);
         
         res.json({
             success: true,
-            message: '특징 데이터 저장 완료',
+            message: 'ESP32 특징 데이터 저장 완료',
             device_id: deviceId,
             timestamp: features.timestamp,
             data_size: JSON.stringify(dataWithMeta).length
         });
         
     } catch (error) {
-        console.error('특징 데이터 처리 오류:', error);
+        console.error('ESP32 특징 데이터 처리 오류:', error);
         res.status(500).json({
             success: false,
-            message: '특징 데이터 처리 중 오류가 발생했습니다.',
+            message: 'ESP32 특징 데이터 처리 중 오류가 발생했습니다.',
             error: error.message
         });
     }
 });
 
-// 압축기 상태 변화 감지
-function detectCompressorStateChange(features, deviceId) {
-    const stateFile = path.join(__dirname, '../../data/features', `state_${deviceId}.json`);
-    
-    let lastState = { compressor_state: 0, timestamp: 0 };
-    if (fs.existsSync(stateFile)) {
-        try {
-            lastState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
-        } catch (e) {
-            console.log('상태 파일 읽기 실패, 새로 시작');
-        }
-    }
-    
-    const currentState = features.compressor_state > 0.5 ? 1 : 0;
-    const lastCompressorState = lastState.compressor_state > 0.5 ? 1 : 0;
-    
-    if (currentState !== lastCompressorState) {
-        const stateChange = {
-            device_id: deviceId,
-            timestamp: features.timestamp,
-            from_state: lastCompressorState ? 'ON' : 'OFF',
-            to_state: currentState ? 'ON' : 'OFF',
-            rms_energy: features.rms_energy,
-            anomaly_score: features.anomaly_score,
-            efficiency_score: features.efficiency_score
-        };
-        
-        console.log(`🔄 압축기 상태 변화: ${stateChange.from_state} → ${stateChange.to_state}`);
-        
-        // 상태 변화 로그 저장
-        const changeLogFile = path.join(__dirname, '../../data/features', `state_changes_${deviceId}.json`);
-        let changes = [];
-        if (fs.existsSync(changeLogFile)) {
-            try {
-                changes = JSON.parse(fs.readFileSync(changeLogFile, 'utf8'));
-            } catch (e) {
-                changes = [];
-            }
-        }
-        
-        changes.push(stateChange);
-        fs.writeFileSync(changeLogFile, JSON.stringify(changes, null, 2));
-    }
-    
-    // 현재 상태 저장
-    fs.writeFileSync(stateFile, JSON.stringify({
-        compressor_state: features.compressor_state,
-        timestamp: features.timestamp,
-        rms_energy: features.rms_energy,
-        anomaly_score: features.anomaly_score
-    }));
-}
-
-// 이상 패턴 감지
-function detectAnomaly(features, deviceId) {
-    const anomalyThreshold = 0.7;
-    const efficiencyThreshold = 0.3;
-    
-    if (features.anomaly_score > anomalyThreshold) {
-        console.log(`⚠️ 이상 패턴 감지 - Device: ${deviceId}, Score: ${features.anomaly_score}`);
-        
-        const anomaly = {
-            device_id: deviceId,
-            timestamp: features.timestamp,
-            anomaly_score: features.anomaly_score,
-            rms_energy: features.rms_energy,
-            compressor_state: features.compressor_state > 0.5 ? 'ON' : 'OFF',
-            efficiency_score: features.efficiency_score,
-            temperature_estimate: features.temperature_estimate,
-            detected_at: new Date().toISOString()
-        };
-        
-        // 이상 로그 저장
-        const anomalyFile = path.join(__dirname, '../../data/features', `anomalies_${deviceId}.json`);
-        let anomalies = [];
-        if (fs.existsSync(anomalyFile)) {
-            try {
-                anomalies = JSON.parse(fs.readFileSync(anomalyFile, 'utf8'));
-            } catch (e) {
-                anomalies = [];
-            }
-        }
-        
-        anomalies.push(anomaly);
-        fs.writeFileSync(anomalyFile, JSON.stringify(anomalies, null, 2));
-    }
-    
-    if (features.efficiency_score < efficiencyThreshold) {
-        console.log(`🔧 효율성 저하 감지 - Device: ${deviceId}, Efficiency: ${features.efficiency_score}`);
-    }
-}
-
-// 특징 데이터 조회
-router.get('/features/:deviceId', (req, res) => {
+// ESP32 특징 데이터 조회
+router.get('/features/recent', (req, res) => {
     try {
-        const deviceId = req.params.deviceId;
-        const featuresDir = path.join(__dirname, '../../data/features');
+        const limit = parseInt(req.query.limit) || 50;
+        const deviceId = req.query.device_id;
+        
+        console.log(`ESP32 특징 데이터 조회 - Device: ${deviceId}, Limit: ${limit}`);
+        
+        const featuresDir = path.join(__dirname, '../../data/esp32_features');
         
         if (!fs.existsSync(featuresDir)) {
-            return res.json([]);
+            return res.json({
+                success: true,
+                data: [],
+                count: 0,
+                total: 0
+            });
         }
         
+        // 모든 JSON 파일 찾기 (features_로 시작하는 파일과 test_data.json 포함)
         const files = fs.readdirSync(featuresDir)
-            .filter(file => file.startsWith(`features_${deviceId}_`))
+            .filter(file => file.endsWith('.json'))
             .map(file => {
                 const filepath = path.join(featuresDir, file);
                 const stats = fs.statSync(filepath);
                 return {
                     filename: file,
-                    size: stats.size,
-                    modified: stats.mtime.toISOString()
+                    filepath: filepath,
+                    modified: stats.mtime
                 };
             })
-            .sort((a, b) => new Date(b.modified) - new Date(a.modified));
+            .sort((a, b) => b.modified - a.modified)
+            .slice(0, limit);
         
-        res.json(files);
-        
-    } catch (error) {
-        console.error('특징 데이터 조회 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '특징 데이터 조회 중 오류가 발생했습니다.',
-            error: error.message
-        });
-    }
-});
-
-// 압축기 상태 변화 조회
-router.get('/state-changes/:deviceId', (req, res) => {
-    try {
-        const deviceId = req.params.deviceId;
-        const changeLogFile = path.join(__dirname, '../../data/features', `state_changes_${deviceId}.json`);
-        
-        if (!fs.existsSync(changeLogFile)) {
-            return res.json([]);
+        const data = [];
+        for (const file of files) {
+            try {
+                const content = fs.readFileSync(file.filepath, 'utf8');
+                const parsed = JSON.parse(content);
+                
+                // 배열인 경우 각 항목을 개별적으로 추가
+                if (Array.isArray(parsed)) {
+                    data.push(...parsed);
+                } else {
+                    // 단일 객체인 경우 그대로 추가
+                    data.push(parsed);
+                }
+            } catch (err) {
+                console.error(`파일 읽기 오류: ${file.filename}`, err);
+            }
         }
         
-        const changes = JSON.parse(fs.readFileSync(changeLogFile, 'utf8'));
-        res.json(changes);
+        // 시간순으로 정렬 (최신이 먼저)
+        data.sort((a, b) => (b.timestamp || b.server_timestamp || 0) - (a.timestamp || a.server_timestamp || 0));
         
-    } catch (error) {
-        console.error('상태 변화 조회 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '상태 변화 조회 중 오류가 발생했습니다.',
-            error: error.message
-        });
-    }
-});
-
-// 이상 패턴 조회
-router.get('/anomalies/:deviceId', (req, res) => {
-    try {
-        const deviceId = req.params.deviceId;
-        const anomalyFile = path.join(__dirname, '../../data/features', `anomalies_${deviceId}.json`);
-        
-        if (!fs.existsSync(anomalyFile)) {
-            return res.json([]);
+        // 디바이스 ID 필터링
+        let filteredData = data;
+        if (deviceId) {
+            filteredData = data.filter(item => item.device_id === deviceId);
         }
         
-        const anomalies = JSON.parse(fs.readFileSync(anomalyFile, 'utf8'));
-        res.json(anomalies);
+        // 제한된 개수만 반환
+        filteredData = filteredData.slice(0, limit);
+        
+        res.json({
+            success: true,
+            data: filteredData,
+            count: filteredData.length,
+            total: data.length
+        });
         
     } catch (error) {
-        console.error('이상 패턴 조회 오류:', error);
+        console.error('ESP32 특징 데이터 조회 오류:', error);
         res.status(500).json({
             success: false,
-            message: '이상 패턴 조회 중 오류가 발생했습니다.',
+            message: 'ESP32 특징 데이터 조회 중 오류가 발생했습니다.',
             error: error.message
         });
     }

@@ -203,58 +203,6 @@
                 </div>
             </div>
 
-            <!-- AI 분석 결과 -->
-            <div class="card ai-analysis-card">
-                <h3>🤖 AI 이상 감지 분석</h3>
-                <div class="ai-status-grid">
-                    <div class="ai-status-item">
-                        <div class="ai-status-label">AI 상태</div>
-                        <div class="ai-status-value" id="aiStatus">로딩 중...</div>
-                    </div>
-                    <div class="ai-status-item">
-                        <div class="ai-status-label">이상 점수</div>
-                        <div class="ai-status-value" id="aiAnomalyScore">0.0%</div>
-                    </div>
-                    <div class="ai-status-item">
-                        <div class="ai-status-label">신뢰도</div>
-                        <div class="ai-status-value" id="aiConfidence">0.0%</div>
-                    </div>
-                    <div class="ai-status-item">
-                        <div class="ai-status-label">심각도</div>
-                        <div class="ai-status-value" id="aiSeverity">정상</div>
-                    </div>
-                </div>
-                <div class="ai-recommendation">
-                    <div class="ai-recommendation-label">권장사항:</div>
-                    <div class="ai-recommendation-text" id="aiRecommendation">AI 분석 중...</div>
-                </div>
-                <div class="ai-analysis-time">
-                    <small>마지막 분석: <span id="aiAnalysisTime">--:--:--</span></small>
-                </div>
-            </div>
-
-            <!-- AI 분석 차트들 -->
-            <div class="card">
-                <h3>📊 AI 이상 점수 추이</h3>
-                <div class="chart-container">
-                    <canvas id="aiAnomalyChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>📈 시간대별 이상 감지 빈도</h3>
-                <div class="chart-container">
-                    <canvas id="aiFrequencyChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>📊 AI 신뢰도 분포</h3>
-                <div class="chart-container">
-                    <canvas id="aiConfidenceChart"></canvas>
-                </div>
-            </div>
-
             <!-- 최근 데이터 테이블 -->
             <div class="card">
                 <h3>📋 최근 센서 데이터</h3>
@@ -278,7 +226,6 @@
     <script src="/static/js/esp32_utils.js"></script>
     <script src="/static/js/esp32_api.js"></script>
     <script src="/static/js/esp32_charts.js"></script>
-    <script src="/static/js/esp32_ai_dashboard.js"></script>
     <script src="/static/js/esp32_dashboard.js"></script>
 </body>
 </html>

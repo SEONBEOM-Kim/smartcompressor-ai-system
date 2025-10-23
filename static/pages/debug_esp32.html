@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 디버깅 페이지</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>ESP32 API 디버깅</h1>
+    
+    <div class="debug-section">
+        <h2>1. API 연결 테스트</h2>
+        <button onclick="testAPI()">API 테스트 실행</button>
+        <div id="api-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>2. 데이터 표시</h2>
+        <div id="data-display"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>3. 오류 로그</h2>
+        <div id="error-log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('error-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : 'success';
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            const dataDiv = document.getElementById('data-display');
+            
+            try {
+                log('API 호출 시작...');
+                
+                const response = await fetch('/api/esp32/features/recent?limit=5&hours=1');
+                log(`응답 상태: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log(`데이터 수신 성공: success=${data.success}, count=${data.data ? data.data.length : 0}`);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ API 연결 성공<br>
+                        Status: ${response.status}<br>
+                        Success: ${data.success}<br>
+                        Data Count: ${data.data ? data.data.length : 0}
+                    </div>
+                `;
+                
+                if (data.data && data.data.length > 0) {
+                    dataDiv.innerHTML = `
+                        <h3>최신 데이터 (${data.data.length}개):</h3>
+                        <pre>${JSON.stringify(data.data[0], null, 2)}</pre>
+                    `;
+                } else {
+                    dataDiv.innerHTML = '<div class="error">❌ 데이터가 없습니다</div>';
+                }
+                
+            } catch (error) {
+                log(`오류 발생: ${error.message}`, 'error');
+                resultDiv.innerHTML = `<div class="error">❌ 오류: ${error.message}</div>`;
+                dataDiv.innerHTML = '';
+            }
+        }
+
+        // 페이지 로드 시 자동 테스트
+        window.onload = function() {
+            log('페이지 로드 완료');
+            testAPI();
+        };
+    </script>
+</body>
+</html>

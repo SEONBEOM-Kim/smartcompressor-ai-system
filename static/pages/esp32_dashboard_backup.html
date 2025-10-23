@@ -1,0 +1,4464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 센서 모니터링 대시보드</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .sensor-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .sensor-selector select {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            background: white;
+            color: #2c3e50;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .sensor-selector select:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .data-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .data-controls select, .data-controls input {
+            padding: 8px 15px;
+            border: 2px solid #3498db;
+            border-radius: 20px;
+            background: white;
+            color: #2c3e50;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .status-online { color: #27ae60; }
+        .status-offline { color: #e74c3c; }
+        .status-warning { color: #f39c12; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .compressor-analysis {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .on-off-ratio {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .ratio-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 120px;
+        }
+
+        .ratio-on {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .ratio-off {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .ratio-percentage {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ratio-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .ratio-summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .summary-item {
+            text-align: center;
+            margin: 5px;
+        }
+
+        .summary-label {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            display: block;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* 온도-압축기 상관관계 분석 스타일 */
+        .correlation-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* 관리자 대시보드 스타일 */
+        .admin-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .admin-dashboard h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .trend-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .trend-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .trend-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .trend-controls .btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .trend-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .trend-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .trend-insights {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .trend-insights h4 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .insights-container {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+        }
+
+        .insight-item.warning {
+            border-left-color: #f39c12;
+        }
+
+        .insight-item.danger {
+            border-left-color: #e74c3c;
+        }
+
+        .insight-item.success {
+            border-left-color: #27ae60;
+        }
+
+        /* 이상 데이터 분석 스타일 */
+        .anomaly-analysis {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .anomaly-analysis h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .anomaly-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .anomaly-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .anomaly-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .anomaly-controls select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .anomaly-controls select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .anomaly-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .anomaly-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            transition: all 0.3s ease;
+        }
+
+        .anomaly-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .anomaly-item.high-db {
+            border-left-color: #e74c3c;
+        }
+
+        .anomaly-item.temp-anomaly {
+            border-left-color: #3498db;
+        }
+
+        .anomaly-item.power-anomaly {
+            border-left-color: #9b59b6;
+        }
+
+        .anomaly-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .anomaly-time {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .anomaly-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .anomaly-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .anomaly-detail {
+            text-align: center;
+        }
+
+        .anomaly-detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .anomaly-detail-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .correlation-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* 고장 감지 시스템 스타일 */
+        .failure-detection {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: 2px solid #e74c3c;
+        }
+
+        .failure-detection h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .failure-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f39c12;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: #27ae60;
+        }
+
+        .status-dot.failure {
+            background: #e74c3c;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .adaptive-threshold {
+            text-align: right;
+        }
+
+        .threshold-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .threshold-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .failure-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .failure-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .failure-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .failure-controls select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .failure-controls select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .failure-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .failure-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            transition: all 0.3s ease;
+        }
+
+        .failure-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .failure-item.compressor-failure {
+            border-left-color: #e74c3c;
+        }
+
+        .failure-item.motor-failure {
+            border-left-color: #3498db;
+        }
+
+        .failure-item.bearing-failure {
+            border-left-color: #9b59b6;
+        }
+
+        .failure-item.electrical-failure {
+            border-left-color: #f39c12;
+        }
+
+        .failure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .failure-time {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .failure-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .failure-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .failure-detail {
+            text-align: center;
+        }
+
+        .failure-detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .failure-detail-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
+            transition: width 0.3s ease;
+        }
+
+        /* 고장 알림 스타일 */
+        .failure-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            z-index: 10000;
+            animation: slideIn 0.5s ease-out;
+            max-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-content h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .alert-content p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        /* 맥락 기반 학습 시스템 스타일 */
+        .contextual-learning {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border: 2px solid #9b59b6;
+        }
+
+        .contextual-learning h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .learning-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .learning-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f39c12, #27ae60);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .learning-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .control-group select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .control-group input[type="range"] {
+            width: 80px;
+        }
+
+        .learning-controls .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .learning-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .learning-controls .btn.primary {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: rgba(46, 204, 113, 0.5);
+        }
+
+        .learning-controls .btn.primary:hover {
+            background: rgba(46, 204, 113, 0.5);
+        }
+
+        .learning-filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .learning-filters select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .learning-filters select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .learning-results {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .learning-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            transition: all 0.3s ease;
+        }
+
+        .learning-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .learning-item.gradual-degradation {
+            border-left-color: #e67e22;
+        }
+
+        .learning-item.sudden-failure {
+            border-left-color: #e74c3c;
+        }
+
+        .learning-item.intermittent-failure {
+            border-left-color: #3498db;
+        }
+
+        .learning-item.cascade-failure {
+            border-left-color: #9b59b6;
+        }
+
+        .learning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .learning-time {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .learning-pattern {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .learning-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .learning-detail {
+            text-align: center;
+        }
+
+        .learning-detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .learning-detail-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
+            transition: width 0.3s ease;
+        }
+
+        /* 학습 통계 스타일 */
+        .learning-statistics {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .learning-statistics h4 {
+            margin: 0 0 15px 0;
+            text-align: center;
+            color: #f39c12;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .pattern-breakdown,
+        .failure-breakdown {
+            margin-top: 15px;
+        }
+
+        .pattern-breakdown h5,
+        .failure-breakdown h5 {
+            margin: 0 0 10px 0;
+            color: #3498db;
+        }
+
+        .pattern-item,
+        .failure-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 3px solid #f39c12;
+        }
+
+        .pattern-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            margin: 5px;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>🧊 ESP32 아이스크림 가게 모니터링</h1>
+            <p>실시간 압축기 상태 및 센서 데이터 분석</p>
+            
+            <!-- 센서 선택 -->
+            <div class="sensor-selector">
+                <label for="sensorSelect">센서 선택:</label>
+                <select id="sensorSelect" onchange="changeSensor()">
+                    <option value="">전체 센서</option>
+                </select>
+            </div>
+            
+            <!-- 데이터 제어 -->
+            <div class="data-controls">
+                <div>
+                    <label for="dataLimit">데이터 개수:</label>
+                    <select id="dataLimit" onchange="loadData()">
+                        <option value="50">50개</option>
+                        <option value="100" selected>100개</option>
+                        <option value="200">200개</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="timeRange">시간 범위:</label>
+                    <select id="timeRange" onchange="loadData()">
+                        <option value="6">최근 6시간</option>
+                        <option value="12">최근 12시간</option>
+                        <option value="24" selected>최근 24시간</option>
+                        <option value="72">최근 3일</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상태 바 -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-value" id="connectionStatus">연결 중...</div>
+                <div class="status-label">연결 상태</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="deviceCount">0</div>
+                <div class="status-label">활성 디바이스</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="lastUpdate">--:--</div>
+                <div class="status-label">마지막 업데이트</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="dataCount">0</div>
+                <div class="status-label">총 데이터 수</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="soundType">-</div>
+                <div class="status-label">소리 유형</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="intensityLevel">-</div>
+                <div class="status-label">강도 레벨</div>
+            </div>
+        </div>
+
+        <!-- 알림 영역 -->
+        <div id="alerts"></div>
+
+        <!-- 컨트롤 -->
+        <div class="controls">
+            <button class="btn btn-primary" onclick="refreshData()">🔄 새로고침</button>
+            <button class="btn btn-success" onclick="startAutoRefresh()">▶️ 자동 새로고침</button>
+            <button class="btn btn-warning" onclick="stopAutoRefresh()">⏸️ 자동 새로고침 중지</button>
+            <a href="/audio-research" class="btn btn-primary">🎵 오디오 연구</a>
+        </div>
+
+        <!-- 메인 그리드 -->
+        <div class="grid">
+            <!-- 압축기 작동 패턴 차트 -->
+            <div class="card">
+                <h3>📊 압축기 작동 패턴 분석</h3>
+                <div class="chart-container">
+                    <canvas id="compressorChart"></canvas>
+                </div>
+                <div class="pattern-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">평균 작동 시간:</span>
+                        <span class="stat-value" id="avgOnTime">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">평균 대기 시간:</span>
+                        <span class="stat-value" id="avgOffTime">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">작동 주기:</span>
+                        <span class="stat-value" id="cycleCount">-</span>
+                    </div>
+                <div class="stat-item">
+                    <span class="stat-label">작동 효율성:</span>
+                    <span class="stat-value" id="efficiency">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">패턴 안정성:</span>
+                    <span class="stat-value" id="stability">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">현재 온도:</span>
+                    <span class="stat-value" id="currentTemp">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">예상 작동비율:</span>
+                    <span class="stat-value" id="expectedRatio">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">온도 효율성:</span>
+                    <span class="stat-value" id="tempEfficiency">-</span>
+                </div>
+                    <div class="stat-item">
+                        <span class="stat-label">패턴 트렌드:</span>
+                        <span class="stat-value" id="patternTrend">-</span>
+                    </div>
+                </div>
+            <div class="chart-container">
+                <canvas id="cyclePatternChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 맥락 기반 고장 라벨링 AI 학습 -->
+        <div class="card contextual-learning">
+            <h3>🧠 맥락 기반 고장 라벨링 AI 학습</h3>
+            <div class="learning-status">
+                <div class="status-indicator">
+                    <span class="status-dot" id="learningStatus"></span>
+                    <span class="status-text" id="learningStatusText">AI 학습 대기 중...</span>
+                </div>
+                <div class="learning-progress">
+                    <span class="progress-label">학습 진행도:</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="learningProgress" style="width: 0%"></div>
+                    </div>
+                    <span class="progress-text" id="learningProgressText">0%</span>
+                </div>
+            </div>
+            <div class="learning-controls">
+                <div class="control-group">
+                    <label>학습 기간:</label>
+                    <select id="learningPeriod">
+                        <option value="1">최근 1시간</option>
+                        <option value="6">최근 6시간</option>
+                        <option value="24" selected>최근 24시간</option>
+                        <option value="168">최근 1주일</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>윈도우 크기:</label>
+                    <select id="windowSize">
+                        <option value="60">1분</option>
+                        <option value="300" selected>5분</option>
+                        <option value="900">15분</option>
+                        <option value="3600">1시간</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>최소 신뢰도:</label>
+                    <input type="range" id="minConfidence" min="0" max="100" value="60" onchange="updateConfidenceDisplay()">
+                    <span id="confidenceDisplay">60%</span>
+                </div>
+                <button class="btn primary" onclick="startContextualLearning()">실시간 학습 시작</button>
+                <button class="btn" onclick="pauseLearning()">학습 일시정지</button>
+                <button class="btn" onclick="showLearningResults()">학습 결과 조회</button>
+                <button class="btn" onclick="showLearningStatistics()">학습 통계</button>
+                <button class="btn" onclick="exportLearningData()">데이터 내보내기</button>
+            </div>
+            <div class="learning-filters">
+                <select id="learningFilter" onchange="filterLearningResults()">
+                    <option value="all">전체 패턴</option>
+                    <option value="gradual_degradation">점진적 성능 저하</option>
+                    <option value="sudden_failure">급격한 고장</option>
+                    <option value="intermittent_failure">간헐적 고장</option>
+                    <option value="cascade_failure">계단식 고장</option>
+                    <option value="thermal_stress">열 응력</option>
+                    <option value="normal_operation">정상 운영</option>
+                </select>
+                <select id="failureTypeFilter" onchange="filterLearningResults()">
+                    <option value="all">전체 고장 유형</option>
+                    <option value="bearing_wear">베어링 마모</option>
+                    <option value="electrical_fault">전기 고장</option>
+                    <option value="mechanical_looseness">기계적 느슨함</option>
+                    <option value="compressor_fatigue">압축기 피로</option>
+                    <option value="normal">정상</option>
+                </select>
+            </div>
+            <div class="learning-results" id="learningResults">
+                <p>맥락 기반 AI 학습을 시작하려면 버튼을 클릭하세요.</p>
+            </div>
+        </div>
+
+        <!-- 24시간 고장 신호 자동 감지 -->
+        <div class="card failure-detection">
+            <h3>🚨 24시간 고장 신호 자동 감지</h3>
+            <div class="failure-status">
+                <div class="status-indicator" id="failureStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">모니터링 중...</span>
+                </div>
+                <div class="adaptive-threshold">
+                    <span class="threshold-label">적응형 임계값:</span>
+                    <span class="threshold-value" id="adaptiveThreshold">45.0 dB</span>
+                </div>
+            </div>
+            <div class="failure-controls">
+                <button class="btn" onclick="startFailureMonitoring()">고장 감지 시작</button>
+                <button class="btn" onclick="showFailureDetails()">고장 기록 조회</button>
+                <button class="btn" onclick="exportFailureReport()">고장 보고서</button>
+                <select id="failureFilter" onchange="filterFailures()">
+                    <option value="all">전체 고장</option>
+                    <option value="compressor_failure">압축기 고장</option>
+                    <option value="motor_failure">모터 고장</option>
+                    <option value="bearing_failure">베어링 고장</option>
+                    <option value="electrical_failure">전기 고장</option>
+                </select>
+            </div>
+            <div class="failure-list" id="failureList">
+                <p>고장 감지를 시작하려면 버튼을 클릭하세요.</p>
+            </div>
+        </div>
+
+        <!-- 이상 데이터 상세 분석 -->
+        <div class="card anomaly-analysis">
+            <h3>📊 이상 데이터 상세 분석</h3>
+            <div class="anomaly-controls">
+                <button class="btn" onclick="showAnomalyDetails()">이상 데이터 조회</button>
+                <button class="btn" onclick="clearAnomalyDetails()">목록 초기화</button>
+                <select id="anomalyFilter" onchange="filterAnomalies()">
+                    <option value="all">전체</option>
+                    <option value="high_db">고데시벨 (≥60dB)</option>
+                    <option value="low_temp">저온 (≤5°C)</option>
+                    <option value="high_temp">고온 (≥25°C)</option>
+                    <option value="power_anomaly">전력 이상</option>
+                </select>
+            </div>
+            <div class="anomaly-list" id="anomalyList">
+                <p>이상 데이터를 조회하려면 버튼을 클릭하세요.</p>
+            </div>
+        </div>
+
+        <!-- 온도-압축기 상관관계 분석 (간소화) -->
+        <div class="card">
+            <h3>🌡️ 온도-압축기 상관관계</h3>
+            <div class="correlation-summary">
+                <div class="stat-item">
+                    <span class="stat-label">상관계수:</span>
+                    <span class="stat-value" id="correlationCoeff">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">예측 정확도:</span>
+                    <span class="stat-value" id="predictionAccuracy">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">에너지 효율성:</span>
+                    <span class="stat-value" id="energyEfficiency">-</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="temperatureCorrelationChart"></canvas>
+            </div>
+        </div>
+
+            <!-- RMS 에너지 차트 -->
+            <div class="card">
+                <h3>🔊 소음 레벨 (RMS)</h3>
+                <div class="chart-container">
+                    <canvas id="rmsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 이상 점수 차트 -->
+            <div class="card">
+                <h3>⚠️ 이상 감지 점수</h3>
+                <div class="chart-container">
+                    <canvas id="anomalyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 데시벨 레벨 차트 -->
+            <div class="card">
+                <h3>🔊 데시벨 레벨</h3>
+                <div class="chart-container">
+                    <canvas id="decibelChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 압축기 상태 분석 -->
+            <div class="compressor-analysis">
+                <h3>🔧 압축기 상태 분석 (45dB 기준)</h3>
+                <div class="on-off-ratio">
+                    <div class="ratio-item ratio-on">
+                        <div class="ratio-percentage" id="onPercentage">0%</div>
+                        <div class="ratio-label">ON (≥45dB)</div>
+                    </div>
+                    <div class="ratio-item ratio-off">
+                        <div class="ratio-percentage" id="offPercentage">0%</div>
+                        <div class="ratio-label">OFF (<45dB)</div>
+                    </div>
+                </div>
+                <div class="ratio-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">총 측정 횟수:</span>
+                        <span class="summary-value" id="totalMeasurements">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">ON 횟수:</span>
+                        <span class="summary-value" id="onCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">OFF 횟수:</span>
+                        <span class="summary-value" id="offCount">0</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="compressorStateChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 실시간 메트릭 -->
+            <div class="card">
+                <h3>📈 실시간 메트릭</h3>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-value" id="currentRMS">0</div>
+                        <div class="metric-label">RMS 에너지</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="currentDecibel">0</div>
+                        <div class="metric-label">데시벨 (dB)</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="currentCompressor">OFF</div>
+                        <div class="metric-label">압축기 상태</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="currentAnomaly">0.0</div>
+                        <div class="metric-label">이상 점수</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="currentEfficiency">0.0</div>
+                        <div class="metric-label">효율성</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="currentSoundType">-</div>
+                        <div class="metric-label">소리 유형</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 데이터 테이블 -->
+            <div class="card">
+                <h3>📋 최근 센서 데이터</h3>
+                <div id="recentData">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        데이터 로딩 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="footer">
+            <p>Smart Compressor AI System - ESP32 센서 모니터링 대시보드</p>
+            <p>실시간 데이터 업데이트: <span id="updateTime">--:--:--</span></p>
+        </div>
+    </div>
+
+    <script>
+        // RMS를 데시벨로 변환하는 함수
+        function rmsToDecibel(rms) {
+            if (rms <= 0) return 0;
+            // 20 * log10(rms) 공식 사용
+            return 20 * Math.log10(rms);
+        }
+
+        // 전역 변수
+        let charts = {};
+        let autoRefreshInterval = null;
+        let dataHistory = {
+            timestamps: [],
+            compressor: [],
+            rms: [],
+            anomaly: [],
+            decibel: []
+        };
+
+        // 차트 초기화
+        function initializeCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: '데이터 포인트'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            };
+
+            // 압축기 상태 차트
+            charts.compressor = new Chart(document.getElementById('compressorChart'), {
+                type: 'line',
+                data: {
+                    labels: dataHistory.timestamps,
+                    datasets: [{
+                        label: '압축기 상태',
+                        data: dataHistory.compressor,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // RMS 차트
+            charts.rms = new Chart(document.getElementById('rmsChart'), {
+                type: 'line',
+                data: {
+                    labels: dataHistory.timestamps,
+                    datasets: [{
+                        label: 'RMS 에너지',
+                        data: dataHistory.rms,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // 이상 점수 차트
+            charts.anomaly = new Chart(document.getElementById('anomalyChart'), {
+                type: 'line',
+                data: {
+                    labels: dataHistory.timestamps,
+                    datasets: [{
+                        label: '이상 점수',
+                        data: dataHistory.anomaly,
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // 데시벨 차트
+            charts.decibel = new Chart(document.getElementById('decibelChart'), {
+                type: 'line',
+                data: {
+                    labels: dataHistory.timestamps,
+                    datasets: [{
+                        label: '데시벨 (dB)',
+                        data: dataHistory.decibel,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // 데이터 새로고침
+        async function refreshData() {
+            try {
+                console.log('[DEBUG] refreshData 시작');
+                
+                // 상태 업데이트
+                document.getElementById('connectionStatus').textContent = '연결 중...';
+                document.getElementById('connectionStatus').className = 'status-value status-warning';
+
+                console.log('[DEBUG] API 호출 시작: /api/sensor/recent');
+                
+                const sensorId = document.getElementById('sensorSelect').value;
+                const limit = document.getElementById('dataLimit').value;
+                const hours = document.getElementById('timeRange').value;
+                
+                let url = `/api/sensor/recent?limit=${limit}&hours=${hours}`;
+                if (sensorId) {
+                    url += `&device_id=${encodeURIComponent(sensorId)}`;
+                }
+                
+                console.log('[DEBUG] 요청 URL:', url);
+                
+                // 최근 데이터 가져오기
+                const response = await fetch(url);
+                console.log('[DEBUG] API 응답 상태:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('[ERROR] 응답이 JSON이 아닙니다:', text.substring(0, 200));
+                    throw new Error('서버가 JSON이 아닌 응답을 반환했습니다.');
+                }
+                
+                const data = await response.json();
+                console.log('[DEBUG] API 응답 데이터:', data);
+
+                if (data.success) {
+                    console.log('[DEBUG] 데이터 업데이트 시작, 데이터 개수:', data.data.length);
+                    updateDashboard(data.data);
+                    document.getElementById('connectionStatus').textContent = '연결됨';
+                    document.getElementById('connectionStatus').className = 'status-value status-online';
+                    console.log('[DEBUG] 연결 상태 업데이트 완료');
+                } else {
+                    throw new Error(data.message || '데이터 로드 실패');
+                }
+
+            } catch (error) {
+                console.error('[DEBUG] 데이터 로드 오류:', error);
+                document.getElementById('connectionStatus').textContent = '연결 실패';
+                document.getElementById('connectionStatus').className = 'status-value status-offline';
+                showAlert('데이터 로드 실패: ' + error.message, 'danger');
+            }
+        }
+
+        // 대시보드 업데이트
+        function updateDashboard(data) {
+            if (!data || data.length === 0) {
+                showAlert('데이터가 없습니다.', 'warning');
+                return;
+            }
+
+            // 최신 데이터로 메트릭 업데이트
+            const latest = data[0];
+            const currentDecibel = rmsToDecibel(latest.rms_energy);
+            document.getElementById('currentRMS').textContent = latest.rms_energy.toFixed(2);
+            document.getElementById('currentDecibel').textContent = currentDecibel.toFixed(1) + ' dB';
+            // 45dB 기준으로 압축기 상태 결정
+            document.getElementById('currentCompressor').textContent = currentDecibel >= 45 ? 'ON' : 'OFF';
+            document.getElementById('currentAnomaly').textContent = latest.anomaly_score.toFixed(3);
+            document.getElementById('currentEfficiency').textContent = latest.efficiency_score.toFixed(3);
+            
+            // 새로운 고급 특징 업데이트
+            const soundType = latest.sound_type || 0;
+            const soundTypeNames = ['정적', '압축기', '팬', '이상음', '기타'];
+            const soundTypeName = soundTypeNames[Math.round(soundType)] || '알 수 없음';
+            const soundTypeColors = ['#95a5a6', '#e74c3c', '#3498db', '#f39c12', '#9b59b6'];
+            const soundTypeColor = soundTypeColors[Math.round(soundType)] || '#95a5a6';
+            
+            const soundTypeElement = document.getElementById('soundType');
+            soundTypeElement.textContent = soundTypeName;
+            soundTypeElement.style.color = soundTypeColor;
+            
+            const intensityLevel = (latest.intensity_level || 0) * 100;
+            const intensityElement = document.getElementById('intensityLevel');
+            intensityElement.textContent = intensityLevel.toFixed(1) + '%';
+            
+            // 강도에 따른 색상 변경
+            if (intensityLevel > 70) {
+                intensityElement.style.color = '#e74c3c'; // 빨간색
+            } else if (intensityLevel > 40) {
+                intensityElement.style.color = '#f39c12'; // 주황색
+            } else {
+                intensityElement.style.color = '#27ae60'; // 초록색
+            }
+
+            // 상태 바 업데이트
+            document.getElementById('deviceCount').textContent = new Set(data.map(d => d.device_id)).size;
+            document.getElementById('dataCount').textContent = data.length;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
+
+            // 차트 데이터 업데이트
+            updateCharts(data);
+            updateRecentDataTable(data);
+
+            // 알림 체크
+            checkAlerts(latest);
+        }
+
+        // 압축기 상태 분석 (45dB 기준)
+        function updateCompressorAnalysis(data) {
+            if (!data || data.length === 0) return;
+
+            // 데시벨 값 계산
+            const decibelValues = data.map(d => rmsToDecibel(d.rms_energy));
+            
+            // 압축기 상태 분류 (45dB 기준)
+            let onCount = 0;
+            let offCount = 0;
+            const compressorStates = [];
+
+            decibelValues.forEach((db, index) => {
+                let state;
+                if (db >= 45) {
+                    state = 1; // ON (45dB 이상)
+                    onCount++;
+                } else {
+                    state = 0; // OFF (45dB 미만)
+                    offCount++;
+                }
+                compressorStates.push(state);
+            });
+
+            // 비율 계산
+            const total = data.length;
+            const onPercentage = total > 0 ? Math.round((onCount / total) * 100) : 0;
+            const offPercentage = total > 0 ? Math.round((offCount / total) * 100) : 0;
+
+            // UI 업데이트
+            document.getElementById('onPercentage').textContent = onPercentage + '%';
+            document.getElementById('offPercentage').textContent = offPercentage + '%';
+            document.getElementById('totalMeasurements').textContent = total;
+            document.getElementById('onCount').textContent = onCount;
+            document.getElementById('offCount').textContent = offCount;
+
+            // 압축기 상태 차트 업데이트
+            updateCompressorStateChart(data, compressorStates);
+        }
+
+        // 압축기 상태 차트 업데이트
+        function updateCompressorStateChart(data, states) {
+            if (!charts.compressorState) {
+                const ctx = document.getElementById('compressorStateChart').getContext('2d');
+                charts.compressorState = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '압축기 상태',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                        }, {
+                            label: '데시벨 레벨',
+                            data: [],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                min: 0,
+                                max: 1,
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value === 1) return 'ON';
+                                        if (value === 0) return 'OFF';
+                                        return '중간';
+                                    }
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                min: 0,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + ' dB';
+                                    }
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        if (context.datasetIndex === 0) {
+                                            const db = rmsToDecibel(data[context.dataIndex].rms_energy);
+                                            return `데시벨: ${db.toFixed(1)} dB`;
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 최근 50개 데이터만 표시
+            const limit = Math.min(50, data.length);
+            const labels = Array.from({length: limit}, (_, i) => i + 1);
+            const decibelValues = data.slice(0, limit).map(d => rmsToDecibel(d.rms_energy));
+
+            charts.compressorState.data.labels = labels;
+            charts.compressorState.data.datasets[0].data = states.slice(0, limit);
+            charts.compressorState.data.datasets[1].data = decibelValues;
+            charts.compressorState.update();
+        }
+
+        // 압축기 작동 패턴 분석 (사이클별 이상 감지)
+        function analyzeCompressorPattern(data) {
+            if (!data || data.length === 0) return;
+
+            // 45dB 기준으로 압축기 상태 계산
+            const compressorStates = data.map(d => rmsToDecibel(d.rms_energy) >= 45 ? 1 : 0);
+
+            // 사이클별 분석
+            let cycles = [];
+            let currentCycle = { onTime: 0, offTime: 0, totalTime: 0, onRatio: 0 };
+            let isOn = false;
+            let cycleCount = 0;
+
+            for (let i = 0; i < compressorStates.length; i++) {
+                const isCurrentlyOn = compressorStates[i] === 1;
+
+                if (isCurrentlyOn && !isOn) {
+                    // OFF -> ON 전환 (새 사이클 시작)
+                    if (currentCycle.totalTime > 0) {
+                        currentCycle.onRatio = currentCycle.onTime / currentCycle.totalTime;
+                        cycles.push({...currentCycle});
+                    }
+                    currentCycle = { onTime: 0, offTime: 0, totalTime: 0, onRatio: 0 };
+                    isOn = true;
+                    cycleCount++;
+                } else if (!isCurrentlyOn && isOn) {
+                    // ON -> OFF 전환
+                    isOn = false;
+                }
+
+                if (isOn) {
+                    currentCycle.onTime++;
+                } else {
+                    currentCycle.offTime++;
+                }
+                currentCycle.totalTime++;
+            }
+
+            // 마지막 사이클 처리
+            if (currentCycle.totalTime > 0) {
+                currentCycle.onRatio = currentCycle.onTime / currentCycle.totalTime;
+                cycles.push(currentCycle);
+            }
+
+            // 이상 감지 분석
+            const anomalyAnalysis = detectPatternAnomalies(cycles);
+            
+            // 통계 계산
+            const avgOnTime = cycles.length > 0 ? Math.round(cycles.reduce((sum, cycle) => sum + cycle.onTime, 0) / cycles.length) : 0;
+            const avgOffTime = cycles.length > 0 ? Math.round(cycles.reduce((sum, cycle) => sum + cycle.offTime, 0) / cycles.length) : 0;
+            const avgOnRatio = cycles.length > 0 ? (cycles.reduce((sum, cycle) => sum + cycle.onRatio, 0) / cycles.length * 100) : 0;
+
+            // UI 업데이트
+            document.getElementById('avgOnTime').textContent = avgOnTime > 0 ? `${avgOnTime}분` : '-';
+            document.getElementById('avgOffTime').textContent = avgOffTime > 0 ? `${avgOffTime}분` : '-';
+            document.getElementById('cycleCount').textContent = cycleCount > 0 ? `${cycleCount}회` : '-';
+
+            // 이상 감지 점수 업데이트
+            updateAnomalyScore(anomalyAnalysis.anomalyScore);
+            
+            // 효율성 및 안정성 계산
+            const efficiency = typeof avgOnRatio === 'number' && avgOnRatio > 0 ? avgOnRatio : 0;
+            const stability = typeof anomalyAnalysis.anomalyScore === 'number' ? (100 - anomalyAnalysis.anomalyScore) : 100;
+            
+            // UI 업데이트
+            document.getElementById('efficiency').textContent = efficiency > 0 ? `${Number(efficiency).toFixed(1)}%` : '-';
+            document.getElementById('stability').textContent = stability > 0 ? `${Number(stability).toFixed(0)}%` : '-';
+            
+            // 온도 정보 업데이트
+            if (anomalyAnalysis.weatherData) {
+                document.getElementById('currentTemp').textContent = `${anomalyAnalysis.weatherData.temperature}°C`;
+                if (anomalyAnalysis.normalRange) {
+                    document.getElementById('expectedRatio').textContent = `${(anomalyAnalysis.normalRange.predicted * 100).toFixed(1)}%`;
+                    document.getElementById('tempEfficiency').textContent = `${anomalyAnalysis.normalRange.efficiency}점`;
+                }
+            } else {
+                document.getElementById('currentTemp').textContent = '데이터 없음';
+                document.getElementById('expectedRatio').textContent = '-';
+                document.getElementById('tempEfficiency').textContent = '-';
+            }
+            
+            // 트렌드 표시
+            const trendElement = document.getElementById('patternTrend');
+            if (trendElement) {
+                const trendText = {
+                    'increasing': '📈 증가',
+                    'decreasing': '📉 감소', 
+                    'stable': '➡️ 안정',
+                    'insufficient_data': '❓ 데이터 부족'
+                };
+                trendElement.textContent = trendText[anomalyAnalysis.trend] || '❓';
+                
+                // 트렌드에 따른 색상
+                if (anomalyAnalysis.trend === 'increasing') {
+                    trendElement.style.color = '#e74c3c';
+                } else if (anomalyAnalysis.trend === 'decreasing') {
+                    trendElement.style.color = '#3498db';
+                } else {
+                    trendElement.style.color = '#27ae60';
+                }
+            }
+            
+            // 개선된 사이클 패턴 차트 업데이트
+            updateImprovedCycleChart(cycles, anomalyAnalysis);
+
+            // 온도-압축기 상관관계 분석
+            analyzeTemperatureCorrelation(cycles, anomalyAnalysis);
+
+            return {
+                cycles,
+                cycleCount,
+                avgOnTime,
+                avgOffTime,
+                avgOnRatio,
+                anomalyAnalysis
+            };
+        }
+
+        // 온도 기반 지능형 이상 감지 시스템
+        let weatherData = null;
+        let lastWeatherUpdate = 0;
+        const WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000; // 30분마다 업데이트
+
+        // 기상 데이터 가져오기 (서버 API 사용)
+        async function fetchWeatherData() {
+            const now = Date.now();
+            if (now - lastWeatherUpdate < WEATHER_UPDATE_INTERVAL && weatherData) {
+                return weatherData;
+            }
+
+            try {
+                // 서버의 기상 API 사용 (서버에서 캐싱됨)
+                const response = await fetch('/api/weather/current');
+                const data = await response.json();
+                
+                if (data.success) {
+                    weatherData = {
+                        temperature: data.temperature,
+                        humidity: data.humidity,
+                        timestamp: now,
+                        location: data.location
+                    };
+                    lastWeatherUpdate = now;
+                    
+                    console.log('🌡️ 기상 데이터 업데이트:', weatherData);
+                    return weatherData;
+                } else {
+                    console.error('기상 데이터 가져오기 실패:', data.message);
+                    return null;
+                }
+            } catch (error) {
+                console.error('기상 데이터 가져오기 실패:', error);
+                return null;
+            }
+        }
+
+        // 온도-압축기 동작 상관관계 분석 알고리즘
+        function predictNormalOperationRange(temperature, timeOfDay) {
+            // 계절별 기본 작동 비율 (온도별)
+            let baseOperationRatio;
+            if (temperature < 0) {
+                baseOperationRatio = 0.8; // 매우 추운 날: 80% 작동
+            } else if (temperature < 10) {
+                baseOperationRatio = 0.7; // 추운 날: 70% 작동
+            } else if (temperature < 20) {
+                baseOperationRatio = 0.5; // 적당한 날: 50% 작동
+            } else if (temperature < 30) {
+                baseOperationRatio = 0.3; // 따뜻한 날: 30% 작동
+            } else {
+                baseOperationRatio = 0.2; // 더운 날: 20% 작동
+            }
+            
+            // 시간대 계수 (낮/밤 패턴)
+            let timeCoefficient;
+            if (timeOfDay >= 22 || timeOfDay <= 6) {
+                timeCoefficient = 0.6; // 밤시간: 60% 감소
+            } else if (timeOfDay >= 7 && timeOfDay <= 9) {
+                timeCoefficient = 1.2; // 아침 출근시간: 20% 증가
+            } else if (timeOfDay >= 18 && timeOfDay <= 21) {
+                timeCoefficient = 1.1; // 저녁 시간: 10% 증가
+            } else {
+                timeCoefficient = 1.0; // 일반 시간
+            }
+            
+            // 예측된 정상 작동 비율
+            const predictedRatio = baseOperationRatio * timeCoefficient;
+            
+            // 온도별 허용 오차 범위 (온도가 극단적일수록 오차 범위 증가)
+            let tolerance;
+            if (temperature < 0 || temperature > 35) {
+                tolerance = 0.3; // 극한 온도: 30% 오차 허용
+            } else if (temperature < 5 || temperature > 30) {
+                tolerance = 0.25; // 극한에 가까운 온도: 25% 오차 허용
+            } else {
+                tolerance = 0.2; // 일반 온도: 20% 오차 허용
+            }
+            
+            return {
+                min: Math.max(0, predictedRatio - tolerance),
+                max: Math.min(1, predictedRatio + tolerance),
+                predicted: predictedRatio,
+                temperature: temperature,
+                timeOfDay: timeOfDay,
+                efficiency: calculateEfficiencyScore(temperature, timeOfDay, predictedRatio)
+            };
+        }
+
+        // 효율성 점수 계산 (0-100점)
+        function calculateEfficiencyScore(temperature, timeOfDay, predictedRatio) {
+            // 온도 효율성 (적정 온도 범위에서 높은 점수)
+            let tempEfficiency = 100;
+            if (temperature < 0 || temperature > 35) {
+                tempEfficiency = 30; // 극한 온도
+            } else if (temperature < 5 || temperature > 30) {
+                tempEfficiency = 60; // 극한에 가까운 온도
+            } else if (temperature >= 10 && temperature <= 25) {
+                tempEfficiency = 100; // 최적 온도
+            } else {
+                tempEfficiency = 80; // 양호한 온도
+            }
+            
+            // 시간대 효율성
+            let timeEfficiency = 100;
+            if (timeOfDay >= 22 || timeOfDay <= 6) {
+                timeEfficiency = 70; // 밤시간
+            } else if (timeOfDay >= 7 && timeOfDay <= 9) {
+                timeEfficiency = 90; // 아침 출근시간
+            } else {
+                timeEfficiency = 100; // 일반 시간
+            }
+            
+            // 종합 효율성 점수
+            return Math.round((tempEfficiency * 0.7 + timeEfficiency * 0.3));
+        }
+
+        // 패턴 이상 감지 알고리즘 (온도 기반)
+        async function detectPatternAnomalies(cycles) {
+            if (cycles.length < 3) {
+                return { anomalyScore: 0, anomalies: [], trend: 'insufficient_data' };
+            }
+
+            // 1. 기상 데이터 가져오기
+            const weather = await fetchWeatherData();
+            const currentTime = new Date();
+            const timeOfDay = currentTime.getHours();
+            
+            const recentCycles = cycles.slice(-5); // 최근 5개 사이클
+            const onTimes = recentCycles.map(cycle => cycle.onTime);
+            const onRatios = recentCycles.map(cycle => cycle.onRatio);
+            
+            // 2. 온도 기반 정상 범위 예측
+            let normalRange = null;
+            if (weather) {
+                normalRange = predictNormalOperationRange(weather.temperature, timeOfDay);
+            }
+            
+            // 3. 기본 통계 계산
+            const avgOnTime = onTimes.reduce((sum, time) => sum + time, 0) / onTimes.length;
+            const avgOnRatio = onRatios.reduce((sum, ratio) => sum + ratio, 0) / onRatios.length;
+            const currentOnRatio = onRatios[onRatios.length - 1];
+            
+            let anomalyScore = 0;
+            const anomalies = [];
+            
+            // 4. 온도 기반 이상 감지
+            if (normalRange) {
+                const isWithinNormalRange = currentOnRatio >= normalRange.min && currentOnRatio <= normalRange.max;
+                
+                if (!isWithinNormalRange) {
+                    const deviation = Math.abs(currentOnRatio - normalRange.predicted);
+                    const severity = Math.min(deviation / 0.2, 1); // 20% 이상 벗어나면 최대 점수
+                    anomalyScore = Math.max(anomalyScore, severity);
+                    
+                    if (currentOnRatio > normalRange.max) {
+                        anomalies.push(`온도 대비 과부하: ${(currentOnRatio * 100).toFixed(1)}% (예상: ${(normalRange.predicted * 100).toFixed(1)}%, 온도: ${weather.temperature}°C)`);
+                    } else {
+                        anomalies.push(`온도 대비 저부하: ${(currentOnRatio * 100).toFixed(1)}% (예상: ${(normalRange.predicted * 100).toFixed(1)}%, 온도: ${weather.temperature}°C)`);
+                    }
+                } else {
+                    anomalies.push(`정상 작동 범위 내 (온도: ${weather.temperature}°C, 예상: ${(normalRange.predicted * 100).toFixed(1)}%)`);
+                }
+            } else {
+                // 5. 기상 데이터 없을 때 기존 방식 사용
+                const timeVariance = onTimes.reduce((sum, time) => sum + Math.pow(time - avgOnTime, 2), 0) / onTimes.length;
+                const ratioVariance = onRatios.reduce((sum, ratio) => sum + Math.pow(ratio - avgOnRatio, 2), 0) / onRatios.length;
+                const timeStdDev = Math.sqrt(timeVariance);
+                const ratioStdDev = Math.sqrt(ratioVariance);
+                
+                if (timeStdDev > 0) {
+                    const timeZScore = Math.abs(onTimes[onTimes.length - 1] - avgOnTime) / timeStdDev;
+                    anomalyScore = Math.max(anomalyScore, Math.min(timeZScore / 2, 1));
+                }
+                
+                if (ratioStdDev > 0) {
+                    const ratioZScore = Math.abs(currentOnRatio - avgOnRatio) / ratioStdDev;
+                    anomalyScore = Math.max(anomalyScore, Math.min(ratioZScore / 2, 1));
+                }
+            }
+            
+            // 6. 트렌드 분석
+            let trend = 'stable';
+            if (onTimes.length >= 3) {
+                const recentTrend = onTimes.slice(-3);
+                const isIncreasing = recentTrend[2] > recentTrend[1] && recentTrend[1] > recentTrend[0];
+                const isDecreasing = recentTrend[2] < recentTrend[1] && recentTrend[1] < recentTrend[0];
+                
+                if (isIncreasing) trend = 'increasing';
+                else if (isDecreasing) trend = 'decreasing';
+            }
+            
+            // 7. 종합 이상 점수 (0-100점)
+            const finalScore = Math.round(anomalyScore * 100);
+            
+            return {
+                anomalyScore: finalScore,
+                anomalies,
+                trend,
+                avgOnRatio: avgOnRatio * 100,
+                currentOnRatio: currentOnRatio * 100,
+                avgOnTime: avgOnTime,
+                currentOnTime: onTimes[onTimes.length - 1],
+                weatherData: weather,
+                normalRange: normalRange
+            };
+        }
+
+        // 이상 감지 점수 업데이트 (0-100점)
+        function updateAnomalyScore(score) {
+            const anomalyElement = document.getElementById('currentAnomaly');
+            if (anomalyElement) {
+                anomalyElement.textContent = `${score}점`;
+                
+                // 색상 변경 (0-100점 기준)
+                if (score >= 70) {
+                    anomalyElement.style.color = '#e74c3c'; // 빨간색 - 위험
+                } else if (score >= 40) {
+                    anomalyElement.style.color = '#f39c12'; // 주황색 - 주의
+                } else if (score >= 20) {
+                    anomalyElement.style.color = '#f1c40f'; // 노란색 - 경고
+                } else {
+                    anomalyElement.style.color = '#27ae60'; // 초록색 - 정상
+                }
+            }
+        }
+
+        // 통합된 작동 패턴 흐름 차트
+        function updateImprovedCycleChart(cycles, anomalyAnalysis) {
+            if (!charts.cyclePattern) {
+                const ctx = document.getElementById('cyclePatternChart').getContext('2d');
+                charts.cyclePattern = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '작동 패턴 흐름',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }, {
+                            label: '평균 작동 시간',
+                            data: [],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }, {
+                            label: '이상 임계값',
+                            data: [],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            borderWidth: 1,
+                            borderDash: [3, 3],
+                            fill: false,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '작동 시간 (분)'
+                                },
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '시간 흐름'
+                                },
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const dataIndex = context.dataIndex;
+                                        if (dataIndex < cycles.length) {
+                                            const cycle = cycles[dataIndex];
+                                            const onRatio = (cycle.onRatio * 100).toFixed(1);
+                                            return [
+                                                `작동 비율: ${onRatio}%`,
+                                                `총 시간: ${cycle.totalTime}분`,
+                                                `효율성: ${cycle.onRatio > 0.5 ? '높음' : '낮음'}`
+                                            ];
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 모든 사이클을 시간 순서대로 표시
+            const labels = cycles.map((_, index) => `C${index + 1}`);
+            const onTimes = cycles.map(cycle => cycle.onTime);
+            
+            // 평균 작동 시간 계산
+            const avgOnTime = onTimes.length > 0 ? onTimes.reduce((sum, time) => sum + time, 0) / onTimes.length : 0;
+            const avgLine = new Array(onTimes.length).fill(avgOnTime);
+            
+            // 이상 임계값 (평균 ± 1.5σ)
+            const variance = onTimes.reduce((sum, time) => sum + Math.pow(time - avgOnTime, 2), 0) / onTimes.length;
+            const stdDev = Math.sqrt(variance);
+            const threshold = new Array(onTimes.length).fill(avgOnTime + 1.5 * stdDev);
+
+            charts.cyclePattern.data.labels = labels;
+            charts.cyclePattern.data.datasets[0].data = onTimes;
+            charts.cyclePattern.data.datasets[1].data = avgLine;
+            charts.cyclePattern.data.datasets[2].data = threshold;
+            charts.cyclePattern.update();
+        }
+
+        // 온도-압축기 상관관계 분석 (실제 센서 데이터 사용)
+        async function analyzeTemperatureCorrelation(cycles, anomalyAnalysis) {
+            try {
+                // 실제 센서 데이터 가져오기
+                const sensorResponse = await fetch('/api/sensor/correlation?hours=24');
+                
+                if (!sensorResponse.ok) {
+                    throw new Error(`센서 데이터 API 오류: ${sensorResponse.status}`);
+                }
+                
+                const sensorData = await sensorResponse.json();
+                
+                if (!sensorData.success || !sensorData.data || sensorData.data.length === 0) {
+                    console.log('센서 데이터가 없습니다. 모의 데이터를 사용합니다.');
+                    return analyzeTemperatureCorrelationMock(cycles, anomalyAnalysis);
+                }
+
+                const correlationData = sensorData.correlation_data;
+                const summary = sensorData.summary;
+
+                // 실제 센서 데이터로 분석
+                const correlation = calculateRealCorrelation(correlationData);
+                const tempSensitivity = calculateRealTempSensitivity(correlationData);
+                const predictionAccuracy = calculateRealPredictionAccuracy(correlationData, anomalyAnalysis.normalRange);
+                const energyEfficiency = calculateRealEnergyEfficiency(correlationData);
+
+                // UI 업데이트
+                document.getElementById('correlationCoeff').textContent = correlation.toFixed(3);
+                document.getElementById('tempSensitivity').textContent = `${tempSensitivity.toFixed(1)}%`;
+                document.getElementById('predictionAccuracy').textContent = `${predictionAccuracy.toFixed(1)}%`;
+                document.getElementById('energyEfficiency').textContent = `${energyEfficiency.toFixed(1)}%`;
+
+                // 실제 센서 데이터로 차트 업데이트
+                updateRealTemperatureCorrelationChart(correlationData, summary);
+
+            } catch (error) {
+                console.error('센서 데이터 분석 오류:', error);
+                // 오류 시 모의 데이터 사용
+                analyzeTemperatureCorrelationMock(cycles, anomalyAnalysis);
+            }
+        }
+
+        // 모의 데이터를 사용한 분석 (기존 로직)
+        function analyzeTemperatureCorrelationMock(cycles, anomalyAnalysis) {
+            if (!anomalyAnalysis.weatherData || cycles.length < 3) return;
+
+            const temperature = anomalyAnalysis.weatherData.temperature;
+            const onRatios = cycles.map(cycle => cycle.onRatio);
+            const avgOnRatio = onRatios.reduce((sum, ratio) => sum + ratio, 0) / onRatios.length;
+
+            // 상관계수 계산 (온도와 작동 비율)
+            const correlation = calculateCorrelation(temperature, avgOnRatio);
+            
+            // 온도 민감도 계산
+            const tempSensitivity = calculateTemperatureSensitivity(cycles, temperature);
+            
+            // 예측 정확도 계산
+            const predictionAccuracy = calculatePredictionAccuracy(cycles, anomalyAnalysis.normalRange);
+            
+            // 에너지 효율성 계산
+            const energyEfficiency = calculateEnergyEfficiency(cycles, temperature);
+
+            // UI 업데이트
+            document.getElementById('correlationCoeff').textContent = correlation.toFixed(3);
+            document.getElementById('tempSensitivity').textContent = `${tempSensitivity.toFixed(1)}%`;
+            document.getElementById('predictionAccuracy').textContent = `${predictionAccuracy.toFixed(1)}%`;
+            document.getElementById('energyEfficiency').textContent = `${energyEfficiency.toFixed(1)}%`;
+
+            // 상관관계 차트 업데이트
+            updateTemperatureCorrelationChart(cycles, temperature, anomalyAnalysis);
+        }
+
+        // 상관계수 계산
+        function calculateCorrelation(temperature, avgOnRatio) {
+            // 간단한 상관계수 계산 (실제로는 더 복잡한 데이터가 필요)
+            const tempRange = 40; // -10도 ~ 30도
+            const normalizedTemp = (temperature + 10) / tempRange; // 0~1 정규화
+            const expectedRatio = Math.max(0, 1 - normalizedTemp); // 온도가 낮을수록 작동 비율 증가
+            
+            const correlation = 1 - Math.abs(avgOnRatio - expectedRatio);
+            return Math.max(-1, Math.min(1, correlation));
+        }
+
+        // 온도 민감도 계산
+        function calculateTemperatureSensitivity(cycles, temperature) {
+            if (cycles.length < 2) return 0;
+            
+            const onRatios = cycles.map(cycle => cycle.onRatio);
+            const ratioVariance = onRatios.reduce((sum, ratio) => sum + Math.pow(ratio - (onRatios.reduce((a, b) => a + b, 0) / onRatios.length), 2), 0) / onRatios.length;
+            const stdDev = Math.sqrt(ratioVariance);
+            
+            // 온도 변화에 대한 민감도 (표준편차 기반)
+            return Math.min(100, stdDev * 200);
+        }
+
+        // 예측 정확도 계산
+        function calculatePredictionAccuracy(cycles, normalRange) {
+            if (!normalRange || cycles.length === 0) return 0;
+            
+            const currentRatio = cycles[cycles.length - 1].onRatio;
+            const isWithinRange = currentRatio >= normalRange.min && currentRatio <= normalRange.max;
+            
+            if (isWithinRange) {
+                const deviation = Math.abs(currentRatio - normalRange.predicted);
+                return Math.max(0, 100 - (deviation * 200));
+            } else {
+                return 0;
+            }
+        }
+
+        // 에너지 효율성 계산
+        function calculateEnergyEfficiency(cycles, temperature) {
+            if (cycles.length === 0) return 0;
+            
+            const avgOnRatio = cycles.reduce((sum, cycle) => sum + cycle.onRatio, 0) / cycles.length;
+            
+            // 온도별 최적 작동 비율
+            let optimalRatio;
+            if (temperature < 0) optimalRatio = 0.8;
+            else if (temperature < 10) optimalRatio = 0.7;
+            else if (temperature < 20) optimalRatio = 0.5;
+            else if (temperature < 30) optimalRatio = 0.3;
+            else optimalRatio = 0.2;
+            
+            const efficiency = Math.max(0, 100 - Math.abs(avgOnRatio - optimalRatio) * 200);
+            return Math.min(100, efficiency);
+        }
+
+        // 온도-압축기 상관관계 차트
+        function updateTemperatureCorrelationChart(cycles, temperature, anomalyAnalysis) {
+            if (!charts.temperatureCorrelation) {
+                const ctx = document.getElementById('temperatureCorrelationChart').getContext('2d');
+                charts.temperatureCorrelation = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: '온도 vs 작동비율',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            borderColor: '#3498db',
+                            borderWidth: 2
+                        }, {
+                            label: '예측 범위',
+                            data: [],
+                            type: 'line',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderColor: '#e74c3c',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '온도 (°C)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '작동 비율 (%)'
+                                },
+                                min: 0,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 데이터 포인트 생성
+            const dataPoints = cycles.map((cycle, index) => ({
+                x: temperature + (Math.random() - 0.5) * 2, // 약간의 온도 변화 시뮬레이션
+                y: cycle.onRatio * 100
+            }));
+
+            // 예측 범위 데이터
+            const predictionData = [];
+            for (let temp = temperature - 10; temp <= temperature + 10; temp += 2) {
+                const range = predictNormalOperationRange(temp, new Date().getHours());
+                predictionData.push({
+                    x: temp,
+                    y: range.predicted * 100
+                });
+            }
+
+            charts.temperatureCorrelation.data.datasets[0].data = dataPoints;
+            charts.temperatureCorrelation.data.datasets[1].data = predictionData;
+            charts.temperatureCorrelation.update();
+        }
+
+        // 실제 센서 데이터를 사용한 분석 함수들
+        function calculateRealCorrelation(correlationData) {
+            if (correlationData.length < 2) return 0;
+            
+            // 온도와 작동 비율의 상관계수 계산
+            const temps = correlationData.map(d => d.temperature);
+            const ratios = correlationData.map(d => d.on_ratio);
+            
+            const avgTemp = temps.reduce((sum, temp) => sum + temp, 0) / temps.length;
+            const avgRatio = ratios.reduce((sum, ratio) => sum + ratio, 0) / ratios.length;
+            
+            let numerator = 0;
+            let tempSumSq = 0;
+            let ratioSumSq = 0;
+            
+            for (let i = 0; i < temps.length; i++) {
+                const tempDiff = temps[i] - avgTemp;
+                const ratioDiff = ratios[i] - avgRatio;
+                
+                numerator += tempDiff * ratioDiff;
+                tempSumSq += tempDiff * tempDiff;
+                ratioSumSq += ratioDiff * ratioDiff;
+            }
+            
+            const denominator = Math.sqrt(tempSumSq * ratioSumSq);
+            return denominator === 0 ? 0 : numerator / denominator;
+        }
+
+        function calculateRealTempSensitivity(correlationData) {
+            if (correlationData.length < 2) return 0;
+            
+            // 온도 변화에 따른 작동 비율 변화의 표준편차
+            const ratios = correlationData.map(d => d.on_ratio);
+            const avgRatio = ratios.reduce((sum, ratio) => sum + ratio, 0) / ratios.length;
+            const variance = ratios.reduce((sum, ratio) => sum + Math.pow(ratio - avgRatio, 2), 0) / ratios.length;
+            const stdDev = Math.sqrt(variance);
+            
+            return Math.min(100, stdDev * 200);
+        }
+
+        function calculateRealPredictionAccuracy(correlationData, normalRange) {
+            if (!normalRange || correlationData.length === 0) return 0;
+            
+            let correctPredictions = 0;
+            correlationData.forEach(data => {
+                const isWithinRange = data.on_ratio >= normalRange.min && data.on_ratio <= normalRange.max;
+                if (isWithinRange) correctPredictions++;
+            });
+            
+            return (correctPredictions / correlationData.length) * 100;
+        }
+
+        function calculateRealEnergyEfficiency(correlationData) {
+            if (correlationData.length === 0) return 0;
+            
+            let totalEfficiency = 0;
+            correlationData.forEach(data => {
+                // 온도별 최적 작동 비율
+                let optimalRatio;
+                if (data.temperature < 0) optimalRatio = 0.8;
+                else if (data.temperature < 10) optimalRatio = 0.7;
+                else if (data.temperature < 20) optimalRatio = 0.5;
+                else if (data.temperature < 30) optimalRatio = 0.3;
+                else optimalRatio = 0.2;
+                
+                const efficiency = Math.max(0, 100 - Math.abs(data.on_ratio - optimalRatio) * 200);
+                totalEfficiency += efficiency;
+            });
+            
+            return totalEfficiency / correlationData.length;
+        }
+
+        // 실제 센서 데이터를 사용한 차트 업데이트
+        function updateRealTemperatureCorrelationChart(correlationData, summary) {
+            if (!charts.temperatureCorrelation) {
+                const ctx = document.getElementById('temperatureCorrelationChart').getContext('2d');
+                charts.temperatureCorrelation = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: '실제 센서 데이터',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            borderColor: '#3498db',
+                            borderWidth: 2
+                        }, {
+                            label: '예측 범위',
+                            data: [],
+                            type: 'line',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderColor: '#e74c3c',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '온도 (°C)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '작동 비율 (%)'
+                                },
+                                min: 0,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const dataIndex = context.dataIndex;
+                                        if (dataIndex < correlationData.length) {
+                                            const data = correlationData[dataIndex];
+                                            return [
+                                                `데이터 포인트: ${data.total_count}개`,
+                                                `평균 데시벨: ${data.avg_decibel.toFixed(1)}dB`,
+                                                `평균 전력: ${data.avg_power.toFixed(1)}W`
+                                            ];
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 실제 센서 데이터 포인트
+            const dataPoints = correlationData.map(data => ({
+                x: data.temperature,
+                y: data.on_ratio * 100
+            }));
+
+            // 예측 범위 데이터 (온도 범위에 맞춰 생성)
+            const predictionData = [];
+            const minTemp = Math.min(...correlationData.map(d => d.temperature));
+            const maxTemp = Math.max(...correlationData.map(d => d.temperature));
+            
+            for (let temp = minTemp - 5; temp <= maxTemp + 5; temp += 2) {
+                const range = predictNormalOperationRange(temp, new Date().getHours());
+                predictionData.push({
+                    x: temp,
+                    y: range.predicted * 100
+                });
+            }
+
+            charts.temperatureCorrelation.data.datasets[0].data = dataPoints;
+            charts.temperatureCorrelation.data.datasets[1].data = predictionData;
+            charts.temperatureCorrelation.update();
+        }
+
+        // 관리자용 추세 분석 함수들
+        let currentTrendPeriod = 'daily';
+
+        function showTrendAnalysis(period) {
+            currentTrendPeriod = period;
+            
+            // 버튼 활성화 상태 업데이트
+            document.querySelectorAll('.trend-controls .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 추세 분석 실행
+            analyzeTrends(period);
+        }
+
+        async function analyzeTrends(period) {
+            try {
+                // 기상 데이터 가져오기
+                const weather = await fetchWeatherData();
+                
+                // 기간별 데이터 분석
+                const trendData = await fetchTrendData(period);
+                
+                // 추세 차트 업데이트
+                updateTrendCharts(trendData, weather);
+                
+                // 인사이트 생성
+                generateTrendInsights(trendData, weather, period);
+                
+            } catch (error) {
+                console.error('추세 분석 오류:', error);
+                document.getElementById('trendInsights').innerHTML = '<p class="insight-item danger">추세 분석 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        async function fetchTrendData(period) {
+            try {
+                // 실제 센서 데이터 가져오기
+                let hours;
+                switch(period) {
+                    case 'daily': hours = 24; break;
+                    case 'weekly': hours = 168; break;
+                    case 'monthly': hours = 720; break;
+                    default: hours = 24;
+                }
+
+                const response = await fetch(`/api/sensor/correlation?hours=${hours}`);
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    // 실제 센서 데이터를 시간별로 그룹화
+                    const groupedData = groupDataByTime(data.data, period);
+                    return groupedData;
+                } else {
+                    console.log('센서 데이터가 없습니다. 모의 데이터를 생성합니다.');
+                    return generateMockTrendData(period);
+                }
+            } catch (error) {
+                console.error('추세 데이터 가져오기 오류:', error);
+                return generateMockTrendData(period);
+            }
+        }
+
+        // 실제 센서 데이터를 시간별로 그룹화
+        function groupDataByTime(sensorData, period) {
+            const groupedData = {};
+            const interval = period === 'daily' ? 1 : period === 'weekly' ? 6 : 24; // 시간 간격 (시간)
+            
+            sensorData.forEach(data => {
+                const timestamp = new Date(data.timestamp);
+                const hour = Math.floor(timestamp.getHours() / interval) * interval;
+                const key = `${timestamp.getFullYear()}-${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')} ${String(hour).padStart(2, '0')}:00`;
+                
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        timestamp: new Date(timestamp.getFullYear(), timestamp.getMonth(), timestamp.getDate(), hour),
+                        temperatures: [],
+                        onRatios: [],
+                        decibels: [],
+                        powerConsumptions: []
+                    };
+                }
+                
+                if (data.temperature !== null) {
+                    groupedData[key].temperatures.push(data.temperature);
+                }
+                if (data.compressor_state !== null) {
+                    groupedData[key].onRatios.push(data.compressor_state);
+                }
+                if (data.decibel_level !== null) {
+                    groupedData[key].decibels.push(data.decibel_level);
+                }
+                if (data.power_consumption !== null) {
+                    groupedData[key].powerConsumptions.push(data.power_consumption);
+                }
+            });
+
+            // 평균값 계산
+            return Object.values(groupedData).map(group => {
+                const avgTemp = group.temperatures.length > 0 ? 
+                    group.temperatures.reduce((sum, temp) => sum + temp, 0) / group.temperatures.length : 15;
+                const avgOnRatio = group.onRatios.length > 0 ? 
+                    group.onRatios.reduce((sum, ratio) => sum + ratio, 0) / group.onRatios.length : 0.5;
+                const avgDecibel = group.decibels.length > 0 ? 
+                    group.decibels.reduce((sum, db) => sum + db, 0) / group.decibels.length : 45;
+                const avgPower = group.powerConsumptions.length > 0 ? 
+                    group.powerConsumptions.reduce((sum, power) => sum + power, 0) / group.powerConsumptions.length : 100;
+
+                return {
+                    timestamp: group.timestamp,
+                    temperature: avgTemp,
+                    onRatio: avgOnRatio,
+                    decibel: avgDecibel,
+                    powerConsumption: avgPower,
+                    efficiency: Math.max(0, 100 - Math.abs(avgOnRatio - (0.5 + (15 - avgTemp) * 0.02)) * 200)
+                };
+            }).sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        // 모의 데이터 생성 (기존 로직)
+        function generateMockTrendData(period) {
+            const now = new Date();
+            const dataPoints = [];
+            
+            let hours;
+            switch(period) {
+                case 'daily': hours = 24; break;
+                case 'weekly': hours = 168; break;
+                case 'monthly': hours = 720; break;
+                default: hours = 24;
+            }
+            
+            for (let i = 0; i < hours; i += 6) { // 6시간마다 데이터 포인트
+                const timestamp = new Date(now.getTime() - (hours - i) * 60 * 60 * 1000);
+                const temperature = 15 + Math.sin(i / 24 * Math.PI * 2) * 10 + (Math.random() - 0.5) * 5;
+                const onRatio = Math.max(0, Math.min(1, 0.5 + (15 - temperature) * 0.02 + (Math.random() - 0.5) * 0.2));
+                
+                dataPoints.push({
+                    timestamp,
+                    temperature,
+                    onRatio,
+                    efficiency: Math.max(0, 100 - Math.abs(onRatio - (0.5 + (15 - temperature) * 0.02)) * 200)
+                });
+            }
+            
+            return dataPoints;
+        }
+
+        function updateTrendCharts(trendData, weather) {
+            // 온도 추세 차트
+            updateTemperatureTrendChart(trendData);
+            
+            // 효율성 추세 차트
+            updateEfficiencyTrendChart(trendData);
+        }
+
+        function updateTemperatureTrendChart(trendData) {
+            if (!charts.temperatureTrend) {
+                const ctx = document.getElementById('temperatureTrendChart').getContext('2d');
+                charts.temperatureTrend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '온도',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 2,
+                            fill: true
+                        }, {
+                            label: '작동 비율',
+                            data: [],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '온도 (°C)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '작동 비율 (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            }
+                        }
+                    }
+                });
+            }
+
+            const labels = trendData.map(d => d.timestamp.toLocaleTimeString());
+            const temperatures = trendData.map(d => d.temperature);
+            const onRatios = trendData.map(d => d.onRatio * 100);
+
+            charts.temperatureTrend.data.labels = labels;
+            charts.temperatureTrend.data.datasets[0].data = temperatures;
+            charts.temperatureTrend.data.datasets[1].data = onRatios;
+            charts.temperatureTrend.update();
+        }
+
+        function updateEfficiencyTrendChart(trendData) {
+            if (!charts.efficiencyTrend) {
+                const ctx = document.getElementById('efficiencyTrendChart').getContext('2d');
+                charts.efficiencyTrend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '에너지 효율성',
+                            data: [],
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderWidth: 3,
+                            fill: true
+                        }, {
+                            label: '예측 정확도',
+                            data: [],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            borderDash: [5, 5]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '효율성 (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const labels = trendData.map(d => d.timestamp.toLocaleTimeString());
+            const efficiencies = trendData.map(d => d.efficiency);
+            const accuracies = trendData.map(d => Math.max(0, 100 - Math.abs(d.onRatio - (0.5 + (15 - d.temperature) * 0.02)) * 200));
+
+            charts.efficiencyTrend.data.labels = labels;
+            charts.efficiencyTrend.data.datasets[0].data = efficiencies;
+            charts.efficiencyTrend.data.datasets[1].data = accuracies;
+            charts.efficiencyTrend.update();
+        }
+
+        function generateTrendInsights(trendData, weather, period) {
+            const insights = [];
+            
+            // 온도 분석
+            const avgTemp = trendData.reduce((sum, d) => sum + d.temperature, 0) / trendData.length;
+            const tempRange = Math.max(...trendData.map(d => d.temperature)) - Math.min(...trendData.map(d => d.temperature));
+            
+            if (tempRange > 15) {
+                insights.push({
+                    type: 'warning',
+                    message: `온도 변화가 큽니다 (${tempRange.toFixed(1)}°C). 압축기 작동 패턴에 영향을 줄 수 있습니다.`
+                });
+            } else if (tempRange < 5) {
+                insights.push({
+                    type: 'success',
+                    message: `온도가 안정적입니다 (${tempRange.toFixed(1)}°C). 압축기 작동이 예측 가능합니다.`
+                });
+            }
+
+            // 효율성 분석
+            const avgEfficiency = trendData.reduce((sum, d) => sum + d.efficiency, 0) / trendData.length;
+            if (avgEfficiency > 80) {
+                insights.push({
+                    type: 'success',
+                    message: `높은 에너지 효율성을 보입니다 (${avgEfficiency.toFixed(1)}%).`
+                });
+            } else if (avgEfficiency < 50) {
+                insights.push({
+                    type: 'danger',
+                    message: `에너지 효율성이 낮습니다 (${avgEfficiency.toFixed(1)}%). 최적화가 필요합니다.`
+                });
+            }
+
+            // 추세 분석
+            const recentEfficiency = trendData.slice(-5).reduce((sum, d) => sum + d.efficiency, 0) / 5;
+            const earlyEfficiency = trendData.slice(0, 5).reduce((sum, d) => sum + d.efficiency, 0) / 5;
+            
+            if (recentEfficiency > earlyEfficiency + 10) {
+                insights.push({
+                    type: 'success',
+                    message: '효율성이 개선되고 있습니다. 최근 5개 데이터 포인트에서 향상된 성능을 보입니다.'
+                });
+            } else if (recentEfficiency < earlyEfficiency - 10) {
+                insights.push({
+                    type: 'warning',
+                    message: '효율성이 감소하고 있습니다. 시스템 점검이 필요할 수 있습니다.'
+                });
+            }
+
+            // 계절적 패턴 분석
+            if (period === 'monthly') {
+                const winterEfficiency = trendData.filter(d => d.temperature < 5).reduce((sum, d) => sum + d.efficiency, 0) / Math.max(1, trendData.filter(d => d.temperature < 5).length);
+                const summerEfficiency = trendData.filter(d => d.temperature > 25).reduce((sum, d) => sum + d.efficiency, 0) / Math.max(1, trendData.filter(d => d.temperature > 25).length);
+                
+                if (winterEfficiency > summerEfficiency + 20) {
+                    insights.push({
+                        type: 'info',
+                        message: '겨울철 효율성이 여름철보다 높습니다. 계절별 운영 전략을 고려해보세요.'
+                    });
+                }
+            }
+
+            // 인사이트 표시
+            const insightsContainer = document.getElementById('trendInsights');
+            if (insights.length === 0) {
+                insightsContainer.innerHTML = '<p class="insight-item">특별한 패턴이 발견되지 않았습니다.</p>';
+            } else {
+                insightsContainer.innerHTML = insights.map(insight => 
+                    `<div class="insight-item ${insight.type}">${insight.message}</div>`
+                ).join('');
+            }
+        }
+
+        function exportTrendData() {
+            // 추세 데이터 내보내기 기능
+            const trendData = {
+                period: currentTrendPeriod,
+                timestamp: new Date().toISOString(),
+                data: charts.temperatureTrend ? charts.temperatureTrend.data : null
+            };
+            
+            const dataStr = JSON.stringify(trendData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `trend_analysis_${currentTrendPeriod}_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // 이상 데이터 분석 함수들
+        let anomalyData = [];
+        
+        // 적응형 임계값 시스템
+        class AdaptiveThresholdSystem {
+            constructor() {
+                this.baseThreshold = 45.0;
+                this.temperatureFactor = 0.1;
+                this.timeFactor = 0.05;
+                this.seasonalFactor = 0.15;
+                this.failureHistory = [];
+            }
+            
+            calculateAdaptiveThreshold(temperature, timeOfDay, season, vibrationLevel = 0, powerConsumption = 0) {
+                let threshold = this.baseThreshold;
+                
+                // 온도 보정
+                if (temperature < 0) threshold -= 5.0;
+                else if (temperature < 10) threshold -= 3.0;
+                else if (temperature < 20) threshold += 0.0;
+                else if (temperature < 30) threshold += 2.0;
+                else threshold += 5.0;
+                
+                // 시간대 보정
+                if (timeOfDay >= 22 || timeOfDay <= 6) threshold -= 2.0;  // 밤시간
+                else if (timeOfDay >= 7 && timeOfDay <= 9) threshold += 1.0;  // 아침 출근시간
+                else if (timeOfDay >= 18 && timeOfDay <= 21) threshold += 0.5;  // 저녁 시간
+                
+                // 계절 보정
+                if (season === 'winter') threshold -= 3.0;
+                else if (season === 'summer') threshold += 2.0;
+                
+                // 진동 보정
+                if (vibrationLevel > 0.8) threshold += 3.0;
+                else if (vibrationLevel > 0.5) threshold += 1.0;
+                
+                // 전력 보정
+                if (powerConsumption > 150) threshold += 2.0;
+                else if (powerConsumption < 50) threshold -= 1.0;
+                
+                // 임계값 범위 제한 (30dB ~ 70dB)
+                return Math.max(30.0, Math.min(70.0, threshold));
+            }
+            
+            detectFailure(decibelLevel, temperature, timeOfDay, season, vibrationLevel = 0, powerConsumption = 0, duration = 0) {
+                const adaptiveThreshold = this.calculateAdaptiveThreshold(
+                    temperature, timeOfDay, season, vibrationLevel, powerConsumption
+                );
+                
+                const failureTypes = {
+                    'compressor_failure': { minDb: 60, maxDb: 80, minDuration: 300 },
+                    'motor_failure': { minDb: 55, maxDb: 75, minDuration: 180 },
+                    'bearing_failure': { minDb: 50, maxDb: 70, minDuration: 600 },
+                    'electrical_failure': { minDb: 40, maxDb: 60, minDuration: 60 }
+                };
+                
+                for (const [type, criteria] of Object.entries(failureTypes)) {
+                    if (decibelLevel >= criteria.minDb && 
+                        decibelLevel <= criteria.maxDb && 
+                        duration >= criteria.minDuration) {
+                        
+                        const confidence = Math.min(1.0, (decibelLevel - adaptiveThreshold) / 20.0);
+                        
+                        this.failureHistory.push({
+                            timestamp: new Date().toISOString(),
+                            type: type,
+                            confidence: confidence,
+                            decibelLevel: decibelLevel,
+                            adaptiveThreshold: adaptiveThreshold,
+                            temperature: temperature
+                        });
+                        
+                        return {
+                            detected: true,
+                            type: type,
+                            confidence: confidence,
+                            adaptiveThreshold: adaptiveThreshold
+                        };
+                    }
+                }
+                
+                return {
+                    detected: false,
+                    adaptiveThreshold: adaptiveThreshold
+                };
+            }
+            
+            getCurrentSeason() {
+                const month = new Date().getMonth() + 1;
+                if (month >= 12 || month <= 2) return 'winter';
+                if (month >= 3 && month <= 5) return 'spring';
+                if (month >= 6 && month <= 8) return 'summer';
+                return 'autumn';
+            }
+            
+            getFailureStatistics(hours = 24) {
+                const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+                const recentFailures = this.failureHistory.filter(
+                    f => new Date(f.timestamp) >= cutoffTime
+                );
+                
+                const failureTypes = {};
+                recentFailures.forEach(f => {
+                    failureTypes[f.type] = (failureTypes[f.type] || 0) + 1;
+                });
+                
+                return {
+                    totalFailures: recentFailures.length,
+                    failureTypes: failureTypes,
+                    avgConfidence: recentFailures.length > 0 ? 
+                        recentFailures.reduce((sum, f) => sum + f.confidence, 0) / recentFailures.length : 0,
+                    recentFailures: recentFailures.slice(-10)
+                };
+            }
+        }
+        
+        // 적응형 임계값 시스템 인스턴스
+        const adaptiveThreshold = new AdaptiveThresholdSystem();
+
+        async function showAnomalyDetails() {
+            try {
+                // 센서 데이터 가져오기
+                const response = await fetch('/api/sensor/correlation?hours=24');
+                const data = await response.json();
+                
+                if (!data.success || !data.data) {
+                    document.getElementById('anomalyList').innerHTML = '<p>이상 데이터를 가져올 수 없습니다.</p>';
+                    return;
+                }
+
+                // 이상 데이터 분석
+                anomalyData = analyzeAnomalies(data.data);
+                
+                // UI 업데이트
+                displayAnomalies(anomalyData);
+                
+            } catch (error) {
+                console.error('이상 데이터 조회 오류:', error);
+                document.getElementById('anomalyList').innerHTML = '<p>이상 데이터 조회 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        function analyzeAnomalies(sensorData) {
+            const anomalies = [];
+            
+            sensorData.forEach(item => {
+                const anomaly = {
+                    timestamp: new Date(item.timestamp),
+                    device_id: item.device_id,
+                    temperature: item.temperature,
+                    decibel_level: item.decibel_level,
+                    compressor_state: item.compressor_state,
+                    power_consumption: item.power_consumption,
+                    rms_energy: item.rms_energy,
+                    types: []
+                };
+
+                // 고데시벨 이상 (≥60dB)
+                if (item.decibel_level >= 60) {
+                    anomaly.types.push('high_db');
+                    anomaly.severity = 'high';
+                }
+                
+                // 저온 이상 (≤5°C)
+                if (item.temperature <= 5) {
+                    anomaly.types.push('low_temp');
+                    anomaly.severity = anomaly.severity || 'medium';
+                }
+                
+                // 고온 이상 (≥25°C)
+                if (item.temperature >= 25) {
+                    anomaly.types.push('high_temp');
+                    anomaly.severity = anomaly.severity || 'medium';
+                }
+                
+                // 전력 이상 (평균 대비 ±30% 이상)
+                const avgPower = sensorData.reduce((sum, d) => sum + (d.power_consumption || 0), 0) / sensorData.length;
+                if (item.power_consumption && Math.abs(item.power_consumption - avgPower) / avgPower > 0.3) {
+                    anomaly.types.push('power_anomaly');
+                    anomaly.severity = anomaly.severity || 'low';
+                }
+
+                // 이상이 있는 경우만 추가
+                if (anomaly.types.length > 0) {
+                    anomalies.push(anomaly);
+                }
+            });
+
+            // 시간순 정렬 (최신순)
+            return anomalies.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function displayAnomalies(anomalies) {
+            const container = document.getElementById('anomalyList');
+            
+            if (anomalies.length === 0) {
+                container.innerHTML = '<p>이상 데이터가 없습니다.</p>';
+                return;
+            }
+
+            const html = anomalies.map(anomaly => {
+                const typeLabels = {
+                    'high_db': '고데시벨',
+                    'low_temp': '저온',
+                    'high_temp': '고온',
+                    'power_anomaly': '전력이상'
+                };
+
+                const severityColors = {
+                    'high': '#e74c3c',
+                    'medium': '#f39c12',
+                    'low': '#3498db'
+                };
+
+                const typeClass = anomaly.types.includes('high_db') ? 'high-db' : 
+                                anomaly.types.includes('low_temp') || anomaly.types.includes('high_temp') ? 'temp-anomaly' :
+                                anomaly.types.includes('power_anomaly') ? 'power-anomaly' : '';
+
+                return `
+                    <div class="anomaly-item ${typeClass}">
+                        <div class="anomaly-header">
+                            <span class="anomaly-time">${anomaly.timestamp.toLocaleString()}</span>
+                            <span class="anomaly-type" style="background-color: ${severityColors[anomaly.severity]}">
+                                ${anomaly.types.map(type => typeLabels[type]).join(', ')}
+                            </span>
+                        </div>
+                        <div class="anomaly-details">
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">온도</span>
+                                <span class="anomaly-detail-value">${anomaly.temperature?.toFixed(1) || 'N/A'}°C</span>
+                            </div>
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">데시벨</span>
+                                <span class="anomaly-detail-value">${anomaly.decibel_level?.toFixed(1) || 'N/A'}dB</span>
+                            </div>
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">압축기</span>
+                                <span class="anomaly-detail-value">${anomaly.compressor_state ? 'ON' : 'OFF'}</span>
+                            </div>
+                            <div class="anomaly-detail">
+                                <span class="anomaly-detail-label">전력</span>
+                                <span class="anomaly-detail-value">${anomaly.power_consumption?.toFixed(1) || 'N/A'}W</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function clearAnomalyDetails() {
+            document.getElementById('anomalyList').innerHTML = '<p>이상 데이터를 조회하려면 버튼을 클릭하세요.</p>';
+            anomalyData = [];
+        }
+
+        function filterAnomalies() {
+            const filter = document.getElementById('anomalyFilter').value;
+            let filteredData = anomalyData;
+
+            if (filter !== 'all') {
+                filteredData = anomalyData.filter(anomaly => {
+                    switch(filter) {
+                        case 'high_db':
+                            return anomaly.types.includes('high_db');
+                        case 'low_temp':
+                            return anomaly.types.includes('low_temp');
+                        case 'high_temp':
+                            return anomaly.types.includes('high_temp');
+                        case 'power_anomaly':
+                            return anomaly.types.includes('power_anomaly');
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            displayAnomalies(filteredData);
+        }
+
+        // 고장 감지 시스템 함수들
+        let failureMonitoringActive = false;
+        let failureData = [];
+
+        function startFailureMonitoring() {
+            failureMonitoringActive = true;
+            updateFailureStatus('active', '고장 감지 활성화');
+            
+            // 실시간 모니터링 시작
+            setInterval(monitorFailures, 5000); // 5초마다 체크
+            
+            document.getElementById('failureList').innerHTML = '<p>고장 감지가 시작되었습니다. 실시간 모니터링 중...</p>';
+        }
+
+        function updateFailureStatus(status, text) {
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.querySelector('.status-text');
+            
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+        }
+
+        async function monitorFailures() {
+            if (!failureMonitoringActive) return;
+
+            try {
+                // 최근 센서 데이터 가져오기
+                const response = await fetch('/api/esp32/features/recent?limit=10&hours=1');
+                const data = await response.json();
+                
+                if (!data.success || !data.data) return;
+
+                // 각 데이터에 대해 고장 감지
+                for (const sensorData of data.data) {
+                    const currentTime = new Date();
+                    const timeOfDay = currentTime.getHours();
+                    const season = adaptiveThreshold.getCurrentSeason();
+                    
+                    const failureResult = adaptiveThreshold.detectFailure(
+                        sensorData.decibel_level || 0,
+                        sensorData.temperature || 20,
+                        timeOfDay,
+                        season,
+                        sensorData.vibration_level || 0,
+                        sensorData.power_consumption || 0,
+                        sensorData.duration || 0
+                    );
+
+                    if (failureResult.detected) {
+                        failureData.push({
+                            ...failureResult,
+                            sensorData: sensorData,
+                            timestamp: currentTime.toISOString()
+                        });
+                        
+                        // 고장 상태 업데이트
+                        updateFailureStatus('failure', `고장 감지: ${failureResult.type}`);
+                        
+                        // 알림 표시
+                        showFailureAlert(failureResult);
+                    }
+                }
+
+                // 적응형 임계값 업데이트
+                if (data.data.length > 0) {
+                    const latestData = data.data[0];
+                    const currentTime = new Date();
+                    const timeOfDay = currentTime.getHours();
+                    const season = adaptiveThreshold.getCurrentSeason();
+                    
+                    const adaptiveThresholdValue = adaptiveThreshold.calculateAdaptiveThreshold(
+                        latestData.temperature || 20,
+                        timeOfDay,
+                        season,
+                        latestData.vibration_level || 0,
+                        latestData.power_consumption || 0
+                    );
+                    
+                    document.getElementById('adaptiveThreshold').textContent = `${adaptiveThresholdValue.toFixed(1)} dB`;
+                }
+
+            } catch (error) {
+                console.error('고장 감지 모니터링 오류:', error);
+            }
+        }
+
+        function showFailureAlert(failureResult) {
+            // 브라우저 알림
+            if (Notification.permission === 'granted') {
+                new Notification('고장 감지!', {
+                    body: `${failureResult.type} 감지됨 (신뢰도: ${(failureResult.confidence * 100).toFixed(1)}%)`,
+                    icon: '/favicon.ico'
+                });
+            }
+            
+            // 화면 알림
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'failure-alert';
+            alertDiv.innerHTML = `
+                <div class="alert-content">
+                    <h4>🚨 고장 감지!</h4>
+                    <p>유형: ${failureResult.type}</p>
+                    <p>신뢰도: ${(failureResult.confidence * 100).toFixed(1)}%</p>
+                    <p>적응형 임계값: ${failureResult.adaptiveThreshold.toFixed(1)} dB</p>
+                </div>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        function showFailureDetails() {
+            const stats = adaptiveThreshold.getFailureStatistics(24);
+            displayFailures(stats.recentFailures);
+        }
+
+        function displayFailures(failures) {
+            const container = document.getElementById('failureList');
+            
+            if (failures.length === 0) {
+                container.innerHTML = '<p>최근 24시간 동안 감지된 고장이 없습니다.</p>';
+                return;
+            }
+
+            const typeLabels = {
+                'compressor_failure': '압축기 고장',
+                'motor_failure': '모터 고장',
+                'bearing_failure': '베어링 고장',
+                'electrical_failure': '전기 고장'
+            };
+
+            const html = failures.map(failure => {
+                const failureTime = new Date(failure.timestamp);
+                const typeClass = failure.type.replace('_', '-');
+                
+                return `
+                    <div class="failure-item ${typeClass}">
+                        <div class="failure-header">
+                            <span class="failure-time">${failureTime.toLocaleString()}</span>
+                            <span class="failure-type">${typeLabels[failure.type] || failure.type}</span>
+                        </div>
+                        <div class="failure-details">
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">데시벨</span>
+                                <span class="failure-detail-value">${failure.decibelLevel.toFixed(1)} dB</span>
+                            </div>
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">임계값</span>
+                                <span class="failure-detail-value">${failure.adaptiveThreshold.toFixed(1)} dB</span>
+                            </div>
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">온도</span>
+                                <span class="failure-detail-value">${failure.temperature.toFixed(1)}°C</span>
+                            </div>
+                            <div class="failure-detail">
+                                <span class="failure-detail-label">신뢰도</span>
+                                <span class="failure-detail-value">${(failure.confidence * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${failure.confidence * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function filterFailures() {
+            const filter = document.getElementById('failureFilter').value;
+            const stats = adaptiveThreshold.getFailureStatistics(24);
+            let filteredFailures = stats.recentFailures;
+
+            if (filter !== 'all') {
+                filteredFailures = stats.recentFailures.filter(failure => failure.type === filter);
+            }
+
+            displayFailures(filteredFailures);
+        }
+
+        function exportFailureReport() {
+            const stats = adaptiveThreshold.getFailureStatistics(24);
+            const report = {
+                generated_at: new Date().toISOString(),
+                failure_statistics: stats,
+                adaptive_threshold_config: {
+                    base_threshold: adaptiveThreshold.baseThreshold,
+                    temperature_factor: adaptiveThreshold.temperatureFactor,
+                    time_factor: adaptiveThreshold.timeFactor,
+                    seasonal_factor: adaptiveThreshold.seasonalFactor
+                }
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `failure_report_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // 알림 권한 요청
+        if (Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // 맥락 기반 학습 시스템
+        let contextualLearningActive = false;
+        let learningData = [];
+        let learningProgress = 0;
+        let learningInterval = null;
+        let learningStatistics = {
+            totalWindows: 0,
+            patternCounts: {},
+            failureTypeCounts: {},
+            avgConfidence: 0,
+            learningStartTime: null,
+            lastLearningTime: null
+        };
+
+        class ContextualLearningSystem {
+            constructor() {
+                this.windowSizes = [60, 300, 900, 3600]; // 1분, 5분, 15분, 1시간
+                this.timeSeriesBuffer = [];
+                this.contextBuffer = [];
+                this.learningResults = [];
+                this.minConfidence = 0.6;
+                this.learningPeriod = 24; // 시간
+            }
+
+            // 시계열 윈도우 생성
+            createTimeSeriesWindow(windowSize, data) {
+                if (data.length < 10) return null;
+
+                const windowData = data.slice(-windowSize);
+                const startTime = new Date(windowData[0].timestamp);
+                const endTime = new Date(windowData[windowData.length - 1].timestamp);
+
+                return {
+                    data: windowData,
+                    startTime: startTime,
+                    endTime: endTime,
+                    windowSize: windowSize,
+                    context: this.getContextForWindow(startTime, endTime)
+                };
+            }
+
+            // 맥락 데이터 가져오기
+            getContextForWindow(startTime, endTime) {
+                const relevantContexts = this.contextBuffer.filter(ctx => {
+                    const ctxTime = new Date(ctx.timestamp);
+                    return ctxTime >= startTime && ctxTime <= endTime;
+                });
+
+                if (relevantContexts.length === 0) {
+                    return this.contextBuffer.length > 0 ? this.contextBuffer[this.contextBuffer.length - 1].context : {};
+                }
+
+                // 컨텍스트 통합
+                const mergedContext = {};
+                relevantContexts.forEach(ctx => {
+                    Object.assign(mergedContext, ctx.context);
+                });
+
+                return mergedContext;
+            }
+
+            // 맥락적 특징 추출
+            extractContextualFeatures(window) {
+                if (!window || !window.data) return {};
+
+                const decibelValues = window.data.map(d => d.decibel_level || 0);
+                const temperatureValues = window.data.map(d => d.temperature || 20);
+                const compressorStates = window.data.map(d => d.compressor_state || 0);
+
+                // 기본 통계 특징
+                const features = {
+                    windowSize: window.windowSize,
+                    dataCount: window.data.length,
+                    durationSeconds: (window.endTime - window.startTime) / 1000,
+
+                    // 데시벨 특징
+                    decibelMean: this.calculateMean(decibelValues),
+                    decibelStd: this.calculateStd(decibelValues),
+                    decibelMin: Math.min(...decibelValues),
+                    decibelMax: Math.max(...decibelValues),
+                    decibelRange: Math.max(...decibelValues) - Math.min(...decibelValues),
+
+                    // 온도 특징
+                    temperatureMean: this.calculateMean(temperatureValues),
+                    temperatureStd: this.calculateStd(temperatureValues),
+                    temperatureTrend: this.calculateTrend(temperatureValues),
+
+                    // 압축기 상태 특징
+                    compressorOnRatio: this.calculateMean(compressorStates),
+                    compressorCycles: this.countCycles(compressorStates),
+                    compressorAvgCycleLength: this.calculateAvgCycleLength(compressorStates),
+
+                    // 시계열 패턴 특징
+                    trendSlope: this.calculateTrend(decibelValues),
+                    volatility: this.calculateVolatility(decibelValues),
+                    autocorrelation: this.calculateAutocorrelation(decibelValues),
+                    periodicity: this.calculatePeriodicity(decibelValues),
+
+                    // 고장 관련 특징
+                    highDecibelRatio: this.calculateMean(decibelValues.map(db => db > 60 ? 1 : 0)),
+                    extremeValuesCount: decibelValues.filter(db => db > 70 || db < 30).length,
+                    stabilityScore: this.calculateStabilityScore(decibelValues)
+                };
+
+                return features;
+            }
+
+            // 패턴 분류
+            classifyPattern(features, context) {
+                // 점진적 성능 저하
+                if (features.trendSlope > 0.1 && features.stabilityScore > 0.7 && features.decibelMean > 50) {
+                    return {
+                        patternType: 'gradual_degradation',
+                        failureType: 'bearing_wear',
+                        confidence: 0.8
+                    };
+                }
+
+                // 급격한 고장
+                if (features.volatility > 0.3 && features.extremeValuesCount > 5) {
+                    return {
+                        patternType: 'sudden_failure',
+                        failureType: 'electrical_fault',
+                        confidence: 0.9
+                    };
+                }
+
+                // 간헐적 고장
+                if (features.compressorCycles > 10 && features.stabilityScore < 0.5) {
+                    return {
+                        patternType: 'intermittent_failure',
+                        failureType: 'mechanical_looseness',
+                        confidence: 0.7
+                    };
+                }
+
+                // 고온 환경에서의 성능 저하
+                if (features.temperatureMean > 30 && features.decibelMean > 55) {
+                    return {
+                        patternType: 'thermal_stress',
+                        failureType: 'compressor_fatigue',
+                        confidence: 0.6
+                    };
+                }
+
+                // 정상 운영
+                return {
+                    patternType: 'normal_operation',
+                    failureType: 'normal',
+                    confidence: 0.5
+                };
+            }
+
+            // 유틸리티 함수들
+            calculateMean(values) {
+                return values.reduce((sum, val) => sum + val, 0) / values.length;
+            }
+
+            calculateStd(values) {
+                const mean = this.calculateMean(values);
+                const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+                return Math.sqrt(variance);
+            }
+
+            calculateTrend(values) {
+                if (values.length < 2) return 0;
+                const x = Array.from({length: values.length}, (_, i) => i);
+                const n = values.length;
+                const sumX = x.reduce((sum, val) => sum + val, 0);
+                const sumY = values.reduce((sum, val) => sum + val, 0);
+                const sumXY = x.reduce((sum, val, i) => sum + val * values[i], 0);
+                const sumXX = x.reduce((sum, val) => sum + val * val, 0);
+                
+                return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            }
+
+            calculateVolatility(values) {
+                if (values.length < 2) return 0;
+                const diffs = [];
+                for (let i = 1; i < values.length; i++) {
+                    diffs.push(values[i] - values[i-1]);
+                }
+                return this.calculateStd(diffs);
+            }
+
+            calculateAutocorrelation(values) {
+                if (values.length < 10) return 0;
+                try {
+                    const mean = this.calculateMean(values);
+                    const numerator = values.slice(0, -1).reduce((sum, val, i) => 
+                        sum + (val - mean) * (values[i + 1] - mean), 0);
+                    const denominator = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0);
+                    return denominator === 0 ? 0 : numerator / denominator;
+                } catch {
+                    return 0;
+                }
+            }
+
+            calculatePeriodicity(values) {
+                if (values.length < 10) return 0;
+                
+                try {
+                    // 실제 FFT를 사용한 주기성 계산
+                    const fft = this.simpleFFT(values);
+                    const freqs = Array.from({length: values.length}, (_, i) => i / values.length);
+                    
+                    // 주요 주파수 성분 찾기
+                    let maxPower = 0;
+                    let dominantFreq = 0;
+                    
+                    for (let i = 1; i < fft.length / 2; i++) {
+                        const power = Math.abs(fft[i]) ** 2;
+                        if (power > maxPower) {
+                            maxPower = power;
+                            dominantFreq = freqs[i];
+                        }
+                    }
+                    
+                    return dominantFreq;
+                } catch {
+                    return 0;
+                }
+            }
+
+            simpleFFT(values) {
+                // 간단한 FFT 구현 (실제로는 더 정교한 라이브러리 사용 권장)
+                const N = values.length;
+                const result = new Array(N);
+                
+                for (let k = 0; k < N; k++) {
+                    let real = 0;
+                    let imag = 0;
+                    
+                    for (let n = 0; n < N; n++) {
+                        const angle = -2 * Math.PI * k * n / N;
+                        real += values[n] * Math.cos(angle);
+                        imag += values[n] * Math.sin(angle);
+                    }
+                    
+                    result[k] = real + imag * 1i;
+                }
+                
+                return result;
+            }
+
+            countCycles(states) {
+                if (states.length < 2) return 0;
+                let cycles = 0;
+                let prevState = states[0];
+                
+                for (let i = 1; i < states.length; i++) {
+                    if (prevState === 0 && states[i] === 1) {
+                        cycles++;
+                    }
+                    prevState = states[i];
+                }
+                
+                return cycles;
+            }
+
+            calculateAvgCycleLength(states) {
+                const cycles = this.countCycles(states);
+                return cycles > 0 ? states.length / cycles : 0;
+            }
+
+            calculateStabilityScore(values) {
+                if (values.length < 2) return 1;
+                const mean = this.calculateMean(values);
+                const std = this.calculateStd(values);
+                if (mean === 0) return 1;
+                const cv = std / mean;
+                return 1 / (1 + cv);
+            }
+        }
+
+        // 맥락 기반 학습 시스템 인스턴스
+        const contextualLearning = new ContextualLearningSystem();
+
+        // 실제 데이터 기반 학습 함수들
+        async function startContextualLearning() {
+            if (contextualLearningActive) {
+                alert('이미 학습이 진행 중입니다.');
+                return;
+            }
+
+            contextualLearningActive = true;
+            learningStatistics.learningStartTime = new Date();
+            updateLearningStatus('active', '실시간 학습 진행 중...');
+            
+            // 설정값 가져오기
+            const learningPeriod = parseInt(document.getElementById('learningPeriod').value);
+            const windowSize = parseInt(document.getElementById('windowSize').value);
+            const minConfidence = parseInt(document.getElementById('minConfidence').value) / 100;
+            
+            contextualLearning.learningPeriod = learningPeriod;
+            contextualLearning.minConfidence = minConfidence;
+            
+            try {
+                // 실시간 학습 시작
+                await performInitialLearning(learningPeriod, windowSize);
+                
+                // 주기적 학습 설정 (5분마다)
+                learningInterval = setInterval(async () => {
+                    await performIncrementalLearning(windowSize);
+                }, 300000); // 5분
+                
+                updateLearningStatus('active', `실시간 학습 중 (${learningPeriod}시간 데이터)`);
+                
+            } catch (error) {
+                console.error('학습 시작 오류:', error);
+                updateLearningStatus('error', '학습 시작 실패');
+                contextualLearningActive = false;
+            }
+        }
+
+        async function performInitialLearning(period, windowSize) {
+            try {
+                // 실제 센서 데이터 가져오기
+                const response = await fetch(`/api/esp32/features/recent?limit=1000&hours=${period}`);
+                const data = await response.json();
+                
+                if (!data.success || !data.data || data.data.length === 0) {
+                    throw new Error('학습할 센서 데이터가 없습니다.');
+                }
+
+                console.log(`[학습] ${data.data.length}개의 실제 센서 데이터로 학습 시작`);
+
+                // 시계열 윈도우 생성
+                const windows = [];
+                const selectedWindowSize = windowSize;
+                
+                // 슬라이딩 윈도우로 여러 윈도우 생성
+                for (let i = selectedWindowSize; i < data.data.length; i += Math.floor(selectedWindowSize / 2)) {
+                    const windowData = data.data.slice(i - selectedWindowSize, i);
+                    const window = contextualLearning.createTimeSeriesWindow(selectedWindowSize, windowData);
+                    if (window) {
+                        windows.push(window);
+                    }
+                }
+
+                console.log(`[학습] ${windows.length}개의 윈도우 생성`);
+
+                // 각 윈도우 분석
+                learningData = [];
+                for (let i = 0; i < windows.length; i++) {
+                    const window = windows[i];
+                    
+                    // 실제 특징 추출
+                    const features = contextualLearning.extractContextualFeatures(window);
+                    
+                    // 실제 패턴 분류
+                    const classification = contextualLearning.classifyPattern(features, window.context);
+                    
+                    // 신뢰도 필터링
+                    if (classification.confidence >= contextualLearning.minConfidence) {
+                        const learningItem = {
+                            windowId: `${window.startTime.toISOString().split('T')[0]}_${window.windowSize}_${i}`,
+                            timestamp: window.startTime.toISOString(),
+                            patternType: classification.patternType,
+                            failureType: classification.failureType,
+                            confidence: classification.confidence,
+                            features: features,
+                            context: window.context,
+                            windowSize: window.windowSize,
+                            dataCount: window.data.length
+                        };
+                        
+                        learningData.push(learningItem);
+                        
+                        // 통계 업데이트
+                        updateLearningStatistics(learningItem);
+                    }
+                    
+                    // 진행률 업데이트
+                    learningProgress = ((i + 1) / windows.length) * 100;
+                    updateLearningProgress(learningProgress);
+                }
+
+                console.log(`[학습] ${learningData.length}개의 패턴 학습 완료`);
+                
+                // 학습 결과 표시
+                displayLearningResults(learningData);
+                updateLearningStatus('completed', `초기 학습 완료 (${learningData.length}개 패턴)`);
+                
+            } catch (error) {
+                console.error('초기 학습 오류:', error);
+                throw error;
+            }
+        }
+
+        async function performIncrementalLearning(windowSize) {
+            try {
+                // 최근 데이터만 가져오기 (1시간)
+                const response = await fetch('/api/esp32/features/recent?limit=100&hours=1');
+                const data = await response.json();
+                
+                if (!data.success || !data.data || data.data.length === 0) {
+                    return;
+                }
+
+                // 새로운 윈도우 생성
+                const window = contextualLearning.createTimeSeriesWindow(windowSize, data.data);
+                if (!window) return;
+
+                // 특징 추출 및 분류
+                const features = contextualLearning.extractContextualFeatures(window);
+                const classification = contextualLearning.classifyPattern(features, window.context);
+
+                // 신뢰도 필터링
+                if (classification.confidence >= contextualLearning.minConfidence) {
+                    const learningItem = {
+                        windowId: `incremental_${Date.now()}`,
+                        timestamp: window.startTime.toISOString(),
+                        patternType: classification.patternType,
+                        failureType: classification.failureType,
+                        confidence: classification.confidence,
+                        features: features,
+                        context: window.context,
+                        windowSize: window.windowSize,
+                        dataCount: window.data.length
+                    };
+                    
+                    learningData.unshift(learningItem); // 최신 데이터를 앞에 추가
+                    
+                    // 최대 1000개 유지
+                    if (learningData.length > 1000) {
+                        learningData = learningData.slice(0, 1000);
+                    }
+                    
+                    // 통계 업데이트
+                    updateLearningStatistics(learningItem);
+                    
+                    // 실시간 결과 업데이트
+                    displayLearningResults(learningData.slice(0, 50)); // 최근 50개만 표시
+                    
+                    console.log(`[증분학습] 새로운 패턴 학습: ${classification.patternType} (${(classification.confidence * 100).toFixed(1)}%)`);
+                }
+                
+                learningStatistics.lastLearningTime = new Date();
+                
+            } catch (error) {
+                console.error('증분 학습 오류:', error);
+            }
+        }
+
+        function pauseLearning() {
+            if (learningInterval) {
+                clearInterval(learningInterval);
+                learningInterval = null;
+            }
+            contextualLearningActive = false;
+            updateLearningStatus('paused', '학습 일시정지됨');
+        }
+
+        function updateLearningStatistics(item) {
+            learningStatistics.totalWindows++;
+            
+            // 패턴 유형별 카운트
+            if (!learningStatistics.patternCounts[item.patternType]) {
+                learningStatistics.patternCounts[item.patternType] = 0;
+            }
+            learningStatistics.patternCounts[item.patternType]++;
+            
+            // 고장 유형별 카운트
+            if (!learningStatistics.failureTypeCounts[item.failureType]) {
+                learningStatistics.failureTypeCounts[item.failureType] = 0;
+            }
+            learningStatistics.failureTypeCounts[item.failureType]++;
+            
+            // 평균 신뢰도 계산
+            const totalConfidence = learningData.reduce((sum, item) => sum + item.confidence, 0);
+            learningStatistics.avgConfidence = totalConfidence / learningData.length;
+        }
+
+        function updateConfidenceDisplay() {
+            const slider = document.getElementById('minConfidence');
+            const display = document.getElementById('confidenceDisplay');
+            display.textContent = slider.value + '%';
+        }
+
+        function updateLearningStatus(status, text) {
+            const statusDot = document.getElementById('learningStatus');
+            const statusText = document.getElementById('learningStatusText');
+            
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+        }
+
+        function updateLearningProgress(progress) {
+            const progressFill = document.getElementById('learningProgress');
+            const progressText = document.getElementById('learningProgressText');
+            
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+        }
+
+        function showLearningResults() {
+            if (learningData.length === 0) {
+                document.getElementById('learningResults').innerHTML = '<p>학습 데이터가 없습니다. 먼저 학습을 시작하세요.</p>';
+                return;
+            }
+            
+            displayLearningResults(learningData);
+        }
+
+        function displayLearningResults(data) {
+            const container = document.getElementById('learningResults');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<p>학습 결과가 없습니다.</p>';
+                return;
+            }
+
+            const patternLabels = {
+                'gradual_degradation': '점진적 성능 저하',
+                'sudden_failure': '급격한 고장',
+                'intermittent_failure': '간헐적 고장',
+                'cascade_failure': '계단식 고장',
+                'thermal_stress': '열 응력',
+                'normal_operation': '정상 운영'
+            };
+
+            const failureLabels = {
+                'bearing_wear': '베어링 마모',
+                'electrical_fault': '전기 고장',
+                'mechanical_looseness': '기계적 느슨함',
+                'compressor_fatigue': '압축기 피로',
+                'normal': '정상'
+            };
+
+            const html = data.map(item => {
+                const itemTime = new Date(item.timestamp);
+                const patternClass = item.patternType.replace('_', '-');
+                
+                return `
+                    <div class="learning-item ${patternClass}">
+                        <div class="learning-header">
+                            <span class="learning-time">${itemTime.toLocaleString()}</span>
+                            <span class="learning-pattern">${patternLabels[item.patternType] || item.patternType}</span>
+                        </div>
+                        <div class="learning-details">
+                            <div class="learning-detail">
+                                <span class="learning-detail-label">고장 유형</span>
+                                <span class="learning-detail-value">${failureLabels[item.failureType] || item.failureType}</span>
+                            </div>
+                            <div class="learning-detail">
+                                <span class="learning-detail-label">신뢰도</span>
+                                <span class="learning-detail-value">${(item.confidence * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="learning-detail">
+                                <span class="learning-detail-label">윈도우 크기</span>
+                                <span class="learning-detail-value">${item.windowSize}초</span>
+                            </div>
+                            <div class="learning-detail">
+                                <span class="learning-detail-label">데이터 수</span>
+                                <span class="learning-detail-value">${item.features.dataCount}개</span>
+                            </div>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${item.confidence * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function showLearningStatistics() {
+            const stats = {
+                totalWindows: learningStatistics.totalWindows,
+                patternCounts: learningStatistics.patternCounts,
+                failureTypeCounts: learningStatistics.failureTypeCounts,
+                avgConfidence: learningStatistics.avgConfidence,
+                learningStartTime: learningStatistics.learningStartTime,
+                lastLearningTime: learningStatistics.lastLearningTime,
+                currentDataCount: learningData.length
+            };
+
+            const statsHtml = `
+                <div class="learning-statistics">
+                    <h4>📊 학습 통계</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">총 윈도우 수:</span>
+                            <span class="stat-value">${stats.totalWindows}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">현재 데이터 수:</span>
+                            <span class="stat-value">${stats.currentDataCount}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">평균 신뢰도:</span>
+                            <span class="stat-value">${(stats.avgConfidence * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">학습 시작:</span>
+                            <span class="stat-value">${stats.learningStartTime ? stats.learningStartTime.toLocaleString() : 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="pattern-breakdown">
+                        <h5>패턴 유형별 분포:</h5>
+                        ${Object.entries(stats.patternCounts).map(([pattern, count]) => 
+                            `<div class="pattern-item">${pattern}: ${count}개</div>`
+                        ).join('')}
+                    </div>
+                    <div class="failure-breakdown">
+                        <h5>고장 유형별 분포:</h5>
+                        ${Object.entries(stats.failureTypeCounts).map(([failure, count]) => 
+                            `<div class="failure-item">${failure}: ${count}개</div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('learningResults').innerHTML = statsHtml;
+        }
+
+        function filterLearningResults() {
+            const patternFilter = document.getElementById('learningFilter').value;
+            const failureFilter = document.getElementById('failureTypeFilter').value;
+            let filteredData = learningData;
+
+            // 패턴 유형 필터링
+            if (patternFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.patternType === patternFilter);
+            }
+
+            // 고장 유형 필터링
+            if (failureFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.failureType === failureFilter);
+            }
+
+            displayLearningResults(filteredData);
+        }
+
+        function exportLearningData() {
+            if (learningData.length === 0) {
+                alert('내보낼 학습 데이터가 없습니다.');
+                return;
+            }
+
+            const exportData = {
+                exported_at: new Date().toISOString(),
+                total_items: learningData.length,
+                learning_data: learningData
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `contextual_learning_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // 차트 업데이트
+        function updateCharts(data) {
+            // 45dB 기준으로 압축기 상태 계산
+            const compressor = data.map(d => rmsToDecibel(d.rms_energy) >= 45 ? 1 : 0);
+            const rms = data.map(d => d.rms_energy);
+            const anomaly = data.map(d => d.anomaly_score);
+            const decibel = data.map(d => rmsToDecibel(d.rms_energy));
+
+            // 최근 50개 데이터만 표시
+            const limit = Math.min(50, data.length);
+            const recentData = {
+                labels: Array.from({length: limit}, (_, i) => i + 1), // 인덱스 기반 라벨
+                compressor: compressor.slice(0, limit),
+                rms: rms.slice(0, limit),
+                anomaly: anomaly.slice(0, limit),
+                decibel: decibel.slice(0, limit)
+            };
+
+            // 압축기 상태 분석 (데시벨 기반)
+            updateCompressorAnalysis(data);
+
+            // 압축기 작동 패턴 분석
+            analyzeCompressorPattern(data);
+
+            // 각 차트 업데이트
+            if (charts.compressor) {
+                charts.compressor.data.labels = recentData.labels;
+                charts.compressor.data.datasets[0].data = recentData.compressor;
+                charts.compressor.update();
+            }
+
+            if (charts.rms) {
+                charts.rms.data.labels = recentData.labels;
+                charts.rms.data.datasets[0].data = recentData.rms;
+                charts.rms.update();
+            }
+
+            if (charts.anomaly) {
+                charts.anomaly.data.labels = recentData.labels;
+                charts.anomaly.data.datasets[0].data = recentData.anomaly;
+                charts.anomaly.update();
+            }
+
+            if (charts.decibel) {
+                charts.decibel.data.labels = recentData.labels;
+                charts.decibel.data.datasets[0].data = recentData.decibel;
+                charts.decibel.update();
+            }
+        }
+
+        // 최근 데이터 테이블 업데이트
+        function updateRecentDataTable(data) {
+            const soundTypeNames = ['정적', '압축기', '팬', '이상음', '기타'];
+            
+            const table = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>시간</th>
+                            <th>디바이스</th>
+                            <th>RMS</th>
+                            <th>데시벨</th>
+                            <th>압축기</th>
+                            <th>이상점수</th>
+                            <th>효율성</th>
+                            <th>소리유형</th>
+                            <th>강도</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.slice(0, 10).map(item => {
+                            const soundType = item.sound_type || 0;
+                            const soundTypeName = soundTypeNames[Math.round(soundType)] || '알 수 없음';
+                            const intensity = ((item.intensity_level || 0) * 100).toFixed(1);
+                            
+                            return `
+                                <tr>
+                                    <td>${new Date(item.received_at).toLocaleTimeString()}</td>
+                                    <td>${item.device_id}</td>
+                                    <td>${item.rms_energy.toFixed(2)}</td>
+                                    <td>${rmsToDecibel(item.rms_energy).toFixed(1)} dB</td>
+                                    <td>${rmsToDecibel(item.rms_energy) >= 45 ? 'ON' : 'OFF'}</td>
+                                    <td>${item.anomaly_score.toFixed(3)}</td>
+                                    <td>${item.efficiency_score.toFixed(3)}</td>
+                                    <td>${soundTypeName}</td>
+                                    <td>${intensity}%</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('recentData').innerHTML = table;
+        }
+
+        // 알림 체크
+        function checkAlerts(data) {
+            const alerts = [];
+
+            if (data.anomaly_score > 0.7) {
+                alerts.push({
+                    type: 'danger',
+                    message: `높은 이상 점수 감지: ${data.anomaly_score.toFixed(3)}`
+                });
+            }
+
+            if (data.rms_energy > 5000) {
+                alerts.push({
+                    type: 'warning',
+                    message: `높은 소음 레벨: ${data.rms_energy.toFixed(2)}`
+                });
+            }
+
+            if (data.efficiency_score < 0.3) {
+                alerts.push({
+                    type: 'warning',
+                    message: `낮은 효율성: ${data.efficiency_score.toFixed(3)}`
+                });
+            }
+
+            if (rmsToDecibel(data.rms_energy) > 80) {
+                alerts.push({
+                    type: 'warning',
+                    message: `높은 데시벨 레벨: ${rmsToDecibel(data.rms_energy).toFixed(1)} dB`
+                });
+            }
+
+            if (alerts.length === 0) {
+                alerts.push({
+                    type: 'success',
+                    message: '모든 시스템 정상 작동 중'
+                });
+            }
+
+            displayAlerts(alerts);
+        }
+
+        // 알림 표시
+        function displayAlerts(alerts) {
+            const alertsContainer = document.getElementById('alerts');
+            alertsContainer.innerHTML = alerts.map(alert => 
+                `<div class="alert alert-${alert.type}">${alert.message}</div>`
+            ).join('');
+        }
+
+        // 알림 표시 (일반)
+        function showAlert(message, type) {
+            const alertsContainer = document.getElementById('alerts');
+            alertsContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                alertsContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // 자동 새로고침 시작
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            autoRefreshInterval = setInterval(refreshData, 5000); // 5초마다
+            showAlert('자동 새로고침이 시작되었습니다.', 'success');
+        }
+
+        // 자동 새로고침 중지
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                showAlert('자동 새로고침이 중지되었습니다.', 'warning');
+            }
+        }
+
+        // 센서 목록 로드
+        async function loadSensorList() {
+            try {
+                const response = await fetch('/api/sensor/recent?limit=1');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const sensors = [...new Set(data.data.map(item => item.device_id))];
+                    const sensorSelect = document.getElementById('sensorSelect');
+                    
+                    // 기존 옵션 제거 (전체 센서 제외)
+                    while (sensorSelect.children.length > 1) {
+                        sensorSelect.removeChild(sensorSelect.lastChild);
+                    }
+                    
+                    // 센서 옵션 추가
+                    sensors.forEach(sensor => {
+                        const option = document.createElement('option');
+                        option.value = sensor;
+                        option.textContent = sensor;
+                        sensorSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('센서 목록 로드 오류:', error);
+            }
+        }
+
+        // 센서 변경
+        function changeSensor() {
+            loadData();
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadSensorList();
+            refreshData();
+            startAutoRefresh();
+        });
+    </script>
+</body>
+</html>

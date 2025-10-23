@@ -18,6 +18,7 @@ const monitoringRoutes = require('./routes/monitoringRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const weatherRoutes = require('./routes/weatherApi');
 const sensorDataRoutes = require('./routes/sensorDataApi');
+const esp32FeaturesApi = require('./routes/esp32FeaturesApi');
 
 const app = express();
 
@@ -151,6 +152,21 @@ app.get('/esp32-dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/esp32_dashboard.html'));
 });
 
+// ESP32 디버깅 페이지
+app.get('/debug_esp32', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/debug_esp32.html'));
+});
+
+// Signalcraft.kr 디버깅 페이지
+app.get('/debug_signalcraft', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/debug_signalcraft.html'));
+});
+
+// ESP32 모듈화된 대시보드 페이지
+app.get('/esp32-dashboard-modular', (req, res) => {
+    res.sendFile(path.join(__dirname, '../static/pages/esp32_dashboard_modular.html'));
+});
+
 // API 라우트
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
@@ -161,9 +177,23 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/sensor', sensorDataRoutes);
 
-// ESP32 API 라우트
+// ESP32 API 라우트 (POST /features가 먼저 처리되도록 순서 중요)
+app.use('/api/esp32', esp32FeaturesApi);
 const esp32DashboardApi = require('./routes/esp32DashboardApi');
 app.use('/api/esp32', esp32DashboardApi);
+const esp32AiApi = require('./routes/esp32AiApi');
+app.use('/api/esp32', esp32AiApi);
+
+// ESP32 센서를 위한 프록시 라우트 (3.39.124.0:3000 -> signalcraft.kr:3000)
+app.use('/api/esp32/features', (req, res, next) => {
+    // ESP32 센서가 3.39.124.0:3000으로 요청을 보내면 signalcraft.kr:3000으로 리다이렉트
+    if (req.get('host') && req.get('host').includes('3.39.124.0')) {
+        console.log('ESP32 센서 요청 감지 - 프록시 처리');
+        // 내부적으로 esp32FeaturesApi로 라우팅
+        return esp32FeaturesApi(req, res, next);
+    }
+    next();
+});
 
 // 카카오 로그인 라우트 (별도 경로)
 app.use('/auth/kakao', kakaoRoutes);

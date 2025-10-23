@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalcraft.kr 디버깅</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Signalcraft.kr 디버깅 도구</h1>
+    
+    <div class="debug-section">
+        <h2>📡 API 연결 테스트</h2>
+        <button onclick="testAPI()">API 테스트 실행</button>
+        <div id="apiStatus"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>📊 센서 데이터 조회</h2>
+        <button onclick="loadSensorData()">센서 데이터 로드</button>
+        <div id="sensorData"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>🌐 네트워크 상태</h2>
+        <div id="networkStatus"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>🔍 브라우저 콘솔 로그</h2>
+        <div id="consoleLog"></div>
+    </div>
+
+    <script>
+        // API 테스트
+        async function testAPI() {
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.innerHTML = '<div class="info">API 테스트 중...</div>';
+            
+            try {
+                // 1. 기본 API 테스트
+                const response = await fetch('/api/esp32/features/recent?limit=1');
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.innerHTML = `
+                        <div class="success">✅ API 연결 성공</div>
+                        <div class="info">응답 시간: ${response.headers.get('date')}</div>
+                        <div class="info">데이터 개수: ${data.data.length}</div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `<div class="error">❌ API 오류: ${data.error || '알 수 없는 오류'}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ 네트워크 오류: ${error.message}</div>`;
+            }
+        }
+        
+        // 센서 데이터 로드
+        async function loadSensorData() {
+            const dataDiv = document.getElementById('sensorData');
+            dataDiv.innerHTML = '<div class="info">센서 데이터 로딩 중...</div>';
+            
+            try {
+                const response = await fetch('/api/esp32/features/recent?limit=5');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    dataDiv.innerHTML = `
+                        <div class="success">✅ 센서 데이터 로드 성공</div>
+                        <div class="info">총 ${data.data.length}개 데이터</div>
+                        <pre>${JSON.stringify(data.data[0], null, 2)}</pre>
+                    `;
+                } else {
+                    dataDiv.innerHTML = `<div class="warning">⚠️ 센서 데이터가 없습니다</div>`;
+                }
+            } catch (error) {
+                dataDiv.innerHTML = `<div class="error">❌ 센서 데이터 로드 실패: ${error.message}</div>`;
+            }
+        }
+        
+        // 네트워크 상태 확인
+        function checkNetworkStatus() {
+            const networkDiv = document.getElementById('networkStatus');
+            
+            const status = {
+                online: navigator.onLine,
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                cookieEnabled: navigator.cookieEnabled,
+                location: window.location.href
+            };
+            
+            networkDiv.innerHTML = `
+                <div class="${status.online ? 'success' : 'error'}">
+                    ${status.online ? '✅ 온라인' : '❌ 오프라인'}
+                </div>
+                <div class="info">현재 URL: ${status.location}</div>
+                <div class="info">브라우저: ${status.userAgent}</div>
+                <div class="info">언어: ${status.language}</div>
+                <div class="info">플랫폼: ${status.platform}</div>
+                <div class="info">쿠키 활성화: ${status.cookieEnabled ? '예' : '아니오'}</div>
+            `;
+        }
+        
+        // 콘솔 로그 캡처
+        function captureConsoleLog() {
+            const consoleDiv = document.getElementById('consoleLog');
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            
+            let logs = [];
+            
+            console.log = function(...args) {
+                logs.push({type: 'log', message: args.join(' '), time: new Date().toLocaleTimeString()});
+                originalLog.apply(console, args);
+                updateConsoleDisplay();
+            };
+            
+            console.error = function(...args) {
+                logs.push({type: 'error', message: args.join(' '), time: new Date().toLocaleTimeString()});
+                originalError.apply(console, args);
+                updateConsoleDisplay();
+            };
+            
+            console.warn = function(...args) {
+                logs.push({type: 'warn', message: args.join(' '), time: new Date().toLocaleTimeString()});
+                originalWarn.apply(console, args);
+                updateConsoleDisplay();
+            };
+            
+            function updateConsoleDisplay() {
+                const recentLogs = logs.slice(-10); // 최근 10개만 표시
+                consoleDiv.innerHTML = recentLogs.map(log => 
+                    `<div class="${log.type}">[${log.time}] ${log.message}</div>`
+                ).join('');
+            }
+        }
+        
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            checkNetworkStatus();
+            captureConsoleLog();
+            
+            // 자동으로 API 테스트 실행
+            setTimeout(testAPI, 1000);
+        });
+        
+        // 온라인/오프라인 상태 변경 감지
+        window.addEventListener('online', checkNetworkStatus);
+        window.addEventListener('offline', checkNetworkStatus);
+    </script>
+</body>
+</html>

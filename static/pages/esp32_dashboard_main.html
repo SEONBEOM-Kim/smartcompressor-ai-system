@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 센서 모니터링 대시보드</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <link rel="stylesheet" href="/static/css/esp32_dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧊 ESP32 아이스크림 가게 모니터링</h1>
+            <p>실시간 압축기 상태 및 센서 데이터 분석</p>
+        </div>
+
+        <!-- 센서 선택 및 설정 -->
+        <div class="control-panel">
+            <div class="sensor-selector">
+                <label>센서 선택:</label>
+                <select id="sensorSelect">
+                    <option value="all">전체 센서</option>
+                    <option value="ESP32_002">ESP32_002</option>
+                </select>
+            </div>
+            
+            <div class="data-controls">
+                <label>데이터 개수:</label>
+                <select id="dataLimit">
+                    <option value="50">50개</option>
+                    <option value="100" selected>100개</option>
+                    <option value="200">200개</option>
+                </select>
+                
+                <label>시간 범위:</label>
+                <select id="timeRange">
+                    <option value="1">최근 1시간</option>
+                    <option value="6" selected>최근 6시간</option>
+                    <option value="24">최근 24시간</option>
+                    <option value="72">최근 3일</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 연결 상태 -->
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">연결 상태</span>
+                <span id="connectionStatus" class="status-value">연결 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">활성 디바이스</span>
+                <span id="activeDevices" class="status-value">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">마지막 업데이트</span>
+                <span id="lastUpdate" class="status-value">--:--</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">총 데이터 수</span>
+                <span id="totalData" class="status-value">0</span>
+            </div>
+        </div>
+
+        <!-- 실시간 메트릭 -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>📊 실시간 메트릭</h3>
+                <div class="metric-item">
+                    <span class="metric-label">RMS 에너지:</span>
+                    <span id="currentRms" class="metric-value">0</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">데시벨 (dB):</span>
+                    <span id="currentDecibel" class="metric-value">0</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">압축기 상태:</span>
+                    <span id="currentCompressor" class="metric-value">OFF</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">이상 점수:</span>
+                    <span id="currentAnomaly" class="metric-value">0.0</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3>🔧 압축기 상태 분석 (45dB 기준)</h3>
+                <div class="compressor-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">ON (≥45dB):</span>
+                        <span id="compressorOnPercent" class="stat-value">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">OFF (<45dB):</span>
+                        <span id="compressorOffPercent" class="stat-value">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 차트 영역 -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>🔊 소음 레벨 (RMS)</h3>
+                <canvas id="rmsChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <h3>⚠️ 이상 감지 점수</h3>
+                <canvas id="anomalyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 최근 데이터 테이블 -->
+        <div class="data-table-container">
+            <h3>📋 최근 센서 데이터</h3>
+            <div id="dataTable" class="data-table">
+                <div class="loading">데이터 로딩 중...</div>
+            </div>
+        </div>
+
+        <!-- 새로고침 버튼 -->
+        <div class="action-buttons">
+            <button id="refreshBtn" class="btn btn-primary">🔄 새로고침</button>
+            <button id="autoRefreshBtn" class="btn btn-secondary">▶️ 자동 새로고침</button>
+        </div>
+    </div>
+
+    <!-- JavaScript 모듈들 -->
+    <script src="/static/js/esp32_api.js"></script>
+    <script src="/static/js/esp32_charts.js"></script>
+    <script src="/static/js/esp32_dashboard.js"></script>
+</body>
+</html>
