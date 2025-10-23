@@ -1,0 +1,85 @@
+<style>
+    .section-container {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .section-header h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary, #FFFFFF);
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+    
+    .section-header h2 i {
+        color: var(--accent-primary, #8A5CFE);
+        margin-right: 0.5rem;
+    }
+    
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .chart-container {
+        background-color: var(--secondary-bg, #22252A);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Mobile responsive styles for asset-trend */
+    @media (max-width: 768px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .section-header h2 {
+            font-size: 1.1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .chart-container {
+            height: 180px;
+        }
+    }
+</style>
+<section class="section-container">
+    <div class="section-header">
+        <h2><i class="fas fa-chart-line"></i> 자산 상태 트렌드</h2>
+    </div>
+    <div class="chart-grid">
+        <div class="chart-container">
+            <canvas id="asset-trend-chart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="asset-health-chart"></canvas>
+        </div>
+    </div>
+</section>

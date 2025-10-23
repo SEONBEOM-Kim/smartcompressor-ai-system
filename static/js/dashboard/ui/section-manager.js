@@ -43,6 +43,15 @@ class SectionManager {
                 case 'notifications':
                     this.loadNotificationsData();
                     break;
+                case 'assets':
+                    this.loadAssetsData();
+                    break;
+                case 'reports':
+                    this.loadReportsData();
+                    break;
+                case 'settings':
+                    this.loadSettingsData();
+                    break;
             }
         }
 
@@ -122,6 +131,71 @@ class SectionManager {
         }
     }
 
+    async loadAssetsData() {
+        try {
+            if (this.dataLoader) {
+                const data = await this.dataLoader.loadAssetsData();
+                if (data.success) {
+                    this.tableRenderer.updateAssetsTable(data.assets);
+                    this.cardUpdater.updateAssetSummaryCards(data.summary);
+                }
+            }
+        } catch (error) {
+            console.error('자산 데이터 로드 실패:', error);
+        }
+    }
+
+    async loadReportsData() {
+        try {
+            if (this.dataLoader) {
+                const data = await this.dataLoader.loadReportsData();
+                if (data.success) {
+                    // Update reports sections with data
+                    this.updateReportsCharts(data.reports);
+                }
+            }
+        } catch (error) {
+            console.error('리포트 데이터 로드 실패:', error);
+        }
+    }
+
+    async loadSettingsData() {
+        try {
+            // Load settings component if not already loaded
+            if (!document.getElementById('settings-content')) {
+                await this.loadComponent('/static/dashboard-components/settings/settings-main.html', 'main-content');
+                
+                // Initialize settings after component is loaded
+                setTimeout(() => {
+                    if (typeof window.initializeSettingsPage !== 'undefined') {
+                        window.initializeSettingsPage();
+                    } else {
+                        console.log('Settings initialization function not found');
+                    }
+                }, 300);
+            }
+        } catch (error) {
+            console.error('설정 데이터 로드 실패:', error);
+        }
+    }
+    
+    // Load component function - this should be available either in this class or as a global function
+    async loadComponent(url, containerId) {
+        try {
+            // Check if there's a global loadComponent function first
+            if (typeof window.loadComponent === 'function') {
+                await window.loadComponent(url, containerId);
+            } else {
+                // Fallback: implement the fetch functionality
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            }
+        } catch (error) {
+            console.error(`Error loading component ${url}:`, error);
+        }
+    }
+
     updateAnalyticsCharts(analytics) {
         if (analytics.temperature && this.chartManager && this.chartManager.charts.temperature) {
             this.chartManager.charts.temperature.update(analytics.temperature);
@@ -138,6 +212,14 @@ class SectionManager {
         if (analytics.anomaly && this.chartManager && this.chartManager.charts.anomaly) {
             this.chartManager.charts.anomaly.update(analytics.anomaly);
         }
+        
+        if (analytics.asset && this.chartManager && this.chartManager.charts.asset) {
+            this.chartManager.charts.asset.update(analytics.asset);
+        }
+        
+        if (analytics.reports && this.chartManager && this.chartManager.charts.reports) {
+            this.chartManager.charts.reports.update(analytics.reports);
+        }
     }
 
     setupNavigation() {
@@ -145,7 +227,7 @@ class SectionManager {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = this.getAttribute('href').substring(1);
+                const section = link.getAttribute('href').substring(1);
                 this.showSection(section);
             });
         });

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalcraft 대시보드</title>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/static/css/dashboard_v3.css?v=3.0" rel="stylesheet">
+    
+    <style>
+        .grid-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .grid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        }
+        
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .grid-card:hover .card-overlay {
+            opacity: 1;
+        }
+        
+        .view-more-btn {
+            color: white;
+            font-weight: bold;
+            background: var(--accent-primary, #007bff);
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-more-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .grid-card:hover .view-more-btn i {
+            transform: translateX(3px);
+        }
+        
+        /* Anomalies-specific styles */
+        .current-risk-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .risk-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .risk-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        .risk-card h5 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .risk-card h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .risk-card p.description {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .risk-card.urgent-card { border-top: 4px solid #dc3545; }
+        .risk-card.warning-card { border-top: 4px solid #ffc107; }
+        .risk-card.info-card { border-top: 4px solid #17a2b8; }
+        .risk-card.asset-card { border-top: 4px solid #007bff; }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        .anomaly-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .anomaly-table th,
+        .anomaly-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .anomaly-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .severity-badge.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .severity-badge.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls .form-control,
+        .filter-controls .form-select {
+            min-width: 150px;
+        }
+        
+        .anomaly-detail-view {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .mini-chart-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .ai-analysis, .action-log, .quick-actions {
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-log ul {
+            padding-left: 1.5rem;
+        }
+        
+        .action-log li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Mobile responsiveness improvements */
+        @media (max-width: 768px) {
+            /* Hamburger menu positioning */
+            .hamburger-menu {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                z-index: 1050; /* Higher than sidebar z-index to stay on top */
+                background: var(--accent-primary, #007bff);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 10px;
+                font-size: 1.5rem;
+                cursor: pointer;
+                display: block;
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Mobile Navigation Overlay */
+            .mobile-nav-overlay {
+                position: fixed;
+                top: 0;
+                right: -300px; /* Start hidden to the right */
+                width: 280px;
+                height: 100vh;
+                background: white;
+                z-index: 1049; /* Just below hamburger menu */
+                transition: right 0.3s ease;
+                box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+                overflow-y: auto;
+            }
+            
+            .mobile-nav-overlay.active {
+                right: 0; /* Slide in from right */
+            }
+            
+            .mobile-nav-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                background: var(--accent-primary, #007bff);
+                color: white;
+            }
+            
+            .mobile-nav-menu {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .mobile-nav-menu li {
+                border-bottom: 1px solid #eee;
+            }
+            
+            .mobile-nav-menu .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 15px 20px;
+                color: #333;
+                text-decoration: none;
+                transition: background-color 0.2s;
+            }
+            
+            .mobile-nav-menu .nav-link:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .mobile-nav-menu .nav-link.active {
+                background-color: #e6f0ff;
+                color: var(--accent-primary, #007bff);
+            }
+            
+            .mobile-nav-menu .nav-link i {
+                margin-right: 12px;
+                width: 20px;
+                text-align: center;
+            }
+            
+            .mobile-nav-menu .nav-link span {
+                flex: 1;
+            }
+            
+            /* Adjust z-index to work with the component's own sidebar styles */
+            #sidebar-container #sidebar {
+                z-index: 1000; /* Match the component's z-index */
+            }
+            
+            /* Hide sidebar on mobile since we're using the overlay */
+            @media (max-width: 768px) {
+                #sidebar-container #sidebar {
+                    display: none;
+                }
+            }
+            
+            /* Adjust main content when sidebar is present */
+            #main-content {
+                margin-left: 0;
+                transition: margin-left 0.3s ease;
+                position: relative;
+                z-index: 10;
+            }
+            
+            /* Prevent horizontal scrolling */
+            body {
+                overflow-x: hidden;
+            }
+            
+            /* Ensure containers don't cause overflow */
+            .dashboard-grid,
+            .current-risk-cards,
+            .grid-card,
+            .card-container {
+                overflow: hidden;
+            }
+            
+            /* Responsive dashboard grid */
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            /* Responsive risk cards */
+            .current-risk-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            /* Make charts responsive */
+            .chart-container {
+                min-height: 200px;
+            }
+            
+            /* Header adjustments */
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            /* Table adjustments for mobile */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .anomaly-table {
+                min-width: 600px;
+                font-size: 0.8rem;
+            }
+            
+            /* Responsive adjustments for all content */
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .grid-card {
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+            
+            .card-header {
+                padding: 0.5rem;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+            }
+            
+            /* Adjust icon buttons */
+            .icon-button {
+                padding: 0.5rem;
+            }
+            
+            /* Responsive search bar */
+            .search-bar {
+                padding: 0.5rem;
+            }
+            
+            .search-bar input {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Tablet styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .current-risk-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+        
+        /* Extra small devices (phones, 600px and down) */
+        @media only screen and (max-width: 600px) {
+            .current-risk-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                min-height: 150px;
+            }
+            
+            .risk-card h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hamburger Menu Button (Visible on Mobile) -->
+    <button class="hamburger-menu" id="hamburger-menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Hamburger Menu Button (Visible on Mobile) -->
+    <button class="hamburger-menu" id="hamburger-menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Navigation Overlay (slides in from right) -->
+    <nav class="mobile-nav-overlay" id="mobile-nav-overlay">
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <button class="close-btn" id="mobile-nav-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-menu">
+            <li><a href="#" class="nav-link active" onclick="closeMobileNav(); return false;"><i class="fas fa-th-large"></i> <span>대시보드</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadAnomaliesDetailContent(); closeMobileNav(); return false;"><i class="fas fa-exclamation-circle"></i> <span>이상 징후</span></a></li>
+            <li><a href="#" id="assets-link" class="nav-link" onclick="loadPageContent('assets'); closeMobileNav(); return false;"><i class="fas fa-cubes"></i> <span>자산 목록</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadPageContent('reports'); closeMobileNav(); return false;"><i class="fas fa-chart-pie"></i> <span>리포트</span></a></li>
+            <li><a href="#settings" id="settings-link" class="nav-link" onclick="loadPageContent('settings'); closeMobileNav(); return false;"><i class="fas fa-cog"></i> <span>설정</span></a></li>
+            <li><a href="#" class="nav-link" onclick="loadPageContent('help'); closeMobileNav(); return false;"><i class="fas fa-life-ring"></i> <span>도움말</span></a></li>
+            <li><a href="#" id="logout-link" class="nav-link" onclick="logoutUser(); closeMobileNav(); return false;"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Include Sidebar -->
+    <div id="sidebar-container">
+        <!-- This will be populated by JavaScript -->
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Include Header -->
+        <div id="header-container">
+            <!-- This will be populated by JavaScript -->
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Include Current Risk Cards -->
+            <div id="current-risk-cards-container">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <!-- Include Threat Summary Card -->
+            <div id="threat-summary-container">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <!-- Include Risk Score Card -->
+            <div id="risk-score-container">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <!-- Include Threat Details Card -->
+            <div id="threat-details-container">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <!-- Include Threat by Virus Card -->
+            <div id="threat-by-virus-container">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <!-- Include Threat by Device Card -->
+            <div id="threat-by-device-container">
+                <!-- This will be populated by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Load Components -->
+    <script>
+        // Function to load HTML components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            } catch (error) {
+                console.error(`Error loading component ${url}:`, error);
+            }
+        }
+
+        // Function to handle navigation and content loading
+        function setupNavigation() {
+            // Add click event listeners to sidebar links
+            document.getElementById('dashboard-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Navigate to the refactored dashboard (self)
+                window.location.href = '/dashboard';
+            });
+            
+            document.getElementById('anomalies-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadAnomaliesDetailContent();
+            });
+            
+            document.getElementById('assets-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadPageContent('assets');
+            });
+            
+            document.getElementById('reports-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadPageContent('reports');
+            });
+            
+            document.getElementById('settings-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadPageContent('settings');
+            });
+            
+            document.getElementById('help-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadPageContent('help');
+            });
+            
+            document.getElementById('logout-link')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutUser();
+            });
+            
+            // Set active link based on current page
+            setActiveLink('dashboard-link');
+        }
+
+        // Function to set active state on clicked link
+        function setActiveLink(activeLinkId) {
+            // Remove active class from all links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to clicked link
+            const activeLink = document.getElementById(activeLinkId);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Function to load anomalies detail content
+        async function loadAnomaliesDetailContent() {
+            try {
+                const response = await fetch('/static/dashboard-components/anomalies-detail-content.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById('main-content').innerHTML = html;
+                    setActiveLink('anomalies-link');
+                    
+                    // After loading content, initialize any required components
+                    setTimeout(initializeAnomaliesCharts, 500);
+                } else {
+                    // If the separate content file doesn't exist, load the full anomalies detail page content
+                    loadFullAnomaliesDetail();
+                }
+            } catch (error) {
+                console.error('Error loading anomalies detail content:', error);
+                loadFullAnomaliesDetail();
+            }
+        }
+        
+        // Function to load anomalies detail content dynamically
+        async function loadAnomaliesDetailContent() {
+            try {
+                document.getElementById('main-content').innerHTML = `
+                    <div id="anomalies-detail-container">
+                        <header class="page-header">
+                            <div class="header-left">
+                                <h1>이상 징후</h1>
+                                <p>실시간 이상 징후 모니터링 및 조치</p>
+                            </div>
+                            <div class="header-right">
+                                <div class="search-bar">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="자산 또는 이벤트 검색...">
+                                </div>
+                                <button class="icon-button"><i class="fas fa-comment-dots"></i></button>
+                                <button class="icon-button"><i class="fas fa-bell"></i></button>
+                            </div>
+                        </header>
+
+                        <!-- Anomalies Content will be loaded here -->
+                        <div id="anomalies-content">
+                            <div id="today-briefing-container"></div>
+                            <div id="anomaly-trend-container"></div>
+                            <div id="anomaly-feed-container"></div>
+                        </div>
+                    </div>
+                `;
+                
+                setActiveLink('anomalies-link');
+                
+                // Load individual anomalies components
+                await loadComponent('/static/dashboard-components/anomalies/today-briefing.html', 'today-briefing-container');
+                await loadComponent('/static/dashboard-components/anomalies/anomaly-trend.html', 'anomaly-trend-container');
+                await loadComponent('/static/dashboard-components/anomalies/anomaly-feed.html', 'anomaly-feed-container');
+                
+                // Initialize charts and event handlers after content is loaded
+                setTimeout(initializeAnomaliesCharts, 500);
+                setTimeout(setupAnomalyDetailsToggle, 1000);
+                setTimeout(setupGroupByFunctionality, 1000);
+            } catch (error) {
+                console.error('Error loading anomalies detail content:', error);
+            }
+        }
+
+        // Function to load page content based on selected menu item
+        function loadPageContent(pageName) {
+            // This function would load the appropriate content for each page
+            // For now, we'll just update the main content area with a placeholder
+            document.getElementById('main-content').innerHTML = `
+                <div class="page-content">
+                    <h2>${getPageTitle(pageName)}</h2>
+                    <p>이 섹션에 ${getPageTitle(pageName)} 관련 콘텐츠가 표시됩니다.</p>
+                    <div class="content-placeholder">
+                        ${getContentPlaceholder(pageName)}
+                    </div>
+                </div>
+            `;
+            
+            // Set the active link
+            setActiveLink(`${pageName}-link`);
+        }
+
+        // Helper function to get page title based on page name
+        function getPageTitle(pageName) {
+            const titles = {
+                'dashboard': '대시보드',
+                'anomalies': '이상 징후',
+                'assets': '자산 목록',
+                'reports': '리포트',
+                'settings': '설정',
+                'help': '도움말'
+            };
+            return titles[pageName] || '페이지';
+        }
+
+        // Helper function to get content placeholder based on page name
+        function getContentPlaceholder(pageName) {
+            const placeholders = {
+                'dashboard': '<p>대시보드 메인 화면입니다. 자산 상태 요약 및 이상 징후 요약을 볼 수 있습니다.</p>',
+                'anomalies': '<p>이상 징후 탭을 클릭하면 자산 이상 징후에 대한 상세 내용을 볼 수 있습니다.</p>',
+                'assets': '<p>자산 목록 탭을 클릭하면 등록된 자산들의 목록과 상태를 볼 수 있습니다.</p>',
+                'reports': '<p>리포트 탭을 클릭하면 자산 상태 리포트를 생성하고 확인할 수 있습니다.</p>',
+                'settings': '<p>설정 탭을 클릭하면 계정 및 시스템 설정을 변경할 수 있습니다.</p>',
+                'help': '<p>도움말 탭을 클릭하면 시스템 사용법에 대한 도움말을 볼 수 있습니다.</p>'
+            };
+            return placeholders[pageName] || '<p>페이지 콘텐츠</p>';
+        }
+
+        // Function to handle user logout
+        function logoutUser() {
+            if (confirm('정말 로그아웃 하시겠습니까?')) {
+                // Here you would typically make an API call to handle the logout
+                console.log('Logging out user...');
+                // Redirect to login page or handle session termination
+                window.location.href = '/login'; // This would be your actual login page path
+            }
+        }
+
+        // Mobile navigation overlay functionality
+        function setupMobileSidebar() {
+            const hamburgerMenu = document.getElementById('hamburger-menu');
+            const mobileNav = document.getElementById('mobile-nav-overlay');
+            const closeBtn = document.getElementById('mobile-nav-close');
+            
+            // Open mobile navigation when hamburger menu is clicked
+            hamburgerMenu?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileNav.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            });
+            
+            // Close mobile navigation when close button is clicked
+            closeBtn?.addEventListener('click', function() {
+                mobileNav.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            });
+            
+            // Close mobile navigation when clicking outside of it
+            document.addEventListener('click', function(e) {
+                if (mobileNav.classList.contains('active') && 
+                    !mobileNav.contains(e.target) && 
+                    e.target !== hamburgerMenu) {
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+            
+            // Close mobile navigation when window is resized to desktop size
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+        }
+        
+        // Function to close the mobile navigation
+        function closeMobileNav() {
+            const mobileNav = document.getElementById('mobile-nav-overlay');
+            if (mobileNav) {
+                mobileNav.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }
+        }
+
+        // Load all dashboard components when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sidebar component
+            loadComponent('/static/dashboard-components/sidebar.html', 'sidebar-container');
+            
+            // Load header component
+            loadComponent('/static/dashboard-components/header.html', 'header-container');
+            
+            // Load dashboard cards components
+            loadComponent('/static/dashboard-components/current-risk-cards.html', 'current-risk-cards-container');
+            loadComponent('/static/dashboard-components/anomalies/threat-summary-card.html', 'threat-summary-container');
+            loadComponent('/static/dashboard-components/risk-score-card.html', 'risk-score-container');
+            loadComponent('/static/dashboard-components/anomalies/threat-details-card.html', 'threat-details-container');
+            loadComponent('/static/dashboard-components/threat-by-virus-card.html', 'threat-by-virus-container');
+            loadComponent('/static/dashboard-components/threat-by-device-card.html', 'threat-by-device-container');
+            
+            // Initialize charts after components are loaded
+            setTimeout(initializeCharts, 500);
+            
+            // Setup navigation after components are loaded
+            setTimeout(setupNavigation, 500);
+            
+            // Setup mobile sidebar functionality
+            setTimeout(setupMobileSidebar, 600); // Slightly after other components are loaded
+        });
+
+        // Function to load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                // Fetch dashboard summary data
+                const response = await fetch('/api/dashboard/summary');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const summary = result.summary;
+                    
+                    // Update the counters if they exist in this dashboard
+                    const totalAssetsEl = document.getElementById('total-assets');
+                    const normalAssetsEl = document.getElementById('normal-assets');
+                    const anomalyCountEl = document.getElementById('anomaly-count');
+                    const urgentActionEl = document.getElementById('urgent-action');
+                    const scheduledMaintenanceEl = document.getElementById('scheduled-maintenance');
+                    
+                    if (totalAssetsEl) totalAssetsEl.textContent = summary.totalAssets || 0;
+                    if (normalAssetsEl) normalAssetsEl.textContent = summary.normalAssets || 0;
+                    if (anomalyCountEl) anomalyCountEl.textContent = summary.anomalyCount || 0;
+                    if (urgentActionEl) urgentActionEl.textContent = summary.urgentAction || 0;
+                    if (scheduledMaintenanceEl) scheduledMaintenanceEl.textContent = summary.scheduledMaintenance || 0;
+                    
+                    // Update the charts with the retrieved data
+                    if (result.energy_data) {
+                        updateThreatSummaryChart(result.energy_data.labels, result.energy_data.values);
+                    }
+                    
+                    if (result.device_status) {
+                        updateRiskScoreChart([
+                            result.device_status.online,
+                            result.device_status.offline,
+                            result.device_status.maintenance,
+                            result.device_status.error
+                        ]);
+                    }
+                    
+                    if (result.threats_by_type) {
+                        updateThreatsByVirusChart(result.threats_by_type.labels, result.threats_by_type.values);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        // Function to update the threat summary chart
+        function updateThreatSummaryChart(labels, data) {
+            const chart = Chart.getChart(document.getElementById('threat-summary-chart'));
+            if (chart) {
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = data;
+                chart.update();
+            }
+        }
+        
+        // Function to update the risk score chart
+        function updateRiskScoreChart(data) {
+            const chart = Chart.getChart(document.getElementById('risk-score-chart'));
+            if (chart) {
+                chart.data.datasets[0].data = data;
+                chart.update();
+            }
+        }
+        
+        // Function to update the threats by virus chart
+        function updateThreatsByVirusChart(labels, data) {
+            const chart = Chart.getChart(document.getElementById('threats-by-virus-chart'));
+            if (chart) {
+                chart.data.labels = labels || [];
+                chart.data.datasets[0].data = data || [];
+                chart.update();
+            }
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Threat Summary Chart
+            if (document.getElementById('threat-summary-chart') && !document.getElementById('threat-summary-chart').chart) {
+                new Chart(document.getElementById('threat-summary-chart'), { 
+                    type: 'line', 
+                    data: { 
+                        labels: [], 
+                        datasets: [{
+                            label: '이상 징후',
+                            data: [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Risk Score Chart
+            if (document.getElementById('risk-score-chart') && !document.getElementById('risk-score-chart').chart) {
+                new Chart(document.getElementById('risk-score-chart'), { 
+                    type: 'doughnut', 
+                    data: { 
+                        labels: ['정상', '오프라인', '점검중', '오류'],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                'rgb(72, 187, 120)',    // normal color
+                                'rgb(160, 174, 192)',   // offline color
+                                'rgb(255, 193, 7)',     // maintenance/warning color
+                                'rgb(220, 53, 69)'      // error/danger color
+                            ]
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Threats by Virus Chart
+            if (document.getElementById('threats-by-virus-chart') && !document.getElementById('threats-by-virus-chart').chart) {
+                new Chart(document.getElementById('threats-by-virus-chart'), { 
+                    type: 'doughnut', 
+                    data: { 
+                        labels: ['베어링 마모', '과도한 진동', '온도 급상승'],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                'rgb(255, 99, 132)',
+                                'rgb(54, 162, 235)',
+                                'rgb(255, 205, 86)'
+                            ]
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Initialize charts and load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadDashboardData(); // Load the actual data from the API
+            
+            // Refresh data every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+        
+        // Initialize anomalies-specific charts
+        function initializeAnomaliesCharts() {
+            // Anomaly Trend Chart - Initial empty chart
+            if (document.getElementById('anomaly-trend-chart')) {
+                new Chart(document.getElementById('anomaly-trend-chart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '이상 징후 수',
+                            data: [],
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '발생 건수'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Anomaly Type Chart (Donut chart) - Initial empty chart
+            if (document.getElementById('anomaly-type-chart')) {
+                new Chart(document.getElementById('anomaly-type-chart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                'rgb(220, 53, 69)',    // danger color for '위험'
+                                'rgb(255, 193, 7)'     // warning color for '경고'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize mini charts for each anomaly - Initial empty charts
+            initializeMiniCharts();
+        }
+        
+        // Initialize mini charts in each anomaly item - Initial empty charts
+        function initializeMiniCharts() {
+            // Mini chart for first anomaly
+            if (document.getElementById('mini-chart-1')) {
+                new Chart(document.getElementById('mini-chart-1').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '센서 데이터',
+                            data: [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 2
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Mini chart for second anomaly
+            if (document.getElementById('mini-chart-2')) {
+                new Chart(document.getElementById('mini-chart-2').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '센서 데이터',
+                            data: [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 2
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Toggle anomaly details
+        function setupAnomalyDetailsToggle() {
+            document.querySelectorAll('.toggle-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const details = this.closest('.anomaly-item').querySelector('.anomaly-details');
+                    const icon = this.querySelector('i');
+                    
+                    if (details.style.display === 'none' || details.style.display === '') {
+                        details.style.display = 'block';
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        details.style.display = 'none';
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                });
+            });
+        }
+
+        // Setup group by functionality
+        function setupGroupByFunctionality() {
+            document.getElementById('groupByAsset')?.addEventListener('click', function() {
+                alert('자산별로 묶어보기 기능이 작동합니다.');
+                // Here you would implement the logic to group anomalies by asset
+            });
+            
+            document.getElementById('groupBySeverity')?.addEventListener('click', function() {
+                alert('심각도별로 묶어보기 기능이 작동합니다.');
+                // Here you would implement the logic to group anomalies by severity
+            });
+        }
+    </script>
+</body>
+</html>

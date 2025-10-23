@@ -141,6 +141,8 @@ app.get('/storage/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../static/pages/storage/dashboard.html'));
 });
 
+customer-dashboard
+
 // ESP32 센서 대시보드 페이지
 app.get('/esp32-dashboard', (req, res) => {
     res.removeHeader('ETag');

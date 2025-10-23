@@ -1,0 +1,393 @@
+<style>
+    .section-container {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .section-header h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary, #FFFFFF);
+        display: flex;
+        align-items: center;
+        margin: 0;
+        margin-right: 1rem; /* Reduced spacing from title to filters */
+    }
+    
+    .section-header h2 i {
+        color: var(--accent-primary, #8A5CFE);
+        margin-right: 0.5rem;
+    }
+    
+    .controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    
+    .form-control, .form-select {
+        background-color: var(--primary-bg, #1A1C23);
+        color: var(--text-primary, #FFFFFF);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        min-width: 150px; /* Ensure minimum width for better UI */
+        margin-right: 0.25rem; /* Reduced margin */
+        margin-bottom: 0.25rem; /* Reduced margin */
+    }
+    
+    .btn-outline-primary {
+        background-color: transparent;
+        color: var(--accent-primary, #8A5CFE);
+        border: 1px solid var(--accent-primary, #8A5CFE);
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem; /* Smaller padding */
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--accent-primary, #8A5CFE);
+        color: white;
+    }
+    
+    .table.anomaly-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    .table.anomaly-table th,
+    .table.anomaly-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color, #32363C);
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    .table.anomaly-table th {
+        color: var(--text-secondary, #A0AEC0);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .severity-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .severity-badge.danger {
+        background-color: rgba(229, 62, 62, 0.2);
+        color: var(--danger, #E53E3E);
+    }
+    
+    .severity-badge.warning {
+        background-color: rgba(237, 137, 54, 0.2);
+        color: var(--warning, #ED8936);
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 0.25rem;
+    }
+    
+    .btn.btn-outline-primary {
+        background-color: transparent;
+        color: var(--accent-primary, #8A5CFE);
+        border: 1px solid var(--accent-primary, #8A5CFE);
+    }
+    
+    .btn.btn-outline-primary:hover {
+        background-color: var(--accent-primary, #8A5CFE);
+        color: white;
+    }
+    
+    /* Anomaly detail view styles */
+    .anomaly-detail-view {
+        background-color: var(--card-bg, #22252A);
+        border: 1px solid var(--border-color, #32363C);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color, #32363C);
+    }
+    
+    .detail-header h4 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-primary, #FFFFFF);
+        margin: 0;
+    }
+    
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary, #A0AEC0);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+    
+    .close-btn:hover {
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    .mini-chart-container h5,
+    .ai-analysis h5,
+    .action-log h5,
+    .quick-actions h5 {
+        color: var(--accent-primary, #8A5CFE);
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .mini-chart-container h5::before,
+    .ai-analysis h5::before,
+    .action-log h5::before,
+    .quick-actions h5::before {
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        margin-right: 0.5rem;
+    }
+    
+    .mini-chart-container h5::before { content: '\f201'; } /* chart icon */
+    .ai-analysis h5::before { content: '\f0eb'; } /* lightbulb */
+    .action-log h5::before { content: '\f02d'; } /* clipboard */
+    .quick-actions h5::before { content: '\f04b'; } /* play */
+    
+    #action-log-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    #action-log-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color, #32363C);
+        color: var(--text-primary, #FFFFFF);
+    }
+    
+    .timestamp {
+        color: var(--accent-primary, #8A5CFE);
+        font-weight: 600;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .btn-success { background-color: var(--success, #48BB78); color: white; }
+    .btn-primary { background-color: var(--accent-primary, #8A5CFE); color: white; }
+    .btn-info { background-color: var(--accent-secondary, #38B2AC); color: white; }
+    .btn-warning { background-color: var(--warning, #ED8936); color: white; }
+    
+    .btn-success:hover, .btn-primary:hover, .btn-info:hover, .btn-warning:hover {
+        opacity: 0.9;
+    }
+    
+    /* Mobile responsive styles for anomaly-feed */
+    @media (max-width: 768px) {
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .controls {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-control, .form-select {
+            width: 100% !important; /* Override min-width on mobile */
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-outline-primary {
+            align-self: flex-start; /* Align buttons at start on mobile */
+            margin-bottom: 0.5rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table.anomaly-table {
+            min-width: 800px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .section-header h2 {
+            font-size: 1.1rem;
+        }
+        
+        .btn-outline-primary {
+            padding: 0.4rem 0.6rem; /* Slightly smaller buttons on very small screens */
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* For the detail view */
+    @media (max-width: 768px) {
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .mini-chart-container {
+            width: 100%;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+</style>
+<section class="section-container">
+    <div class="section-header">
+        <h2><i class="fas fa-exclamation-triangle" style="color: var(--warning, #ED8936);"></i> 이상 징후 목록</h2>
+        <div class="controls">
+            <input type="text" class="form-control" placeholder="자산명, 유형, 내용 검색...">
+            <select class="form-select">
+                <option>모든 심각도</option>
+                <option>위험</option>
+                <option>경고</option>
+            </select>
+            <select class="form-select">
+                <option>최근순</option>
+                <option>오래된순</option>
+                <option>심각도순</option>
+            </select>
+            <button id="groupByAsset" class="btn btn-outline-primary">자산별로 묶기</button>
+            <button id="groupBySeverity" class="btn btn-outline-primary">심각도별로 묶기</button>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table anomaly-table">
+            <thead>
+                <tr>
+                    <th>심각도</th>
+                    <th>발생 시간</th>
+                    <th>자산 ID</th>
+                    <th>징후 유형</th>
+                    <th>상세 내용</th>
+                    <th>상태</th>
+                    <th>조치</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="severity-badge danger">🔴 위험</span></td>
+                    <td>2025-10-17 14:30</td>
+                    <td>Freezer-A1</td>
+                    <td>온도 급상승</td>
+                    <td>-18°C → +5°C</td>
+                    <td>확인 필요</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge warning">🟡 경고</span></td>
+                    <td>2025-10-17 13:55</td>
+                    <td>Freezer-C3</td>
+                    <td>컴프레서 과부하</td>
+                    <td>전력 소비 150% 증가</td>
+                    <td>처리 중</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge danger">🔴 위험</span></td>
+                    <td>2025-10-17 12:45</td>
+                    <td>Compressor-3</td>
+                    <td>고온 경보</td>
+                    <td>고온 지속 3시간</td>
+                    <td>완료</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge warning">🟡 경고</span></td>
+                    <td>2025-10-17 11:20</td>
+                    <td>Freezer-B2</td>
+                    <td>도어 열림 경보</td>
+                    <td>도어 30분 이상 개방</td>
+                    <td>처리 중</td>
+                    <td><button class="btn btn-sm btn-outline-primary">상세보기</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Expandable detail view for when user clicks "상세보기" -->
+    <div id="anomaly-detail-view" class="anomaly-detail-view" style="display: none;">
+        <div class="detail-header">
+            <h4>이상 징후 상세 정보</h4>
+            <button class="close-btn" id="closeDetailView"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="detail-content">
+            <div class="mini-chart-container">
+                <h5>미니 트렌드 차트</h5>
+                <canvas id="mini-chart-detail" class="mini-chart"></canvas>
+            </div>
+            
+            <div class="ai-analysis">
+                <h5>AI 분석 요약</h5>
+                <p id="ai-analysis-text">AI 분석 결과가 여기에 표시됩니다. 이상 징후의 원인과 추천 조치를 포함합니다.</p>
+            </div>
+            
+            <div class="action-log">
+                <h5>조치 내역 타임라인</h5>
+                <ul id="action-log-list">
+                    <li><span class="timestamp">14:30</span> - 시스템에 의해 '위험' 감지</li>
+                    <li><span class="timestamp">14:32</span> - 김주영 매니저가 확인 (Acknowledged)</li>
+                    <li><span class="timestamp">14:35</span> - 현장팀 '김선범'에게 할당됨</li>
+                </ul>
+            </div>
+            
+            <div class="quick-actions">
+                <h5>빠른 조치</h5>
+                <div class="action-buttons">
+                    <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> 확인 완료</button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-user"></i> 담당자 할당</button>
+                    <button class="btn btn-info btn-sm"><i class="fas fa-comment"></i> 코멘트 추가</button>
+                    <button class="btn btn-warning btn-sm"><i class="fas fa-bug"></i> 오탐 신고</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

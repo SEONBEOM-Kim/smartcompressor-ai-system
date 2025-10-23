@@ -134,6 +134,7 @@ def api_verify():
     from routes.auth_routes import auth_status
     return auth_status()
     
+customer-dashboard
 @app.route('/api/lightweight-analyze', methods=['POST'])
 def api_lightweight_analyze():
     from routes.ai_routes import lightweight_analyze
@@ -156,6 +157,24 @@ def dashboard():
         """알림 관리 대시보드 페이지"""
         from flask import render_template
         return render_template('notification_dashboard.html')
+
+    @app.route('/dashboard')
+    def dashboard():
+        """메인 대시보드 페이지"""
+        from flask import render_template
+        return render_template('customer/refactored-dashboard.html')
+
+    @app.route('/original-dashboard')
+    def original_dashboard():
+        """원래 대시보드 페이지"""
+        from flask import render_template
+        return render_template('customer/dashboard.html')
+
+    @app.route('/mobile_friendly_dashboard')
+    def mobile_friendly_dashboard():
+        """모바일 친화적 대시보드 페이지"""
+        from flask import render_template
+        return render_template('customer/mobile_friendly_dashboard.html')
 
     @app.route('/admin')
     def admin_dashboard():
